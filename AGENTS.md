@@ -11,13 +11,14 @@
 - `docs/site-plan.md`：完整产品方案（视觉规范、布局规格、维护 SOP、技术选型、路线图、验收清单）。
 - `design/prototype.html`：单文件可交互视觉稿，覆盖首页 / Notes 列表 / 笔记正文、深浅色与移动端，作为实现参考保留。
 - `README.md`：本地开发、内容维护与部署说明。
+- 首页 hero 已定稿为两栏：左栏头像 + `#ISTJ / #AI PM / #AI Building` 话题标签 + 社交入口；右栏姓名（Array 点阵字体）、定位句与个人简介。邮箱与社交链接均为真实地址。
 
 ## 已确认决策
 
 - 仅三个公开路由：`/`、`/notes`、`/notes/[slug]`；About / Experience / Projects 全部收在首页。
 - 技术栈：Astro 5 + Tailwind 4 + Content Collections + Zod；Cloudflare Pages 静态托管；无服务端与数据库。
-- 视觉：近白暖纸底 `#FEFDFA`、青碧强调 `#17A8B8`（文字用 `#0B7481`）、衬线标题（Instrument Serif + 系统中文字体）、克制动效；暗色模式跟随系统并可手动切换。
-- 断点：`< 761px` 单列，`761–959px` 过渡，`≥ 960px` 容器 980px / 正文 680px。
+- 视觉：近白暖纸底 `#FEFDFA`、青碧强调 `#17A8B8`（文字用 `#0B7481`）、衬线标题（Instrument Serif + 系统中文字体）、姓名用 Array 点阵字体、话题标签用 Striper 描边字体、克制动效；暗色模式跟随系统并可手动切换。
+- 断点：`< 761px` 单列，`761–959px` 过渡，`≥ 960px` 容器 1160px / 正文 680px。
 - 维护：Markdown + Git push 触发构建；每季度校对首页信息，每月合并依赖升级；无后台。
 
 ## 验证方式
@@ -34,6 +35,5 @@
 ## 下一步
 
 1. 替换 `src/data/experience.ts`、`src/data/projects.ts`、`src/content/notes/` 中的视觉稿示例内容。
-2. 确认 `src/data/site.ts` 的邮箱、社交链接与首页文案。
-3. 设置 `SITE_URL`，接入 Cloudflare Pages（构建命令 `pnpm build`，输出 `dist`）。
-4. 按 `docs/site-plan.md` 第 10 节做线上验收；Lighthouse 性能 ≥ 95、可访问性 100。
+2. 设置 `SITE_URL`，接入 Cloudflare Pages（构建命令 `pnpm build`，输出 `dist`）。
+3. 按 `docs/site-plan.md` 第 10 节做线上验收；Lighthouse 性能 ≥ 95、可访问性 100。

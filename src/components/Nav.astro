@@ -9,19 +9,21 @@ const { active } = Astro.props;
 ---
 
 <nav class="nav" aria-label="主导航">
-  <a
-    class:list={['nav-link', { active: active === 'about' }]}
-    href="/#about"
-    aria-current={active === 'about' ? 'location' : undefined}
-  >
-    About
-  </a>
-  <a
-    class:list={['nav-link', { active: active === 'notes' }]}
-    href="/notes/"
-    aria-current={active === 'notes' ? 'page' : undefined}
-  >
-    Notes
-  </a>
+  <div class="nav-links">
+    <a
+      class:list={['nav-link', { active: active === 'about' }]}
+      href="/#about"
+      aria-current={active === 'about' ? 'location' : undefined}
+    >
+      About
+    </a>
+    <a
+      class:list={['nav-link', { active: active === 'notes' }]}
+      href="/notes/"
+      aria-current={active === 'notes' ? 'page' : undefined}
+    >
+      Notes
+    </a>
+  </div>
   <ThemeToggle />
 </nav>

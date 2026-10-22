@@ -24,6 +24,28 @@
 }
 
 @font-face {
+  font-family: "Array";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/array-regular-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Array";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/array-semibold-600.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+@font-face {
   font-family: "Instrument Serif";
   font-style: italic;
   font-weight: 400;
@@ -34,11 +56,24 @@
     U+FEFF, U+FFFD;
 }
 
+@font-face {
+  font-family: "Striper";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/striper-regular-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
 @theme {
   --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
     "Microsoft YaHei", sans-serif;
   --font-serif: "Instrument Serif", "Songti SC", "Source Han Serif SC", "Noto Serif SC", Georgia,
     serif;
+  --font-display: "Array", "Instrument Serif", "Songti SC", Georgia, serif;
+  --font-stripe: "Striper", "DM Sans", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --color-accent: #17a8b8;
 }
@@ -187,22 +222,26 @@ svg {
 
 .wrap {
   width: 100%;
-  max-width: 980px;
+  max-width: 1160px;
   margin: 0 auto;
   padding: 0 32px;
 }
 
 /* ---------- nav ---------- */
+/* 顶部悬浮条：与主内容同宽（980px / 移动端满宽），
+   左侧 About·Notes，右侧主题切换 */
 .nav {
   position: fixed;
-  top: 22px;
+  top: 18px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 7px 8px 7px 10px;
+  justify-content: space-between;
+  width: calc(100% - 64px);
+  max-width: 1160px;
+  padding: 7px 10px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--surface);
@@ -210,6 +249,13 @@ svg {
   backdrop-filter: blur(20px) saturate(1.3);
   box-shadow: var(--shadow-2);
   white-space: nowrap;
+}
+
+/* 左侧导航项聚成一簇 */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .nav-link {
@@ -294,74 +340,156 @@ html[data-theme="dark"] .icon-moon {
   padding: 148px 0 0;
 }
 
-h1.display {
-  margin: 26px 0 0;
-  font-family: var(--font-serif);
+.profile {
+  display: grid;
+  grid-template-columns: 184px minmax(0, 1fr);
+  grid-template-areas:
+    "id name"
+    "id bio";
+  align-items: start;
+  column-gap: 48px;
+  row-gap: 0;
+}
+
+/* 左栏：头像 + 联系方式，整体靠左 */
+.profile-id {
+  grid-area: id;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+/* 右栏首行：姓名，使用 Array 字体 */
+.profile-name {
+  grid-area: name;
+  margin: 0 0 26px;
+  font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(42px, 6.6vw, 76px);
-  line-height: 1.06;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -0.015em;
+  color: var(--ink);
 }
 
-h1.display .accent {
-  color: var(--accent-ink);
-}
-
-h1.display em {
-  font-style: italic;
+/* 右栏：定位句 + 个人简介 */
+.profile-bio {
+  grid-area: bio;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
 }
 
 .lede {
-  margin: 22px 0 0;
-  max-width: 560px;
-  color: var(--ink-2);
-  font-size: 19px;
-  line-height: 1.68;
+  margin: 0;
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  text-wrap: pretty;
 }
 
 .intro {
-  margin: 20px 0 0;
-  max-width: 600px;
+  margin: 0;
   color: var(--muted);
-  font-size: 16.5px;
-  line-height: 1.85;
+  font-size: 16px;
+  line-height: 1.9;
   letter-spacing: 0.005em;
+  text-wrap: pretty;
 }
 
-.links {
+/* 简介里的强调片段：提高字重与对比，不用颜色避免打断阅读 */
+.intro strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.avatar {
+  width: 144px;
+  height: 144px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  box-shadow: var(--shadow-2);
+  object-fit: cover;
+  object-position: center 44%;
+}
+
+.socials {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-left: -12px;
+}
+
+.social-link {
+  display: grid;
+  place-items: center;
+  /* 保留 44px 可点击区域，视觉上只呈现图标 */
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--brand, var(--muted));
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.social-link svg {
+  width: 19px;
+  height: 19px;
+}
+
+/* 各自产品的品牌色；Email 无官方品牌色，沿用站点强调色 */
+.social-link[data-icon="github"] {
+  --brand: #181717;
+  --brand-dark: #e9e2d8;
+}
+
+.social-link[data-icon="x"] {
+  --brand: #0f1419;
+  --brand-dark: #f5f0e8;
+}
+
+.social-link[data-icon="mail"] {
+  --brand: #181717;
+  --brand-dark: #e9e2d8;
+}
+
+[data-theme="dark"] .social-link {
+  color: var(--brand-dark, var(--brand));
+}
+
+.social-link:hover {
+  transform: translateY(-1px) scale(1.06);
+}
+
+.social-link:focus-visible {
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* 头像下方的身份标签，形如社媒话题标签：#ISTJ */
+.identity-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 22px;
-  margin-top: 26px;
+  gap: 6px 14px;
+  margin: -2px 0 0;
+  padding: 0;
+  list-style: none;
+  max-width: 100%;
 }
 
-.link-arrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 0;
-  border-bottom: 1px solid transparent;
-  color: var(--ink);
-  font-size: 14px;
-  transition: color 0.18s ease, border-color 0.18s ease;
-}
-
-.link-arrow svg {
-  width: 11px;
-  height: 11px;
-  opacity: 0.55;
-  transition: transform 0.18s ease, opacity 0.18s ease;
-}
-
-.link-arrow:hover {
+.identity-tag {
   color: var(--accent-ink);
-  border-color: var(--accent-ink);
-}
-
-.link-arrow:hover svg {
-  transform: translate(1.5px, -1.5px);
-  opacity: 1;
+  font-family: var(--font-stripe);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 /* ---------- card / experience / projects ---------- */
@@ -984,26 +1112,56 @@ footer a:hover {
 
   .nav {
     top: 14px;
-    padding: 6px 6px 6px 9px;
+    width: calc(100% - 44px);
+    padding: 6px 8px;
   }
 
   .hero {
     padding-top: 122px;
   }
 
-  h1.display {
-    margin-top: 22px;
-    font-size: clamp(38px, 10.5vw, 52px);
+  .profile {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "id"
+      "name"
+      "bio";
+    row-gap: 24px;
+  }
+
+  .profile-id {
+    gap: 16px;
+  }
+
+  .profile-name {
+    margin-bottom: 0;
+    font-size: 40px;
+  }
+
+  .identity-tag {
+    font-size: 15px;
+  }
+
+  .profile-bio {
+    gap: 14px;
   }
 
   .lede {
-    margin-top: 18px;
-    font-size: 17px;
+    font-size: 17.5px;
   }
 
   .intro {
     font-size: 15.5px;
-    line-height: 1.8;
+    line-height: 1.85;
+  }
+
+  .avatar {
+    width: 116px;
+    height: 116px;
+  }
+
+  .socials {
+    gap: 8px;
   }
 
   .panel {

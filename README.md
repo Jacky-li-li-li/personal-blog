@@ -33,7 +33,7 @@ pnpm new "把工具做成习惯" tools-as-habits
 
 | 内容 | 文件 |
 | --- | --- |
-| 姓名、定位、首页大标题、简介、邮箱、社交链接、站点 URL | `src/data/site.ts` |
+| 姓名、定位、个人简介、身份标签、邮箱、社交链接、站点 URL | `src/data/site.ts` |
 | 工作经历 | `src/data/experience.ts` |
 | 个人项目 | `src/data/projects.ts` |
 | 笔记 | `src/content/notes/*.md` |
