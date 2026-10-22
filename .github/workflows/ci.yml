@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# 同一分支只跑最新一次，推新提交时取消进行中的旧任务
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Type check & build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm check
+
+      - name: Build
+        run: pnpm build
+        env:
+          # CI 里没有真实域名，canonical / RSS / sitemap 用占位值即可
+          SITE_URL: https://example.com
+
+      - name: Check build output
+        run: |
+          test -f dist/index.html || { echo "dist/index.html 缺失"; exit 1; }
+          test -f dist/notes/index.html || { echo "dist/notes/index.html 缺失"; exit 1; }
+          test -f dist/rss.xml || { echo "dist/rss.xml 缺失"; exit 1; }
+          echo "构建产物检查通过"
