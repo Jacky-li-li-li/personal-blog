@@ -1,0 +1,36 @@
+---
+import type { Note } from '../utils/notes';
+import { getNoteSlug } from '../utils/notes';
+import { formatDotDate, toIsoDate } from '../utils/date';
+
+interface Props {
+  note: Note;
+}
+
+const { note } = Astro.props;
+const slug = getNoteSlug(note);
+---
+
+<article class="note-row">
+  <time datetime={toIsoDate(note.data.date)}>{formatDotDate(note.data.date)}</time>
+
+  <div class="note-body">
+    <h3 class="note-title">
+      <a href={`/notes/${slug}/`}>{note.data.title}</a>
+    </h3>
+    <p class="note-sum">{note.data.summary}</p>
+  </div>
+
+  <svg
+    class="row-arrow"
+    viewBox="0 0 12 12"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M1.8 6h8.4M7 2.8 10.2 6 7 9.2"></path>
+  </svg>
+</article>

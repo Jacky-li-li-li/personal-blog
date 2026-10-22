@@ -1,0 +1,53 @@
+---
+import { site } from '../data/site';
+
+const firstLine = site.headline[0] ?? '';
+const secondLine = site.headline[1] ?? '';
+const accentIndex = secondLine.indexOf(site.headlineAccent);
+const beforeAccent = accentIndex >= 0 ? secondLine.slice(0, accentIndex) : secondLine;
+const afterAccent =
+  accentIndex >= 0 ? secondLine.slice(accentIndex + site.headlineAccent.length) : '';
+const hasAccent = accentIndex >= 0;
+---
+
+<header class="hero" id="about">
+  <h1 class="display reveal in" style="--d:.02s">
+    {firstLine}<br />
+    {beforeAccent}{hasAccent && <span class="accent">{site.headlineAccent}</span>}{afterAccent}
+  </h1>
+
+  <p class="lede reveal in" style="--d:.08s">
+    {site.name} — {site.tagline}
+  </p>
+
+  <p class="intro reveal in" style="--d:.14s">
+    {site.intro}
+  </p>
+
+  <div class="links reveal in" style="--d:.2s">
+    {site.socials.map((social) => {
+      const external = social.href.startsWith('http');
+      return (
+        <a
+          class="link-arrow"
+          href={social.href}
+          target={external ? '_blank' : undefined}
+          rel={external ? 'noopener' : undefined}
+        >
+          {social.label}
+          <svg
+            viewBox="0 0 12 12"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3.2 8.8 8.8 3.2M4.4 3.2h4.4v4.4"></path>
+          </svg>
+        </a>
+      );
+    })}
+  </div>
+</header>

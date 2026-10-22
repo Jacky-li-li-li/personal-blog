@@ -1,0 +1,14 @@
+---
+import { site } from '../data/site';
+
+const onHome = Astro.url.pathname === '/';
+---
+
+<footer>
+  <span>© {new Date().getFullYear()} {site.name}</span>
+  <nav aria-label="页脚">
+    <a href={onHome ? '/notes/' : '/'}>{onHome ? 'Notes' : 'Home'}</a>
+    <a href="/rss.xml">RSS</a>
+    <a href={`mailto:${site.email}`}>Email</a>
+  </nav>
+</footer>

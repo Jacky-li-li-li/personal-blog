@@ -1,0 +1,48 @@
+---
+import type { Project } from '../data/projects';
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const Tag = project.url ? 'a' : 'div';
+const external = project.url?.startsWith('http') ?? false;
+const mark = project.mark ?? project.name.slice(0, 1);
+---
+
+<Tag
+  class:list={['project', { 'is-static': !project.url }]}
+  href={project.url}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener' : undefined}
+>
+  <div class="project-top">
+    <div class="mark" aria-hidden="true">{mark}</div>
+    {project.url && (
+      <svg
+        class="project-arrow"
+        viewBox="0 0 12 12"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M3.2 8.8 8.8 3.2M4.4 3.2h4.4v4.4"></path>
+      </svg>
+    )}
+  </div>
+
+  <h3>{project.name}</h3>
+  <p>{project.summary}</p>
+
+  {project.tags && project.tags.length > 0 && (
+    <ul class="tags">
+      {project.tags.map((tag) => <li class="tag">{tag}</li>)}
+    </ul>
+  )}
+
+  {external && <span class="sr-only">（新窗口打开）</span>}
+</Tag>

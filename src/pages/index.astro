@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import Experience from '../components/Experience.astro';
+import NoteRow from '../components/NoteRow.astro';
+import { site } from '../data/site';
+import { getPublishedNotes } from '../utils/notes';
+
+const notes = (await getPublishedNotes()).slice(0, 3);
+
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  url: site.siteUrl,
+  jobTitle: '产品设计与前端',
+  description: site.tagline,
+  email: site.email,
+  sameAs: site.socials
+    .filter((social) => social.href.startsWith('http'))
+    .map((social) => social.href),
+};
+---
+
+<BaseLayout jsonLd={personJsonLd}>
+  <Hero />
+  <Experience />
+
+  <section class="recent" aria-labelledby="recent-title">
+    <div class="section-head">
+      <h2 class="label" id="recent-title">Recent Notes</h2>
+      <a class="more" href="/notes/">
+        查看全部笔记
+        <svg
+          viewBox="0 0 12 12"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M1.8 6h8.4M7 2.8 10.2 6 7 9.2"></path>
+        </svg>
+      </a>
+    </div>
+
+    {notes.length > 0 ? (
+      <div class="notes-list">
+        {notes.map((note) => <NoteRow note={note} />)}
+      </div>
+    ) : (
+      <p class="empty-state">
+        第一篇还在路上。想第一时间看到更新，可以 <a href={`mailto:${site.email}`}>写封邮件</a>。
+      </p>
+    )}
+  </section>
+</BaseLayout>

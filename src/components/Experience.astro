@@ -1,0 +1,31 @@
+---
+import { experiences } from '../data/experience';
+import { projects } from '../data/projects';
+import ProjectCard from './ProjectCard.astro';
+---
+
+<section class="panel reveal" id="work" aria-label="经历与项目">
+  <h2 class="label" id="experience-title">Experience</h2>
+  <div class="exp" aria-labelledby="experience-title">
+    {experiences.map((item) => (
+      <div class="exp-row">
+        <div class="years">
+          {item.start} — {item.end === 'present' ? '现在' : item.end}
+        </div>
+        <div>
+          <h3 class="role">
+            {item.role}<span class="sep" aria-hidden="true">·</span><span class="org">{item.org}</span>
+          </h3>
+          <p class="exp-sum">{item.summary}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="divider" role="presentation"></div>
+
+  <h2 class="label" id="projects-title">Selected Projects</h2>
+  <div class="projects" aria-labelledby="projects-title">
+    {projects.map((project) => <ProjectCard project={project} />)}
+  </div>
+</section>
