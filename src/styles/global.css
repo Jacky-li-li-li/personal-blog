@@ -400,7 +400,8 @@ html[data-theme="dark"] .icon-moon {
 }
 
 /* 简介入场：按字符/词从左到右依次从模糊过渡到清晰（由内联脚本拆分） */
-.blur-highlight .char {
+.blur-highlight .char,
+.blur-highlight .char-block {
   display: inline;
   animation: char-blur-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: calc(var(--i, 0) * 9ms);
@@ -426,7 +427,8 @@ html[data-theme="dark"] .icon-moon {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .blur-highlight .char {
+  .blur-highlight .char,
+  .blur-highlight .char-block {
     animation: none;
   }
 }

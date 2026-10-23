@@ -79,8 +79,11 @@ import { site } from '../data/site';
               });
               return frag;
             }
-            const clone = node.cloneNode(false);
-            node.childNodes.forEach((child) => clone.appendChild(split(child)));
+            // 元素（如高亮用的 <strong>）整体作为一个单元，
+            // 让它的背景底纹与文字同步淡入，而不是先露出一条底纹。
+            const clone = node.cloneNode(true);
+            clone.classList.add('char-block');
+            clone.style.setProperty('--i', index++);
             return clone;
           };
 
