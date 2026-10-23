@@ -60,9 +60,11 @@ draft: false
 
 ## 部署
 
-线上地址：**https://personal-blog-ah8.pages.dev**
+线上地址：**https://clok.fun**（自定义域名，Cloudflare 托管 DNS 并签发证书）
 
-托管在 Cloudflare Pages，项目名 `personal-blog`，生产分支 `main`。
+备用地址：https://personal-blog-ah8.pages.dev（同一构建产物，canonical 指向 clok.fun）
+
+托管在 Cloudflare Pages，项目名 `personal-blog`，生产分支 `main`。域名 `clok.fun` 的 NS 已从腾讯云 DNSPod 切换到 Cloudflare（`ara.ns.cloudflare.com` / `julio.ns.cloudflare.com`）。`www.clok.fun` 由两条 Redirect Rule 在边缘 301 到 `https://clok.fun`，保留路径与查询参数。
 
 ### 方式一：GitHub Actions（推荐）
 
@@ -72,7 +74,7 @@ draft: false
 | --- | --- |
 | `CLOUDFLARE_API_TOKEN` | Cloudflare API Token，权限 `Cloudflare Pages: Edit` |
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare 账户 ID |
-| `SITE_URL` | 线上域名，用于 canonical / RSS / sitemap |
+| `SITE_URL` | 线上域名，用于 canonical / RSS / sitemap，当前为 `https://clok.fun` |
 
 ### 方式二：本地部署
 
@@ -88,7 +90,7 @@ pnpm deploy:preview   # 构建并部署为预览版本
 - 构建命令：`pnpm build`
 - 输出目录：`dist`
 - Node 版本：22（见 `.nvmrc`）
-- 环境变量：`SITE_URL=https://personal-blog-ah8.pages.dev`
+- 环境变量：`SITE_URL=https://clok.fun`
 
 `SITE_URL` 用于 canonical、RSS、sitemap 和 OG。未设置时回退到 `https://example.com`。绑定自定义域名后需同步更新此值。
 

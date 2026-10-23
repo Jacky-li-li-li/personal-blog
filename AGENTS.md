@@ -2,7 +2,9 @@
 
 ## 项目概况
 
-个人网站，用于介绍自己并持续记录随笔。当前已完成 M1 骨架与 M2 的静态发布能力（2026-10-23），已上线 Cloudflare Pages（https://personal-blog-ah8.pages.dev），尚未绑定自定义域名。
+个人网站，用于介绍自己并持续记录随笔。当前已完成 M1 骨架与 M2 的静态发布能力（2026-10-23），已上线 Cloudflare Pages，主域名 **https://clok.fun**（备用 https://personal-blog-ah8.pages.dev，canonical 指向 clok.fun）。GitHub Actions Secrets（`CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` / `SITE_URL`）已于 2026-10-23 配置完成，push 到 `main` 会自动构建并部署。
+
+域名 `clok.fun` 在腾讯云 DNSPod 注册，2026-10-23 已将 NS 切换为 Cloudflare（`ara.ns.cloudflare.com` / `julio.ns.cloudflare.com`），zone 状态 active；Cloudflare 中有一条已代理的 CNAME `clok.fun → personal-blog-ah8.pages.dev`；Pages 自定义域名已 active，证书由 Google 签发。`www.clok.fun` 已配置代理 CNAME，并通过两条 Redirect Rule（`https://www.*` 与 `http://www.*`）301 到 `https://clok.fun`，路径与查询参数保留，不经过 Pages 回源。腾讯云侧「禁止转移锁」与「禁止更新锁」均保持开启。
 
 - `src/`：Astro 站点代码（首页、Notes 列表、正文、404、RSS、robots、sitemap）。
 - `src/content/notes/`：Markdown 笔记，Content Collections + Zod 校验。
@@ -33,11 +35,9 @@
 - `pnpm build`：类型检查并生成 `dist/`；当前构建通过，5 篇示例笔记、8 个页面。
 - `pnpm preview`：预览构建产物。
 - 自动化截图（可选）：`python3` + Playwright（本机已安装，`channel="chrome"`）按 1440 / 768 / 390 宽度截全页图。
-- 发布前需设置 `SITE_URL`，否则 canonical / RSS / sitemap 会回退到 `https://example.com`。
+- 发布前需设置 `SITE_URL`（当前为 `https://clok.fun`），否则 canonical / RSS / sitemap 会回退到 `https://example.com`。
 
 ## 下一步
 
 1. 替换 `src/data/experience.ts`、`src/data/projects.ts`、`src/content/notes/` 中的视觉稿示例内容。
-2. 在 GitHub 仓库 Secrets 里配置 `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`、`SITE_URL`，启用自动部署。
-3. 绑定自定义域名，并把 `SITE_URL` 改为新域名后重新部署。
-4. 按 `docs/site-plan.md` 第 10 节做线上验收；Lighthouse 性能 ≥ 95、可访问性 100。
+2. 按 `docs/site-plan.md` 第 10 节做线上验收；Lighthouse 性能 ≥ 95、可访问性 100。
