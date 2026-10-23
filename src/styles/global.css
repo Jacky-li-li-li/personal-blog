@@ -399,10 +399,34 @@ html[data-theme="dark"] .icon-moon {
   text-wrap: pretty;
 }
 
-/* 简介里的强调片段：提高字重与对比，不用颜色避免打断阅读 */
+/* 简介入场：整段从模糊过渡到清晰 */
+.blur-highlight {
+  animation: intro-blur-in 1.15s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+@keyframes intro-blur-in {
+  from {
+    opacity: 0;
+    filter: blur(12px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* 简介里的强调片段：青色文字 + 淡青底纹，作为阅读锚点 */
 .intro strong {
   font-weight: 600;
-  color: var(--ink);
+  color: var(--accent-ink);
+  background: linear-gradient(transparent 64%, var(--accent-soft) 64%);
+  padding: 0 0.08em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blur-highlight {
+    animation: none;
+  }
 }
 
 .avatar {
