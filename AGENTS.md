@@ -37,7 +37,11 @@
 - 自动化截图（可选）：`python3` + Playwright（本机已安装，`channel="chrome"`）按 1440 / 768 / 390 宽度截全页图。
 - 发布前需设置 `SITE_URL`（当前为 `https://clok.fun`），否则 canonical / RSS / sitemap 会回退到 `https://example.com`。
 
+## 内容状态
+
+首页经历与项目已替换为真实信息（2026-10-23）：安克创新 2024–至今的产品经理经历，含 4 条成果要点；4 个项目卡片为虚拟用户访谈、VOC 洞察 Agent、BEES 体验数据系统、BEC 最佳体验目录。`src/content/notes/` 目前为空（示例笔记已删除），首页 Recent Notes 与 `/notes` 显示空状态；新增笔记用 `pnpm new`，草稿放 `_drafts/`。分享图 `public/og-default.png` 已按 AI 产品经理定位重做。
+
 ## 下一步
 
-1. 替换 `src/data/experience.ts`、`src/data/projects.ts`、`src/content/notes/` 中的视觉稿示例内容。
+1. 写第一篇真实笔记（当前笔记集合为空）。
 2. 按 `docs/site-plan.md` 第 10 节做线上验收；Lighthouse 性能 ≥ 95、可访问性 100。

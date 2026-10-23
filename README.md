@@ -56,7 +56,7 @@ draft: false
 
 ## 示例内容
 
-`src/data/experience.ts`、`src/data/projects.ts` 和 `src/content/notes/` 里的公司、项目、文章目前都是视觉稿示例，**上线前必须替换**。真实内容确认后，只需改这些文件，不需要动页面组件。
+`src/data/experience.ts` 与 `src/data/projects.ts` 已替换为真实经历与项目（2026-10-23）。`src/content/notes/` 目前为空，示例笔记已移除；新增笔记用 `pnpm new` 生成，草稿放在 `_drafts/` 子目录（不会被 collection 读取）。
 
 ## 部署
 
