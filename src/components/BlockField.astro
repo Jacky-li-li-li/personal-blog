@@ -1,0 +1,296 @@
+---
+// 首页首屏方块阵背景：静止完全隐藏，指针进入后整片底纹淡入，
+// 光标附近的方块向上抬升并染上强调色。纯装饰，不进入可访问性树。
+---
+
+<div class="block-field" aria-hidden="true">
+  <canvas></canvas>
+</div>
+
+<script is:inline>
+  (() => {
+    const field = document.querySelector('.block-field');
+    if (!field) return;
+
+    const canvas = field.querySelector('canvas');
+    const ctx = canvas && canvas.getContext('2d');
+    if (!ctx) return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+    if (reduceMotion.matches || !finePointer.matches) return;
+
+    const state = {
+      w: 0,
+      h: 0,
+      dpr: 1,
+      gap: 24,
+      size: 3,
+      lift: 9,
+      influence: 150,
+      baseRGB: '27 25 22',
+      baseA: 0.07,
+      peakRGB: '23 168 184',
+      peakA: 0.92,
+      glowRGB: '23 168 184',
+      glowA: 0.22,
+      ex: 0,
+      ey: 0,
+      tx: 0,
+      ty: 0,
+      energy: 0,
+      energyFrom: 0,
+      energyTarget: 0,
+      energyStart: 0,
+      energyDur: 0,
+      active: false,
+      lastMove: 0,
+      lastT: 0,
+      raf: 0,
+      base: null,
+    };
+
+    const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+    // CSS 变量里存的是空格分隔的 RGB 通道，这里统一转成兼容性更好的逗号写法。
+    const rgba = (channels, alpha) => {
+      const [r, g, b] = channels.trim().split(/\s+/);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
+    function readTokens() {
+      const cs = getComputedStyle(field);
+      const num = (name, fallback) => {
+        const value = parseFloat(cs.getPropertyValue(name));
+        return Number.isFinite(value) ? value : fallback;
+      };
+      state.gap = num('--field-gap', 24);
+      state.size = num('--field-size', 3);
+      state.lift = num('--field-lift', 9);
+      state.influence = num('--field-influence', 150);
+      state.baseRGB = cs.getPropertyValue('--field-base-rgb').trim() || state.baseRGB;
+      state.baseA = num('--field-base-a', state.baseA);
+      state.peakRGB = cs.getPropertyValue('--field-peak-rgb').trim() || state.peakRGB;
+      state.peakA = num('--field-peak-a', state.peakA);
+      state.glowRGB = cs.getPropertyValue('--field-glow-rgb').trim() || state.glowRGB;
+      state.glowA = num('--field-glow-a', state.glowA);
+    }
+
+    function buildBase() {
+      const off = document.createElement('canvas');
+      off.width = canvas.width;
+      off.height = canvas.height;
+      const paint = off.getContext('2d');
+      if (!paint) return;
+      paint.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+      paint.fillStyle = rgba(state.baseRGB, 1);
+
+      const cols = Math.floor(state.w / state.gap) + 1;
+      const rows = Math.floor(state.h / state.gap) + 1;
+      for (let row = 0; row < rows; row += 1) {
+        for (let col = 0; col < cols; col += 1) {
+          paint.fillRect(col * state.gap, row * state.gap, state.size, state.size);
+        }
+      }
+      state.base = off;
+    }
+
+    function resize() {
+      const rect = field.getBoundingClientRect();
+      state.w = Math.max(1, Math.round(rect.width));
+      state.h = Math.max(1, Math.round(rect.height));
+      state.dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = Math.round(state.w * state.dpr);
+      canvas.height = Math.round(state.h * state.dpr);
+      buildBase();
+      render();
+    }
+
+    function render() {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (state.energy <= 0.001) return;
+
+      if (state.base) {
+        ctx.globalAlpha = state.baseA * state.energy;
+        ctx.drawImage(state.base, 0, 0);
+        ctx.globalAlpha = 1;
+      }
+      ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+
+      const R = state.influence;
+      const minX = state.ex - R;
+      const maxX = state.ex + R;
+      const minY = state.ey - R;
+      const maxY = state.ey + R;
+      const cols = Math.floor(state.w / state.gap) + 1;
+      const rows = Math.floor(state.h / state.gap) + 1;
+      const startCol = clamp(Math.floor(minX / state.gap), 0, cols - 1);
+      const endCol = clamp(Math.ceil(maxX / state.gap), 0, cols - 1);
+      const startRow = clamp(Math.floor(minY / state.gap), 0, rows - 1);
+      const endRow = clamp(Math.ceil(maxY / state.gap), 0, rows - 1);
+
+      for (let row = startRow; row <= endRow; row += 1) {
+        for (let col = startCol; col <= endCol; col += 1) {
+          const x = col * state.gap;
+          const y = row * state.gap;
+          const centerX = x + state.size / 2;
+          const centerY = y + state.size / 2;
+          const d = Math.hypot(centerX - state.ex, centerY - state.ey);
+          if (d > R) continue;
+
+          const t = 1 - d / R;
+          const influence = t * t * (3 - 2 * t) * state.energy;
+          if (influence < 0.01) continue;
+
+          const lift = state.lift * influence;
+          const blockSize = state.size * (1 + 0.8 * influence);
+          const alpha = state.peakA * influence;
+
+          // 清掉原位的基础块，避免抬升后留下影子。
+          ctx.clearRect(x, y, state.size, state.size);
+
+          if (influence > 0.35) {
+            ctx.shadowColor = rgba(state.glowRGB, state.glowA * influence);
+            ctx.shadowBlur = 8 * influence;
+          }
+          ctx.fillStyle = rgba(state.peakRGB, alpha.toFixed(3));
+          ctx.fillRect(
+            centerX - blockSize / 2,
+            centerY - lift - blockSize / 2,
+            blockSize,
+            blockSize
+          );
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+        }
+      }
+    }
+
+    function beginEnergy(target, now) {
+      if (state.energy === target && state.energyDur === 0) return;
+      state.energyFrom = state.energy;
+      state.energyTarget = target;
+      state.energyStart = now;
+      state.energyDur = target === 1 ? 160 : 380;
+    }
+
+    function step(now) {
+      state.raf = 0;
+      const dt = Math.min(48, now - (state.lastT || now));
+      state.lastT = now;
+
+      const follow = 1 - Math.exp(-dt / 60);
+      state.ex += (state.tx - state.ex) * follow;
+      state.ey += (state.ty - state.ey) * follow;
+
+      if (state.energyDur > 0) {
+        const p = Math.min(1, (now - state.energyStart) / state.energyDur);
+        const eased =
+          state.energyTarget === 1
+            ? 1 - Math.pow(1 - p, 3)
+            : 1 - Math.pow(1 - p, 2);
+        state.energy = state.energyFrom + (state.energyTarget - state.energyFrom) * eased;
+        if (p >= 1) {
+          state.energy = state.energyTarget;
+          state.energyDur = 0;
+        }
+      }
+
+      render();
+
+      const idle = now - state.lastMove > 120;
+      const energyDone = state.energy === state.energyTarget && state.energyDur === 0;
+      if (idle && energyDone) {
+        state.ex = state.tx;
+        state.ey = state.ty;
+        render();
+        return;
+      }
+      state.raf = requestAnimationFrame(step);
+    }
+
+    function wake() {
+      if (!state.raf) {
+        state.lastT = 0;
+        state.raf = requestAnimationFrame(step);
+      }
+    }
+
+    function setActive(active) {
+      if (state.active === active) return;
+      state.active = active;
+      state.lastMove = performance.now();
+      beginEnergy(active ? 1 : 0, performance.now());
+      wake();
+    }
+
+    function onPointerMove(event) {
+      if (event.pointerType === 'touch') return;
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
+        setActive(false);
+        return;
+      }
+
+      if (!state.active) {
+        state.ex = x;
+        state.ey = y;
+        beginEnergy(1, performance.now());
+      }
+      state.tx = x;
+      state.ty = y;
+      state.active = true;
+      state.lastMove = performance.now();
+      wake();
+    }
+
+    function onPointerOut(event) {
+      if (!event.relatedTarget) setActive(false);
+    }
+
+    readTokens();
+    resize();
+
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('pointerout', onPointerOut, { passive: true });
+    window.addEventListener('blur', () => setActive(false));
+    window.addEventListener('scroll', () => setActive(false), { passive: true });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (state.raf) cancelAnimationFrame(state.raf);
+        state.raf = 0;
+        state.active = false;
+        state.energy = 0;
+        state.energyDur = 0;
+        render();
+      } else {
+        render();
+      }
+    });
+
+    let resizeFrame = 0;
+    const observer = new ResizeObserver(() => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => {
+        resizeFrame = 0;
+        readTokens();
+        resize();
+      });
+    });
+    observer.observe(field);
+
+    new MutationObserver(() => {
+      readTokens();
+      buildBase();
+      render();
+    }).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+  })();
+</script>

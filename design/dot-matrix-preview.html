@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light" data-accent="teal">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Block Field · 首页方块阵背景预览</title>
+    <style>
+      @font-face {
+        font-family: "DM Sans";
+        font-style: normal;
+        font-weight: 300 700;
+        font-display: swap;
+        src: url("preview-assets/dm-sans-latin-var.woff2") format("woff2");
+      }
+
+      @font-face {
+        font-family: "Instrument Serif";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url("preview-assets/instrument-serif-latin-400.woff2") format("woff2");
+      }
+
+      @font-face {
+        font-family: "Array";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url("preview-assets/array-regular-400.woff2") format("woff2");
+      }
+
+      @font-face {
+        font-family: "Striper";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url("preview-assets/striper-regular-400.woff2") format("woff2");
+      }
+
+      :root {
+        --bg: #fefdfa;
+        --bg-soft: #f7f3eb;
+        --surface: rgba(255, 255, 255, 0.85);
+        --surface-solid: #ffffff;
+        --ink: #1b1916;
+        --ink-2: #4a443c;
+        --muted: #6e6558;
+        --line: rgba(27, 25, 22, 0.1);
+        --accent: #17a8b8;
+        --accent-ink: #0b7481;
+        --accent-soft: rgba(23, 168, 184, 0.1);
+        --shadow-2: 0 10px 30px -18px rgba(27, 25, 22, 0.3);
+
+        --dot-gap: 24px;
+        --dot-size: 3px;
+        --dot-lift: 9px;
+        --dot-influence: 150px;
+        --dot-base-rgb: 27 25 22;
+        --dot-base-a: 0.07;
+        --dot-peak: #17a8b8;
+        --dot-peak-rgb: 23 168 184;
+        --dot-peak-a: 0.92;
+        --dot-glow-rgb: 23 168 184;
+        --dot-glow-a: 0.22;
+
+        color-scheme: light;
+      }
+
+      [data-theme="dark"] {
+        --bg: #000000;
+        --bg-soft: #0a0a0a;
+        --surface: rgba(255, 255, 255, 0.06);
+        --surface-solid: #0b0b0b;
+        --ink: #f3ede3;
+        --ink-2: #cfc5b7;
+        --muted: #a99e8f;
+        --line: rgba(243, 237, 227, 0.11);
+        --accent: #17a8b8;
+        --accent-ink: #4fcbd8;
+        --accent-soft: rgba(23, 168, 184, 0.15);
+        --dot-base-rgb: 243 237 227;
+        --dot-base-a: 0.09;
+        --dot-peak-rgb: 79 203 216;
+        --dot-peak-a: 0.92;
+        --dot-glow-rgb: 79 203 216;
+        --dot-glow-a: 0.26;
+        color-scheme: dark;
+      }
+
+      [data-accent="violet"] {
+        --accent: #8b7bf0;
+        --accent-ink: #6c58df;
+        --accent-soft: rgba(139, 123, 240, 0.12);
+        --dot-peak: #8b7bf0;
+        --dot-peak-rgb: 139 123 240;
+        --dot-glow-rgb: 139 123 240;
+      }
+
+      [data-accent="violet"][data-theme="dark"] {
+        --accent: #a99cf7;
+        --accent-ink: #b9adfa;
+        --accent-soft: rgba(169, 156, 247, 0.16);
+        --dot-peak-rgb: 185 173 250;
+        --dot-glow-rgb: 185 173 250;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "PingFang SC",
+          "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        font-size: 16.5px;
+        line-height: 1.75;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        overflow-x: hidden;
+        transition: background-color 0.4s ease, color 0.4s ease;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        pointer-events: none;
+        opacity: 0.035;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+        mix-blend-mode: multiply;
+      }
+
+      [data-theme="dark"] body::after {
+        opacity: 0.028;
+        mix-blend-mode: screen;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      button {
+        font: inherit;
+        color: inherit;
+      }
+
+      /* ---------- block field ---------- */
+      .dot-field {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 880px;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+        -webkit-mask-image: radial-gradient(
+          ellipse 74% 72% at 50% 30%,
+          #000 42%,
+          rgba(0, 0, 0, 0.85) 64%,
+          transparent 100%
+        );
+        mask-image: radial-gradient(
+          ellipse 74% 72% at 50% 30%,
+          #000 42%,
+          rgba(0, 0, 0, 0.85) 64%,
+          transparent 100%
+        );
+      }
+
+      @media (min-width: 761px) and (max-width: 959px) {
+        .dot-field {
+          --dot-gap: 22px;
+          --dot-influence: 130px;
+          --dot-lift: 8px;
+        }
+      }
+
+      .dot-field canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.24s ease;
+      }
+
+      .dot-field.is-live canvas {
+        opacity: 1;
+      }
+
+      /* ---------- nav ---------- */
+      .nav {
+        position: fixed;
+        top: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: calc(100% - 64px);
+        max-width: 1160px;
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface);
+        -webkit-backdrop-filter: blur(20px) saturate(1.3);
+        backdrop-filter: blur(20px) saturate(1.3);
+        box-shadow: var(--shadow-2);
+        white-space: nowrap;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .nav-link {
+        padding: 5px 8px;
+        border-radius: 999px;
+        color: var(--muted);
+        font-size: 13.5px;
+      }
+
+      .nav-link.active {
+        color: var(--ink);
+        text-decoration: underline;
+        text-decoration-color: var(--accent-ink);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 6px;
+      }
+
+      .theme-btn {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+      }
+
+      .theme-btn:hover {
+        background: var(--accent-soft);
+        color: var(--accent-ink);
+      }
+
+      .theme-btn svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      [data-theme="light"] .icon-moon,
+      [data-theme="dark"] .icon-sun {
+        display: none;
+      }
+
+      /* ---------- hero ---------- */
+      .wrap {
+        width: 100%;
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 0 32px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero {
+        padding: 148px 0 0;
+      }
+
+      .profile {
+        display: grid;
+        grid-template-columns: 184px minmax(0, 1fr);
+        grid-template-areas:
+          "id name"
+          "id bio";
+        align-items: start;
+        column-gap: 48px;
+      }
+
+      .profile-id {
+        grid-area: id;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+      }
+
+      .avatar {
+        width: 144px;
+        height: 144px;
+        border-radius: 50%;
+        border: 1px solid var(--line);
+        background: var(--bg-soft);
+        box-shadow: var(--shadow-2);
+        object-fit: cover;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        color: var(--muted);
+        font-family: "Instrument Serif", "Songti SC", serif;
+        font-size: 40px;
+        letter-spacing: 0.04em;
+      }
+
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 44%;
+      }
+
+      .socials {
+        display: flex;
+        gap: 12px;
+        margin-left: -12px;
+      }
+
+      .social-link {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        color: var(--muted);
+      }
+
+      .social-link svg {
+        width: 19px;
+        height: 19px;
+      }
+
+      .profile-name {
+        grid-area: name;
+        margin: 0 0 26px;
+        font-family: "Array", "Instrument Serif", "Songti SC", Georgia, serif;
+        font-weight: 400;
+        font-size: 56px;
+        line-height: 1;
+        letter-spacing: -0.015em;
+      }
+
+      .profile-bio {
+        grid-area: bio;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        max-width: 720px;
+      }
+
+      .lede {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.6;
+        letter-spacing: -0.005em;
+      }
+
+      .intro {
+        margin: 0;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.9;
+      }
+
+      .intro strong {
+        font-weight: 600;
+        color: var(--accent-ink);
+        background: linear-gradient(transparent 64%, var(--accent-soft) 64%);
+        padding: 0 0.08em;
+      }
+
+      .identity-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 14px;
+        margin: 6px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .identity-tag {
+        color: var(--accent-ink);
+        font-family: "Striper", "DM Sans", sans-serif;
+        font-size: 16px;
+        line-height: 1.2;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+
+      .identity-tag span {
+        opacity: 0.55;
+      }
+
+      .teaser {
+        position: relative;
+        z-index: 1;
+        max-width: 1160px;
+        margin: 132px auto 0;
+        padding: 0 32px 120px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 24px;
+        padding-top: 22px;
+        border-top: 1px solid var(--line);
+      }
+
+      .label {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .more {
+        color: var(--muted);
+        font-size: 13.5px;
+      }
+
+      .teaser-text {
+        max-width: 620px;
+        margin: 22px 0 0;
+        color: var(--ink-2);
+        font-size: 16px;
+      }
+
+      /* ---------- controls ---------- */
+      .controls {
+        position: fixed;
+        right: 24px;
+        bottom: 22px;
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 6px 6px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--surface);
+        -webkit-backdrop-filter: blur(18px) saturate(1.2);
+        backdrop-filter: blur(18px) saturate(1.2);
+        box-shadow: var(--shadow-2);
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .controls-label {
+        letter-spacing: 0.08em;
+        margin-right: 2px;
+      }
+
+      .controls button {
+        padding: 5px 10px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--muted);
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+      }
+
+      .controls button:hover {
+        color: var(--ink);
+      }
+
+      .controls button[aria-pressed="true"] {
+        border-color: var(--line);
+        background: var(--bg);
+        color: var(--ink);
+      }
+
+      .controls .swatch {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        margin-right: 5px;
+        border-radius: 50%;
+        vertical-align: 1px;
+      }
+
+      .note {
+        position: fixed;
+        left: 24px;
+        bottom: 26px;
+        z-index: 200;
+        color: var(--muted);
+        font-size: 11.5px;
+        letter-spacing: 0.02em;
+        opacity: 0.75;
+      }
+
+      @media (max-width: 760px) {
+        .wrap {
+          padding: 0 22px;
+        }
+
+        .nav {
+          top: 14px;
+          width: calc(100% - 44px);
+          padding: 6px 8px;
+        }
+
+        .hero {
+          padding-top: 122px;
+        }
+
+        .profile {
+          grid-template-columns: 1fr;
+          grid-template-areas:
+            "id"
+            "name"
+            "bio";
+          row-gap: 24px;
+        }
+
+        .profile-name {
+          margin-bottom: 0;
+          font-size: 40px;
+        }
+
+        .profile-id {
+          gap: 16px;
+        }
+
+        .avatar {
+          width: 116px;
+          height: 116px;
+        }
+
+        .dot-field {
+          height: 760px;
+          --dot-gap: 20px;
+        }
+
+        .teaser {
+          margin-top: 96px;
+          padding: 0 22px 100px;
+        }
+
+        .controls,
+        .note {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dot-field" aria-hidden="true">
+      <canvas></canvas>
+    </div>
+
+    <nav class="nav" aria-label="预览导航">
+      <div class="nav-links">
+        <a class="nav-link active" href="#about">About</a>
+        <a class="nav-link" href="#notes">Notes</a>
+      </div>
+      <button class="theme-btn" type="button" aria-label="切换主题" data-theme-toggle>
+        <svg class="icon-sun" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">
+          <circle cx="8" cy="8" r="3.1"></circle>
+          <path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M13 3l-1.1 1.1M4.1 11.9 3 13" stroke-linecap="round"></path>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">
+          <path d="M13.4 9.6A5.8 5.8 0 0 1 6.4 2.6 5.9 5.9 0 1 0 13.4 9.6Z" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </nav>
+
+    <main id="main">
+      <div class="wrap">
+        <header class="hero" id="about">
+        <div class="profile">
+          <div class="profile-id">
+            <div class="avatar">
+              <img src="preview-assets/avatar.jpg" alt="" onerror="this.remove()" />
+              JL
+            </div>
+            <nav class="socials" aria-label="联系方式">
+              <a
+                class="social-link"
+                href="https://github.com/Jacky-li-li-li"
+                aria-label="GitHub（新窗口打开）"
+                target="_blank"
+                rel="noopener"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2.2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.69 5.41-5.25 5.69.41.36.78 1.07.78 2.16v3.2c0 .31.21.68.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"></path>
+                </svg>
+              </a>
+              <a class="social-link" href="mailto:jackylilsh@163.com" aria-label="Email">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                  <path d="m3 7 9 6 9-6"></path>
+                </svg>
+              </a>
+              <a
+                class="social-link"
+                href="https://x.com/Jackyli05"
+                aria-label="X（新窗口打开）"
+                target="_blank"
+                rel="noopener"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644Z"></path>
+                </svg>
+              </a>
+            </nav>
+          </div>
+
+          <h1 class="profile-name">Jacky Li</h1>
+
+          <div class="profile-bio">
+            <p class="lede">因为相信所以热爱！持续探索—让热爱有回响！</p>
+            <p class="intro">
+              嗨，中文名叫李连硕，24 届本科 211 毕业（哪不重要，重要的是实在不喜欢搞学术），总天真地认为实践出真知。巧合的是，24 年 AI 爆发——像是遇到了启蒙导师，让我有方向、有激情、有目标地致力于把<strong>用户最佳体验与 AI Agent</strong>相结合，把产品落地到真实用户场景和业务流程中，实现双倍+的价值产出。还在路上……
+            </p>
+            <ul class="identity-tags" aria-label="身份标签">
+              <li class="identity-tag"><span>#</span>ISTJ</li>
+              <li class="identity-tag"><span>#</span>AI PM</li>
+              <li class="identity-tag"><span>#</span>AI Building</li>
+            </ul>
+          </div>
+        </div>
+        </header>
+      </div>
+
+      <section class="teaser" aria-labelledby="teaser-title">
+        <div class="section-head">
+          <h2 class="label" id="teaser-title">Experience &amp; Projects</h2>
+          <span class="more">查看完整介绍 →</span>
+        </div>
+        <p class="teaser-text">
+          2024 年加入安克创新，主导虚拟用户访谈、VOC 洞察 Agent、BEES 体验数据系统与 BEC 最佳体验目录。
+        </p>
+      </section>
+    </main>
+
+    <div class="note">方块阵预览 · 静止隐藏，移动鼠标显影</div>
+
+    <div class="controls" role="group" aria-label="预览控制">
+      <span class="controls-label">强调色</span>
+      <button type="button" data-accent-btn="teal" aria-pressed="true">
+        <span class="swatch" style="background: #17a8b8"></span>青碧
+      </button>
+      <button type="button" data-accent-btn="violet" aria-pressed="false">
+        <span class="swatch" style="background: #8b7bf0"></span>参考紫
+      </button>
+    </div>
+
+    <script>
+      (() => {
+        const root = document.documentElement;
+        const field = document.querySelector('.dot-field');
+        const canvas = field.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+        const state = {
+          w: 0,
+          h: 0,
+          dpr: 1,
+          gap: 24,
+          size: 3,
+          lift: 9,
+          influence: 150,
+          baseRGB: '27 25 22',
+          baseA: 0.07,
+          peakRGB: '23 168 184',
+          peakA: 0.92,
+          glowRGB: '23 168 184',
+          glowA: 0.22,
+          ex: 0,
+          ey: 0,
+          tx: 0,
+          ty: 0,
+          energy: 0,
+          energyFrom: 0,
+          energyTarget: 0,
+          energyStart: 0,
+          energyDur: 0,
+          active: false,
+          hasPointer: false,
+          lastMove: 0,
+          lastT: 0,
+          raf: 0,
+          base: null,
+        };
+
+        const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+        function readTokens() {
+          const cs = getComputedStyle(field);
+          const num = (name, fallback) => {
+            const value = parseFloat(cs.getPropertyValue(name));
+            return Number.isFinite(value) ? value : fallback;
+          };
+          state.gap = num('--dot-gap', 24);
+          state.size = num('--dot-size', 3);
+          state.lift = num('--dot-lift', 9);
+          state.influence = num('--dot-influence', 150);
+          state.baseRGB = cs.getPropertyValue('--dot-base-rgb').trim() || state.baseRGB;
+          state.baseA = num('--dot-base-a', state.baseA);
+          state.peakRGB = cs.getPropertyValue('--dot-peak-rgb').trim() || state.peakRGB;
+          state.peakA = num('--dot-peak-a', state.peakA);
+          state.glowRGB = cs.getPropertyValue('--dot-glow-rgb').trim() || state.glowRGB;
+          state.glowA = num('--dot-glow-a', state.glowA);
+        }
+
+        function resize() {
+          const rect = field.getBoundingClientRect();
+          state.w = Math.max(1, Math.round(rect.width));
+          state.h = Math.max(1, Math.round(rect.height));
+          state.dpr = Math.min(2, window.devicePixelRatio || 1);
+          canvas.width = Math.round(state.w * state.dpr);
+          canvas.height = Math.round(state.h * state.dpr);
+          buildBase();
+          render();
+        }
+
+        function buildBase() {
+          const off = document.createElement('canvas');
+          off.width = canvas.width;
+          off.height = canvas.height;
+          const paint = off.getContext('2d');
+          paint.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+          paint.fillStyle = `rgb(${state.baseRGB})`;
+          const cols = Math.floor(state.w / state.gap) + 1;
+          const rows = Math.floor(state.h / state.gap) + 1;
+          for (let row = 0; row < rows; row += 1) {
+            for (let col = 0; col < cols; col += 1) {
+              paint.fillRect(col * state.gap, row * state.gap, state.size, state.size);
+            }
+          }
+          state.base = off;
+        }
+
+        function render() {
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          if (state.energy <= 0.001) return;
+          if (state.base) {
+            ctx.globalAlpha = state.baseA * state.energy;
+            ctx.drawImage(state.base, 0, 0);
+            ctx.globalAlpha = 1;
+          }
+          ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+
+          const R = state.influence;
+          const minX = state.ex - R;
+          const maxX = state.ex + R;
+          const minY = state.ey - R;
+          const maxY = state.ey + R;
+          const cols = Math.floor(state.w / state.gap) + 1;
+          const rows = Math.floor(state.h / state.gap) + 1;
+          const startCol = clamp(Math.floor(minX / state.gap), 0, cols - 1);
+          const endCol = clamp(Math.ceil(maxX / state.gap), 0, cols - 1);
+          const startRow = clamp(Math.floor(minY / state.gap), 0, rows - 1);
+          const endRow = clamp(Math.ceil(maxY / state.gap), 0, rows - 1);
+
+          for (let row = startRow; row <= endRow; row += 1) {
+            for (let col = startCol; col <= endCol; col += 1) {
+              const x = col * state.gap;
+              const y = row * state.gap;
+              const centerX = x + state.size / 2;
+              const centerY = y + state.size / 2;
+              const d = Math.hypot(centerX - state.ex, centerY - state.ey);
+              if (d > R) continue;
+
+              const t = 1 - d / R;
+              const influence = t * t * (3 - 2 * t) * state.energy;
+              if (influence < 0.01) continue;
+
+              const lift = state.lift * influence;
+              const blockSize = state.size * (1 + 0.8 * influence);
+              const alpha = state.peakA * influence;
+
+              // 清掉原位的基础块，避免抬升后留下影子。
+              ctx.clearRect(x, y, state.size, state.size);
+
+              if (influence > 0.35) {
+                ctx.shadowColor = `rgba(${state.glowRGB} / ${state.glowA * influence})`;
+                ctx.shadowBlur = 8 * influence;
+              }
+              ctx.fillStyle = `rgba(${state.peakRGB} / ${alpha.toFixed(3)})`;
+              ctx.fillRect(
+                centerX - blockSize / 2,
+                centerY - lift - blockSize / 2,
+                blockSize,
+                blockSize
+              );
+              ctx.shadowColor = 'transparent';
+              ctx.shadowBlur = 0;
+            }
+          }
+        }
+
+        function beginEnergy(target, now) {
+          if (state.energy === target && state.energyDur === 0) return;
+          state.energyFrom = state.energy;
+          state.energyTarget = target;
+          state.energyStart = now;
+          state.energyDur = target === 1 ? 160 : 380;
+        }
+
+        function step(now) {
+          state.raf = 0;
+          const dt = Math.min(48, now - (state.lastT || now));
+          state.lastT = now;
+
+          const follow = 1 - Math.exp(-dt / 60);
+          state.ex += (state.tx - state.ex) * follow;
+          state.ey += (state.ty - state.ey) * follow;
+
+          if (state.energyDur > 0) {
+            const p = Math.min(1, (now - state.energyStart) / state.energyDur);
+            const eased =
+              state.energyTarget === 1
+                ? 1 - Math.pow(1 - p, 3)
+                : 1 - Math.pow(1 - p, 2);
+            state.energy =
+              state.energyFrom + (state.energyTarget - state.energyFrom) * eased;
+            if (p >= 1) {
+              state.energy = state.energyTarget;
+              state.energyDur = 0;
+            }
+          }
+
+          render();
+
+          const idle = now - state.lastMove > 120;
+          const energyDone = state.energy === state.energyTarget && state.energyDur === 0;
+          if (idle && energyDone) {
+            state.ex = state.tx;
+            state.ey = state.ty;
+            render();
+            return;
+          }
+          state.raf = requestAnimationFrame(step);
+        }
+
+        function wake() {
+          if (!state.raf) {
+            state.lastT = 0;
+            state.raf = requestAnimationFrame(step);
+          }
+        }
+
+        function setActive(active) {
+          if (state.active === active) return;
+          state.active = active;
+          state.lastMove = performance.now();
+          beginEnergy(active ? 1 : 0, performance.now());
+          wake();
+        }
+
+        function onPointerMove(event) {
+          if (event.pointerType === 'touch') return;
+          const rect = canvas.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
+          if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
+            setActive(false);
+            return;
+          }
+          if (!state.active || !state.hasPointer) {
+            state.ex = x;
+            state.ey = y;
+          }
+          state.hasPointer = true;
+          state.tx = x;
+          state.ty = y;
+          if (!state.active) beginEnergy(1, performance.now());
+          state.active = true;
+          state.lastMove = performance.now();
+          wake();
+        }
+
+        function onPointerOut(event) {
+          if (!event.relatedTarget) setActive(false);
+        }
+
+        function start() {
+          if (!ctx) return;
+          if (reduceMotion.matches || !finePointer.matches) return;
+          readTokens();
+          resize();
+          field.classList.add('is-live');
+          window.addEventListener('pointermove', onPointerMove, { passive: true });
+          window.addEventListener('pointerout', onPointerOut, { passive: true });
+          window.addEventListener('blur', () => setActive(false));
+          document.addEventListener('visibilitychange', () => {
+            if (document.hidden && state.raf) {
+              cancelAnimationFrame(state.raf);
+              state.raf = 0;
+            } else if (!document.hidden) {
+              render();
+            }
+          });
+
+          let resizeFrame = 0;
+          const ro = new ResizeObserver(() => {
+            if (resizeFrame) cancelAnimationFrame(resizeFrame);
+            resizeFrame = requestAnimationFrame(() => {
+              resizeFrame = 0;
+              readTokens();
+              resize();
+            });
+          });
+          ro.observe(field);
+
+          new MutationObserver(() => {
+            readTokens();
+            buildBase();
+            render();
+          }).observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-accent'] });
+
+          reduceMotion.addEventListener('change', () => {
+            window.location.reload();
+          });
+        }
+
+        // 主题切换
+        document.querySelector('[data-theme-toggle]').addEventListener('click', () => {
+          root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        });
+
+        // 预览用强调色切换
+        document.querySelectorAll('[data-accent-btn]').forEach((button) => {
+          button.addEventListener('click', () => {
+            root.dataset.accent = button.dataset.accentBtn;
+            document.querySelectorAll('[data-accent-btn]').forEach((item) => {
+              item.setAttribute('aria-pressed', String(item === button));
+            });
+          });
+        });
+
+        start();
+      })();
+    </script>
+  </body>
+</html>

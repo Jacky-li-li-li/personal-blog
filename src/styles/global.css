@@ -357,7 +357,7 @@ html[data-theme="dark"] .icon-moon {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 18px;
+  gap: 24px;
 }
 
 /* 右栏首行：姓名，使用 Array 字体 */
@@ -499,25 +499,157 @@ html[data-theme="dark"] .icon-moon {
   border-radius: 8px;
 }
 
-/* 头像下方的身份标签，形如社媒话题标签：#ISTJ */
+/* 简介末尾的话题标签，另起一行排布，像小红书正文后的话题行；
+   行高与间距向正文靠拢，让它读作简介的收尾而不是独立标签区。
+   悬停时进入「对焦」状态：当前标签亮起并浮现取景角标，
+   同组其余标签散焦，让注意力收束到指针所在的那一个。 */
 .identity-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 14px;
-  margin: -2px 0 0;
+  gap: 2px 8px;
+  /* 比简介段落间距再收紧 4px，让话题行更贴住正文 */
+  margin: -4px 0 0;
   padding: 0;
   list-style: none;
   max-width: 100%;
 }
 
 .identity-tag {
+  position: relative;
   color: var(--accent-ink);
   font-family: var(--font-stripe);
   font-size: 16px;
   font-weight: 400;
-  line-height: 1.2;
+  /* 与简介正文的半行距对齐，使标签上方的视觉留白等于段落间距 */
+  line-height: 1.6;
   letter-spacing: 0.02em;
   white-space: nowrap;
+  transition:
+    color 0.3s ease,
+    opacity 0.3s ease,
+    filter 0.3s ease,
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.identity-tag-text {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  transition: text-shadow 0.3s ease;
+}
+
+/* 井号平时压暗，对焦时与文字一起提亮 */
+.identity-tag-hash {
+  opacity: 0.55;
+  transition: opacity 0.3s ease;
+}
+
+/* 取景框底：一层极淡的强调色，叠上跟随指针的柔光 */
+.identity-tag::before {
+  content: "";
+  position: absolute;
+  inset: -6px -9px;
+  z-index: 0;
+  border-radius: 9px;
+  background-image: radial-gradient(
+    ellipse 48px 26px at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(23, 168, 184, 0.34),
+    rgba(23, 168, 184, 0) 100%
+  );
+  -webkit-mask-image: radial-gradient(ellipse closest-side at center, #000 38%, transparent 100%);
+  mask-image: radial-gradient(ellipse closest-side at center, #000 38%, transparent 100%);
+  opacity: 0;
+  transform: scale(0.92);
+  transition:
+    opacity 0.24s ease,
+    transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+/* 四角对焦标记：把取景器锁定目标的动作翻译成四个 L 形细角 */
+.identity-tag::after {
+  --corner: 8px;
+  --corner-line: 1.5px;
+  content: "";
+  position: absolute;
+  inset: -6px -9px;
+  z-index: 0;
+  background-image:
+    linear-gradient(var(--accent-ink), var(--accent-ink)),
+    linear-gradient(var(--accent-ink), var(--accent-ink)),
+    linear-gradient(var(--accent-ink), var(--accent-ink)),
+    linear-gradient(var(--accent-ink), var(--accent-ink)),
+    linear-gradient(var(--accent-ink), var(--accent-ink)),
+    linear-gradient(var(--accent-ink), var(--accent-ink)),
+    linear-gradient(var(--accent-ink), var(--accent-ink)),
+    linear-gradient(var(--accent-ink), var(--accent-ink));
+  background-repeat: no-repeat;
+  background-size:
+    var(--corner) var(--corner-line),
+    var(--corner-line) var(--corner),
+    var(--corner) var(--corner-line),
+    var(--corner-line) var(--corner),
+    var(--corner) var(--corner-line),
+    var(--corner-line) var(--corner),
+    var(--corner) var(--corner-line),
+    var(--corner-line) var(--corner);
+  background-position:
+    left top,
+    left top,
+    right top,
+    right top,
+    left bottom,
+    left bottom,
+    right bottom,
+    right bottom;
+  opacity: 0;
+  transform: scale(1.08);
+  transition:
+    opacity 0.2s ease,
+    transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .identity-tag:hover {
+    color: var(--accent);
+    transform: translateY(-1px) scale(1.05);
+  }
+
+  .identity-tag:hover .identity-tag-text {
+    text-shadow:
+      0 0 0.6px currentColor,
+      0 0 16px rgba(23, 168, 184, 0.24);
+  }
+
+  .identity-tag:hover .identity-tag-hash {
+    opacity: 1;
+  }
+
+  .identity-tag:hover::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .identity-tag:hover::after {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+
+  /* 同组其余标签退到焦外：降低对比、轻微虚化、缩小一圈 */
+  .identity-tags:has(.identity-tag:hover) .identity-tag:not(:hover) {
+    opacity: 0.28;
+    filter: blur(1.6px);
+    transform: scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .identity-tag:hover,
+  .identity-tags:has(.identity-tag:hover) .identity-tag:not(:hover) {
+    transform: none;
+    filter: none;
+  }
 }
 
 /* ---------- card / experience / projects ---------- */
@@ -1349,5 +1481,95 @@ footer a:hover {
   * {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- homepage block field ---------- */
+/* 首屏方块阵：静止完全透明，指针进入后整片底纹淡入，光标附近抬升。
+   背景层限制在 Hero 区域内，向 Hero 下缘再延伸 120px 后由遮罩淡出，
+   不覆盖 Experience 与 Recent Notes。 */
+.home {
+  position: relative;
+}
+
+.home-content {
+  position: relative;
+  z-index: 1;
+}
+
+.home-hero {
+  position: relative;
+  isolation: isolate;
+}
+
+.block-field {
+  --field-gap: 24px;
+  --field-size: 3px;
+  --field-lift: 9px;
+  --field-influence: 150px;
+  --field-base-rgb: 27 25 22;
+  --field-base-a: 0.07;
+  --field-peak-rgb: 23 168 184;
+  --field-peak-a: 0.92;
+  --field-glow-rgb: 23 168 184;
+  --field-glow-a: 0.22;
+
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  height: calc(100% + 120px);
+  max-height: 880px;
+  z-index: -1;
+  transform: translateX(-50%);
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask-image: radial-gradient(
+    ellipse 74% 72% at 50% 30%,
+    #000 42%,
+    rgba(0, 0, 0, 0.85) 64%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 74% 72% at 50% 30%,
+    #000 42%,
+    rgba(0, 0, 0, 0.85) 64%,
+    transparent 100%
+  );
+}
+
+.block-field canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+[data-theme="dark"] .block-field {
+  --field-base-rgb: 243 237 227;
+  --field-base-a: 0.09;
+  --field-peak-rgb: 79 203 216;
+  --field-glow-rgb: 79 203 216;
+  --field-glow-a: 0.26;
+}
+
+@media (min-width: 761px) and (max-width: 959px) {
+  .block-field {
+    --field-gap: 22px;
+    --field-influence: 130px;
+    --field-lift: 8px;
+  }
+}
+
+@media (max-width: 760px) {
+  .block-field {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .block-field {
+    display: none;
   }
 }

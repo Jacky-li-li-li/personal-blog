@@ -9,20 +9,25 @@
 - `src/`：Astro 站点代码（首页、Notes 列表、正文、404、RSS、robots、sitemap）。
 - `src/content/notes/`：Markdown 笔记，Content Collections + Zod 校验。
 - `src/styles/global.css`：设计 token、字体、组件样式与响应式。
+- `src/components/BlockField.astro`：首页 Hero 的方块阵背景，静止完全隐藏，指针进入后整片淡入并在光标附近抬升；纯装饰 Canvas，不进入可访问性树。
 - `PRD.md`：需求基线（信息架构、页面需求、内容模型）。
 - `docs/site-plan.md`：完整产品方案（视觉规范、布局规格、维护 SOP、技术选型、路线图、验收清单）。
 - `design/prototype.html`：单文件可交互视觉稿，覆盖首页 / Notes 列表 / 笔记正文、深浅色与移动端，作为实现参考保留。
+- `docs/dot-matrix-motion-spec.md`：首页方块阵背景动效规范 v1.0（已实现），定义几何、颜色、交互曲线、降级与验收标准；静止隐藏、悬停时整片底纹淡入并在光标附近抬升。
+- `design/dot-matrix-preview.html`：方块阵背景单文件交互预览（静止不显示、悬停整片淡入、局部抬升），支持明暗主题与青碧 / 参考紫切换；字体与头像副本在 `design/preview-assets/`，仅用于离线预览。
 - `README.md`：本地开发、内容维护与部署说明。
 - `.github/workflows/ci.yml`：类型检查 + 构建 + 产物校验。
 - `.github/workflows/deploy.yml`：推送到 `main` 自动部署到 Cloudflare Pages。
 - `wrangler.toml`：Cloudflare Pages 项目配置。
-- 首页 hero 已定稿为两栏：左栏头像 + `#ISTJ / #AI PM / #AI Building` 话题标签 + 社交入口；右栏姓名（Array 点阵字体）、定位句与个人简介。邮箱与社交链接均为真实地址。
+- 首页 hero 已定稿为两栏：左栏头像 + 社交入口；右栏姓名（Array 点阵字体）、定位句、个人简介，`#ISTJ / #AI PM / #AI Building` 话题标签另起一行跟在简介末尾（小红书式排布）。邮箱与社交链接均为真实地址。
 
 ## 已确认决策
 
 - 四个公开路由：`/`（简介 + 经历项目入口 + 最近笔记）、`/about`（简介 + 经历 + 项目）、`/notes`、`/notes/[slug]`。URL 不带尾斜杠，`/about/` 与 `/notes/` 由 `_redirects` 301 到无斜杠版本。
 - 技术栈：Astro 5 + Tailwind 4 + Content Collections + Zod；Cloudflare Pages 静态托管；无服务端与数据库。
 - 视觉：近白暖纸底 `#FEFDFA`、青碧强调 `#17A8B8`（文字用 `#0B7481`）、衬线标题（Instrument Serif + 系统中文字体）、姓名用 Array 点阵字体、话题标签用 Striper 描边字体、克制动效；暗色模式跟随系统并可手动切换。
+- 首页 Hero 背景为方块阵：24px 间距、3px 直角方块，静止完全隐藏；指针进入后整片底纹淡入，150px 半径内方块上抬 9px 并染青碧色，离开 380ms 回落。范围止于 Hero 下缘 +120px（最大 880px），触屏与 `prefers-reduced-motion` 不启用。
+- 头像下方的身份标签悬停时进入「对焦」态：当前标签亮起并浮现四角取景标记与跟随指针的柔光，同组其余标签虚化；触屏与 `prefers-reduced-motion` 下降级。头像与页面其他内容不参与该效果。
 - 断点：`< 761px` 单列，`761–959px` 过渡，`≥ 960px` 容器 1160px / 正文 680px。
 - 维护：Markdown + Git push 触发构建；每季度校对首页信息，每月合并依赖升级；无后台。
 
