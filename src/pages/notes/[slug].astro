@@ -21,7 +21,7 @@ const slug = getNoteSlug(note);
 const minutes = getReadingMinutes(note.body ?? '');
 const publishedIso = toIsoDate(note.data.date);
 const updatedIso = note.data.updated ? toIsoDate(note.data.updated) : undefined;
-const articleUrl = new URL(`/notes/${slug}/`, Astro.site ?? site.siteUrl).href;
+const articleUrl = new URL(`/notes/${slug}`, Astro.site ?? site.siteUrl).href;
 
 const articleJsonLd = {
   '@context': 'https://schema.org',
@@ -55,7 +55,7 @@ const articleJsonLd = {
   jsonLd={articleJsonLd}
 >
   <article class="article">
-    <a class="back" href="/notes/">
+    <a class="back" href="/notes">
       <svg
         viewBox="0 0 12 12"
         fill="none"
@@ -90,7 +90,7 @@ const articleJsonLd = {
 
     <div class="post-foot">
       <span>写于 {formatMonthYear(note.data.date)}</span>
-      <a class="back" href="/notes/">返回 Notes</a>
+      <a class="back" href="/notes">返回 Notes</a>
     </div>
   </article>
 </BaseLayout>

@@ -12,14 +12,14 @@ const { active } = Astro.props;
   <div class="nav-links">
     <a
       class:list={['nav-link', { active: active === 'about' }]}
-      href="/"
+      href="/about"
       aria-current={active === 'about' ? 'location' : undefined}
     >
       About
     </a>
     <a
       class:list={['nav-link', { active: active === 'notes' }]}
-      href="/notes/"
+      href="/notes"
       aria-current={active === 'notes' ? 'page' : undefined}
     >
       Notes

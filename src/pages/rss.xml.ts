@@ -15,7 +15,7 @@ export async function GET(context: APIContext) {
       title: note.data.title,
       pubDate: note.data.date,
       description: note.data.summary,
-      link: `/notes/${getNoteSlug(note)}/`,
+      link: `/notes/${getNoteSlug(note)}`,
       author: `${site.email} (${site.name})`,
       categories: note.data.tags,
     })),

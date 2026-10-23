@@ -8,8 +8,10 @@ const site = process.env.SITE_URL || 'https://example.com';
 
 export default defineConfig({
   site,
-  trailingSlash: 'always',
+  trailingSlash: 'never',
   output: 'static',
+  // 生成 about.html / notes.html 而不是 about/index.html，配合无尾斜杠 URL。
+  build: { format: 'file' },
   integrations: [
     sitemap({
       filter: (page) => !page.endsWith('/404/'),

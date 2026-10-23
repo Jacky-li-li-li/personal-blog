@@ -29,3 +29,16 @@ export const site = {
 } as const;
 
 export type Social = (typeof site.socials)[number];
+
+
+/** Person 结构化数据，首页与 About 页共用。 */
+export const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  url: site.siteUrl,
+  jobTitle: 'AI 产品经理',
+  description: site.tagline,
+  email: site.email,
+  sameAs: site.socials.filter((social) => social.href.startsWith('http')).map((social) => social.href),
+};

@@ -20,7 +20,7 @@
 
 ## 已确认决策
 
-- 仅三个公开路由：`/`、`/notes`、`/notes/[slug]`；About / Experience / Projects 全部收在首页。
+- 四个公开路由：`/`（简介 + 经历项目入口 + 最近笔记）、`/about`（简介 + 经历 + 项目）、`/notes`、`/notes/[slug]`。URL 不带尾斜杠，`/about/` 与 `/notes/` 由 `_redirects` 301 到无斜杠版本。
 - 技术栈：Astro 5 + Tailwind 4 + Content Collections + Zod；Cloudflare Pages 静态托管；无服务端与数据库。
 - 视觉：近白暖纸底 `#FEFDFA`、青碧强调 `#17A8B8`（文字用 `#0B7481`）、衬线标题（Instrument Serif + 系统中文字体）、姓名用 Array 点阵字体、话题标签用 Striper 描边字体、克制动效；暗色模式跟随系统并可手动切换。
 - 断点：`< 761px` 单列，`761–959px` 过渡，`≥ 960px` 容器 1160px / 正文 680px。

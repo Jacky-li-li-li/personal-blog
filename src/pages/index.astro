@@ -1,35 +1,43 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
-import Experience from '../components/Experience.astro';
 import NoteRow from '../components/NoteRow.astro';
-import { site } from '../data/site';
+import { personJsonLd, site } from '../data/site';
 import { getPublishedNotes } from '../utils/notes';
 
 const notes = (await getPublishedNotes()).slice(0, 3);
-
-const personJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: site.name,
-  url: site.siteUrl,
-  jobTitle: 'AI 产品经理',
-  description: site.tagline,
-  email: site.email,
-  sameAs: site.socials
-    .filter((social) => social.href.startsWith('http'))
-    .map((social) => social.href),
-};
 ---
 
 <BaseLayout jsonLd={personJsonLd}>
   <Hero />
-  <Experience />
+
+  <section class="teaser" aria-labelledby="teaser-title">
+    <div class="section-head">
+      <h2 class="label" id="teaser-title">Experience &amp; Projects</h2>
+      <a class="more" href="/about">
+        查看完整介绍
+        <svg
+          viewBox="0 0 12 12"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M1.8 6h8.4M7 2.8 10.2 6 7 9.2"></path>
+        </svg>
+      </a>
+    </div>
+    <p class="teaser-text">
+      2024 年加入安克创新，主导虚拟用户访谈、VOC 洞察 Agent、BEES 体验数据系统与 BEC 最佳体验目录。
+    </p>
+  </section>
 
   <section class="recent" aria-labelledby="recent-title">
     <div class="section-head">
       <h2 class="label" id="recent-title">Recent Notes</h2>
-      <a class="more" href="/notes/">
+      <a class="more" href="/notes">
         查看全部笔记
         <svg
           viewBox="0 0 12 12"

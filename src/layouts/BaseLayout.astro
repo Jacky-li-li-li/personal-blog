@@ -27,12 +27,15 @@ const {
 } = Astro.props;
 
 const siteUrl = Astro.site ?? new URL(site.siteUrl);
-const canonical = new URL(Astro.url.pathname, siteUrl).href;
+// build.format = 'file' 时 pathname 带 .html，canonical 需要还原成干净路径。
+const cleanPath =
+  Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '') || '/';
+const canonical = new URL(cleanPath, siteUrl).href;
 const ogImage = new URL(image, siteUrl).href;
 const pageTitle = title ? `${title} · ${site.name}` : site.title;
 const active = Astro.url.pathname.startsWith('/notes')
   ? 'notes'
-  : Astro.url.pathname === '/'
+  : Astro.url.pathname.startsWith('/about')
     ? 'about'
     : undefined;
 const jsonLdString = jsonLd
