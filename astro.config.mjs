@@ -3,7 +3,8 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
 // 部署时在 Cloudflare Pages 里设置 SITE_URL；本地默认用 example.com 占位。
-const site = process.env.SITE_URL ?? 'https://example.com';
+// 注意用 || 而非 ??：CI 里未配置的 secret 会变成空字符串，?? 不会回退。
+const site = process.env.SITE_URL || 'https://example.com';
 
 export default defineConfig({
   site,
