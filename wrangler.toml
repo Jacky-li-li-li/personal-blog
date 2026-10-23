@@ -1,0 +1,9 @@
+# Cloudflare Pages 配置
+# 项目通过 GitHub Actions（.github/workflows/deploy.yml）部署，
+# 也可以本地用 `pnpm deploy` 直接上传 dist/。
+
+name = "personal-blog"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-10-23"
+
+# 纯静态站点，不需要 Worker 运行时能力

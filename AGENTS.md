@@ -2,7 +2,7 @@
 
 ## 项目概况
 
-个人网站，用于介绍自己并持续记录随笔。当前已完成 M1 骨架与 M2 的静态发布能力（2026-10-23），尚未接入域名与 Cloudflare Pages。
+个人网站，用于介绍自己并持续记录随笔。当前已完成 M1 骨架与 M2 的静态发布能力（2026-10-23），已上线 Cloudflare Pages（https://personal-blog-ah8.pages.dev），尚未绑定自定义域名。
 
 - `src/`：Astro 站点代码（首页、Notes 列表、正文、404、RSS、robots、sitemap）。
 - `src/content/notes/`：Markdown 笔记，Content Collections + Zod 校验。
@@ -11,6 +11,9 @@
 - `docs/site-plan.md`：完整产品方案（视觉规范、布局规格、维护 SOP、技术选型、路线图、验收清单）。
 - `design/prototype.html`：单文件可交互视觉稿，覆盖首页 / Notes 列表 / 笔记正文、深浅色与移动端，作为实现参考保留。
 - `README.md`：本地开发、内容维护与部署说明。
+- `.github/workflows/ci.yml`：类型检查 + 构建 + 产物校验。
+- `.github/workflows/deploy.yml`：推送到 `main` 自动部署到 Cloudflare Pages。
+- `wrangler.toml`：Cloudflare Pages 项目配置。
 - 首页 hero 已定稿为两栏：左栏头像 + `#ISTJ / #AI PM / #AI Building` 话题标签 + 社交入口；右栏姓名（Array 点阵字体）、定位句与个人简介。邮箱与社交链接均为真实地址。
 
 ## 已确认决策
@@ -35,5 +38,6 @@
 ## 下一步
 
 1. 替换 `src/data/experience.ts`、`src/data/projects.ts`、`src/content/notes/` 中的视觉稿示例内容。
-2. 设置 `SITE_URL`，接入 Cloudflare Pages（构建命令 `pnpm build`，输出 `dist`）。
-3. 按 `docs/site-plan.md` 第 10 节做线上验收；Lighthouse 性能 ≥ 95、可访问性 100。
+2. 在 GitHub 仓库 Secrets 里配置 `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`、`SITE_URL`，启用自动部署。
+3. 绑定自定义域名，并把 `SITE_URL` 改为新域名后重新部署。
+4. 按 `docs/site-plan.md` 第 10 节做线上验收；Lighthouse 性能 ≥ 95、可访问性 100。

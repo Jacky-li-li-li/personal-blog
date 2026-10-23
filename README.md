@@ -60,16 +60,43 @@ draft: false
 
 ## 部署
 
-推荐 Cloudflare Pages：
+线上地址：**https://personal-blog-ah8.pages.dev**
+
+托管在 Cloudflare Pages，项目名 `personal-blog`，生产分支 `main`。
+
+### 方式一：GitHub Actions（推荐）
+
+推送到 `main` 后自动构建并部署，见 `.github/workflows/deploy.yml`。需要在仓库 Secrets 里配三项：
+
+| Secret | 说明 |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token，权限 `Cloudflare Pages: Edit` |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare 账户 ID |
+| `SITE_URL` | 线上域名，用于 canonical / RSS / sitemap |
+
+### 方式二：本地部署
+
+```bash
+pnpm deploy           # 构建并部署到生产（main 分支）
+pnpm deploy:preview   # 构建并部署为预览版本
+```
+
+首次使用需 `npx wrangler login` 授权。
+
+### 构建参数
 
 - 构建命令：`pnpm build`
 - 输出目录：`dist`
 - Node 版本：22（见 `.nvmrc`）
-- 环境变量：`SITE_URL=https://你的域名`
+- 环境变量：`SITE_URL=https://personal-blog-ah8.pages.dev`
 
-`SITE_URL` 用于 canonical、RSS、sitemap 和 OG。未设置时本地回退到 `https://example.com`。
+`SITE_URL` 用于 canonical、RSS、sitemap 和 OG。未设置时回退到 `https://example.com`。绑定自定义域名后需同步更新此值。
 
 站点是纯静态产物，也可以部署到 Vercel、Netlify 或任意静态托管。
+
+## 持续集成
+
+`.github/workflows/ci.yml` 在 push 到 `main`、PR 和手动触发时运行：类型检查 → 构建 → 校验 `dist/index.html`、`dist/notes/index.html`、`dist/rss.xml` 存在。
 
 ## 设计约定
 
