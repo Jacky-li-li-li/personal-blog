@@ -67,6 +67,16 @@
     U+FEFF, U+FFFD;
 }
 
+/* Comico（Fontshare FFL 许可）：仅用于页脚署名。
+   许可证禁止子集化，woff2 保持官方原样整包引入。 */
+@font-face {
+  font-family: "Comico";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/comico-regular-400.woff2") format("woff2");
+}
+
 @theme {
   --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
     "Microsoft YaHei", sans-serif;
@@ -74,6 +84,7 @@
     serif;
   --font-display: "Array", "Instrument Serif", "Songti SC", Georgia, serif;
   --font-stripe: "Striper", "DM Sans", sans-serif;
+  --font-comico: "Comico", "DM Sans", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --color-accent: #17a8b8;
 }
@@ -244,6 +255,14 @@ body {
   text-rendering: optimizeLegibility;
   transition: background-color var(--duration-theme) ease, color var(--duration-theme) ease;
   overflow-x: hidden;
+  /* sticky footer：内容不足一屏时页脚仍贴住视口底部。 */
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
 }
 
 body::after {
@@ -323,6 +342,9 @@ svg {
   max-width: var(--layout-container);
   margin: 0 auto;
   padding: 0 var(--layout-gutter);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---------- nav ---------- */
@@ -472,9 +494,11 @@ html[data-theme="dark"] .icon-moon {
   gap: var(--space-6);
 }
 
-/* 右栏首行：姓名，使用 Array 字体 */
+/* 右栏首行：姓名，使用 Array 字体；
+   悬停时由采样的点阵 canvas 覆盖呈现并做波动，文字本体保留在文档流中占位 */
 .profile-name {
   grid-area: name;
+  position: relative;
   margin: 0 0 26px;
   font-family: var(--font-display);
   font-weight: 400;
@@ -482,6 +506,23 @@ html[data-theme="dark"] .icon-moon {
   line-height: 1;
   letter-spacing: -0.015em;
   color: var(--ink);
+}
+
+.profile-name-canvas {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.profile-name.dot-ready .profile-name-canvas {
+  display: block;
+}
+
+.profile-name.dot-ready .profile-name-text {
+  opacity: 0;
 }
 
 /* 右栏：定位句 + 个人简介 */
@@ -1252,11 +1293,18 @@ footer {
 
 footer nav {
   display: flex;
-  gap: var(--space-4);
+  align-items: center;
+  /* 与联系入口同款图标：44px 点击区内视觉图标 19px，
+     负边距让末位图标字形贴齐右缘，与左侧版权文字对齐。 */
+  gap: var(--space-3);
+  margin-right: -12px;
 }
 
-footer a:hover {
-  color: var(--accent-ink);
+/* 页脚署名用 Comico：漫画感的展示字体，放大一号保持小字号下的可读性。 */
+.footer-name {
+  font-family: var(--font-comico);
+  font-size: 14px;
+  letter-spacing: 0.02em;
 }
 
 /* ---------- notes index ---------- */
@@ -1953,7 +2001,7 @@ footer a:hover {
 }
 
 .about-page .hero {
-  padding-top: 36px;
+  padding-top: 64px;
 }
 
 .js .about-layer-far,
@@ -2024,7 +2072,7 @@ footer a:hover {
   }
 
   .about-page .hero {
-    padding-top: 28px;
+    padding-top: 44px;
   }
 
   /* 窄屏重排叙事物，避免中央裁切后野马与蒙古包同时消失。 */

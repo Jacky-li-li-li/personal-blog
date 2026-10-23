@@ -40,7 +40,10 @@ import { site } from '../data/site';
       </nav>
     </div>
 
-    <h1 class="profile-name">{site.name}</h1>
+    <h1 class="profile-name">
+      <span class="profile-name-text">{site.name}</span>
+      <canvas class="profile-name-canvas" aria-hidden="true"></canvas>
+    </h1>
 
     <div class="profile-bio">
       <p class="lede">{site.tagline}</p>
@@ -127,5 +130,325 @@ import { site } from '../data/site';
         if (!frame) frame = requestAnimationFrame(paint);
       });
     });
+  })();
+</script>
+
+<script is:inline>
+  // 姓名点阵波动：把 Array 字体的姓名采样成一个个可独立运动的像素块。
+  // Array 的圆点按 1/16 em 网格铺排且彼此贴合，无法按连通域拆成单块，
+  // 所以先洪泛出字母，再在每个字母包围盒内按块距自校正切网格，
+  // 覆盖率达标的格子记为一个粒子。指针划过时光标附近的块抬升、微放大
+  // 并染上强调色，块由欠阻尼弹簧驱动回位，划过之后留下一段涟漪。
+  // 触屏与 reduced-motion 不启用；采样失败时保留原文字呈现。
+  (() => {
+    const name = document.querySelector('.profile-name');
+    if (!name) return;
+    const canvas = name.querySelector('.profile-name-canvas');
+    const text = name.querySelector('.profile-name-text');
+    const ctx = canvas && canvas.getContext('2d');
+    if (!canvas || !text || !ctx) return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+    if (reduceMotion.matches || !finePointer.matches) return;
+
+    const state = {
+      dots: [],
+      dpr: 1,
+      ready: false,
+      active: false,
+      px: 0,
+      py: 0,
+      fx: 0,
+      fy: 0,
+      ink: [27, 25, 22],
+      accent: [11, 116, 129],
+      raf: 0,
+      lastT: 0,
+    };
+
+    // 采样倍率只影响测量精度，与屏幕 dpr 无关；最终以矢量圆点绘制。
+    const SAMPLE_SCALE = 3;
+    const COVERAGE = 0.45;
+    const GRID_PER_EM = 16;
+    // 高斯影响半径与力度：sigma 34px 内块被唤醒，最大抬升 7px。
+    const SIGMA2 = 2 * 34 * 34;
+    const LIFT = 7;
+    const WOBBLE = 1.8;
+    const SPRING = 170;
+    const DAMP = 11.5;
+    const TINT_MAX = 0.85;
+    const SCALE_MAX = 0.22;
+
+    // 计算样式颜色可能是 #hex 或 rgb()，统一拆成 RGB 通道。
+    const parseColor = (value) => {
+      const v = (value || '').trim();
+      const hex = /^#([0-9a-f]{6})$/i.exec(v);
+      if (hex) {
+        const n = parseInt(hex[1], 16);
+        return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+      }
+      const m = v.match(/rgba?\(([^)]+)\)/);
+      if (m) {
+        const parts = m[1].split(/[,\s/]+/).filter(Boolean).slice(0, 3).map(Number);
+        return parts.length === 3 ? parts : null;
+      }
+      return null;
+    };
+
+    const readColors = () => {
+      const cs = getComputedStyle(name);
+      state.ink = parseColor(cs.color) || state.ink;
+      state.accent = parseColor(cs.getPropertyValue('--accent-ink')) || state.accent;
+    };
+
+    let buildId = 0;
+    async function build() {
+      const id = ++buildId;
+      const cs = getComputedStyle(text);
+      const sizePx = parseFloat(cs.fontSize);
+      const font = `${cs.fontWeight} ${sizePx}px ${cs.fontFamily}`;
+      try {
+        await document.fonts.load(font, text.textContent);
+      } catch {
+        return;
+      }
+      if (!document.fonts.check(`${cs.fontWeight} 16px Array`, text.textContent)) return;
+
+      const rect = name.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const off = document.createElement('canvas');
+      off.width = Math.round(rect.width * SAMPLE_SCALE);
+      off.height = Math.round(rect.height * SAMPLE_SCALE);
+      const paint = off.getContext('2d');
+      if (!paint) return;
+      paint.font = `${cs.fontWeight} ${sizePx * SAMPLE_SCALE}px ${cs.fontFamily}`;
+      paint.textBaseline = 'alphabetic';
+      paint.fillStyle = '#000';
+      const srect = text.getBoundingClientRect();
+      const metrics = paint.measureText(text.textContent);
+      const ascent = metrics.fontBoundingBoxAscent ?? sizePx * SAMPLE_SCALE * 0.8;
+      const descent = metrics.fontBoundingBoxDescent ?? sizePx * SAMPLE_SCALE * 0.2;
+      // 文本行盒与字体 em 盒不一致（half-leading），按度量把基线对回 CSS 的位置。
+      paint.fillText(
+        text.textContent,
+        (srect.left - rect.left) * SAMPLE_SCALE,
+        (srect.top - rect.top) * SAMPLE_SCALE +
+          (srect.height * SAMPLE_SCALE - (ascent + descent)) / 2 +
+          ascent
+      );
+
+      const w = off.width;
+      const h = off.height;
+      const img = paint.getImageData(0, 0, w, h).data;
+      const mask = new Uint8Array(w * h);
+      for (let i = 0; i < w * h; i += 1) mask[i] = img[i * 4 + 3] > 128 ? 1 : 0;
+
+      // 洪泛出字母块（相邻圆点贴合，一个字母连成一个域）。
+      const visited = new Uint8Array(w * h);
+      const stack = new Int32Array(w * h);
+      const blobs = [];
+      for (let i = 0; i < w * h; i += 1) {
+        if (!mask[i] || visited[i]) continue;
+        let top = 0;
+        stack[top++] = i;
+        visited[i] = 1;
+        let minX = w;
+        let minY = h;
+        let maxX = 0;
+        let maxY = 0;
+        while (top > 0) {
+          const p = stack[--top];
+          const x = p % w;
+          const y = (p / w) | 0;
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+          if (x > 0 && mask[p - 1] && !visited[p - 1]) { visited[p - 1] = 1; stack[top++] = p - 1; }
+          if (x < w - 1 && mask[p + 1] && !visited[p + 1]) { visited[p + 1] = 1; stack[top++] = p + 1; }
+          if (y > 0 && mask[p - w] && !visited[p - w]) { visited[p - w] = 1; stack[top++] = p - w; }
+          if (y < h - 1 && mask[p + w] && !visited[p + w]) { visited[p + w] = 1; stack[top++] = p + w; }
+        }
+        blobs.push({ minX, minY, maxX, maxY });
+      }
+      // 字母数过少说明没有按像素块渲染，退回纯文字。
+      if (blobs.length < 4) return;
+
+      // 每个字母按包围盒自校正网格切块：块距取 1/16 em 先验，
+      // 再让网格恰好铺满包围盒，抵消先验与舍入误差。
+      const pitch = (sizePx / GRID_PER_EM) * SAMPLE_SCALE;
+      const dots = [];
+      for (const b of blobs) {
+        const bw = b.maxX - b.minX + 1;
+        const bh = b.maxY - b.minY + 1;
+        const cols = Math.max(1, Math.round(bw / pitch));
+        const rows = Math.max(1, Math.round(bh / pitch));
+        const cellW = bw / cols;
+        const cellH = bh / rows;
+        const r = (Math.min(cellW, cellH) / SAMPLE_SCALE) * 0.52;
+        for (let row = 0; row < rows; row += 1) {
+          for (let col = 0; col < cols; col += 1) {
+            const x0 = b.minX + col * cellW;
+            const y0 = b.minY + row * cellH;
+            let hit = 0;
+            let total = 0;
+            const xEnd = Math.min(w, Math.ceil(x0 + cellW));
+            const yEnd = Math.min(h, Math.ceil(y0 + cellH));
+            for (let yy = Math.max(0, Math.floor(y0)); yy < yEnd; yy += 1) {
+              for (let xx = Math.max(0, Math.floor(x0)); xx < xEnd; xx += 1) {
+                total += 1;
+                hit += mask[yy * w + xx];
+              }
+            }
+            if (!total || hit / total < COVERAGE) continue;
+            dots.push({
+              bx: (x0 + cellW / 2) / SAMPLE_SCALE,
+              by: (y0 + cellH / 2) / SAMPLE_SCALE,
+              r,
+              s: 0,
+              v: 0,
+              tint: 0,
+            });
+          }
+        }
+      }
+      if (dots.length < 10 || dots.length > 900) return;
+      if (id !== buildId) return;
+
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      state.dots = dots;
+      state.dpr = dpr;
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      state.ready = true;
+      render();
+      name.classList.add('dot-ready');
+    }
+
+    function render() {
+      if (!state.ready) return;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!state.dots.length) return;
+      ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+
+      for (const dot of state.dots) {
+        const mix = TINT_MAX * dot.tint;
+        const r = Math.round(state.ink[0] + (state.accent[0] - state.ink[0]) * mix);
+        const g = Math.round(state.ink[1] + (state.accent[1] - state.ink[1]) * mix);
+        const b = Math.round(state.ink[2] + (state.accent[2] - state.ink[2]) * mix);
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.beginPath();
+        ctx.arc(dot.bx, dot.by + dot.s, dot.r * (1 + SCALE_MAX * dot.tint), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function step(now) {
+      state.raf = 0;
+      const dt = Math.min(0.048, (now - (state.lastT || now)) / 1000) || 0.016;
+      state.lastT = now;
+
+      const follow = 1 - Math.exp(-dt / 0.09);
+      state.fx += (state.px - state.fx) * follow;
+      state.fy += (state.py - state.fy) * follow;
+
+      let settled = true;
+      for (const dot of state.dots) {
+        const dx = dot.bx - state.fx;
+        const dy = dot.by - state.fy;
+        const g = state.active ? Math.exp(-(dx * dx + dy * dy) / SIGMA2) : 0;
+        // 目标位移：抬升 + 随时间和横向相位起伏的波浪，指针移动时波浪跟着扫过。
+        const target = state.active
+          ? -(LIFT + WOBBLE * Math.sin(now / 170 + dot.bx * 0.05)) * g
+          : 0;
+
+        dot.v += (target - dot.s) * SPRING * dt;
+        dot.v *= Math.exp(-DAMP * dt);
+        dot.s += dot.v * dt;
+        dot.tint += (g - dot.tint) * (1 - Math.exp(-dt / 0.11));
+
+        if (Math.abs(dot.s) > 0.05 || Math.abs(dot.v) > 0.05 || dot.tint > 0.01) settled = false;
+      }
+
+      render();
+
+      if (settled && !state.active) {
+        state.dots.forEach((dot) => {
+          dot.s = 0;
+          dot.v = 0;
+          dot.tint = 0;
+        });
+        render();
+        return;
+      }
+      state.raf = requestAnimationFrame(step);
+    }
+
+    function wake() {
+      if (!state.raf) {
+        state.lastT = 0;
+        state.raf = requestAnimationFrame(step);
+      }
+    }
+
+    function setPointer(event) {
+      const rect = canvas.getBoundingClientRect();
+      state.px = event.clientX - rect.left;
+      state.py = event.clientY - rect.top;
+    }
+
+    name.addEventListener('pointerenter', (event) => {
+      if (event.pointerType === 'touch') return;
+      setPointer(event);
+      state.fx = state.px;
+      state.fy = state.py;
+      state.active = true;
+      wake();
+    });
+    name.addEventListener('pointermove', (event) => {
+      if (event.pointerType === 'touch') return;
+      setPointer(event);
+      state.active = true;
+      wake();
+    });
+    name.addEventListener('pointerleave', () => {
+      state.active = false;
+      wake();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (state.raf) cancelAnimationFrame(state.raf);
+        state.raf = 0;
+        state.active = false;
+      } else {
+        state.lastT = 0;
+        render();
+      }
+    });
+
+    let resizeFrame = 0;
+    const observer = new ResizeObserver(() => {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => {
+        resizeFrame = 0;
+        build();
+      });
+    });
+    observer.observe(name);
+
+    new MutationObserver(() => {
+      readColors();
+      render();
+    }).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    readColors();
+    build();
   })();
 </script>

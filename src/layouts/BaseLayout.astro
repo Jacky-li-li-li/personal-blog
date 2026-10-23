@@ -12,6 +12,7 @@ interface Props {
   publishedTime?: string;
   modifiedTime?: string;
   noindex?: boolean;
+  showFooter?: boolean;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
@@ -23,6 +24,7 @@ const {
   publishedTime,
   modifiedTime,
   noindex = false,
+  showFooter = true,
   jsonLd,
 } = Astro.props;
 
@@ -122,7 +124,7 @@ const jsonLdString = jsonLd
       <main id="main">
         <slot />
       </main>
-      <Footer />
+      {showFooter && <Footer />}
     </div>
 
     <script is:inline>
