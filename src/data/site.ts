@@ -8,9 +8,9 @@ const email = 'jackylilsh@163.com';
 
 export const site = {
   name: 'Jacky Li',
-  title: 'Jacky Li — 产品设计与前端',
+  title: 'Jacky Li — AI 产品经理',
   description:
-    'Jacky Li 的个人站点。产品设计与前端，关注人与工具之间的关系，记录做过的事和一些没地方放的思考。',
+    'Jacky Li 的个人站点。AI 产品经理，专注把体验洞察做成可验收的 Agent 产品，记录做过的事和一些没地方放的思考。',
   tagline: '因为相信所以热爱！持续探索—让热爱有回响！',
   /* 支持行内 HTML（用于强调片段） */
   intro:
