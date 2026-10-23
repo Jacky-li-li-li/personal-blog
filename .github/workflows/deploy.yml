@@ -15,33 +15,53 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
-    # 需要以下仓库 Secrets：
+    # 需要以下仓库 Secrets（Settings → Secrets and variables → Actions）：
     #   CLOUDFLARE_API_TOKEN  — 具备 "Cloudflare Pages: Edit" 权限的 API Token
     #   CLOUDFLARE_ACCOUNT_ID — Cloudflare 账户 ID
-    #   SITE_URL              — 线上域名，如 https://jackyli.com
+    #   SITE_URL              — 线上域名，如 https://personal-blog-ah8.pages.dev
+    # 未配置时本工作流会跳过部署并给出提示，不会报红。
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check deployment secrets
+        id: secrets
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CF_TOKEN" ] || [ -z "$CF_ACCOUNT" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN 或 CLOUDFLARE_ACCOUNT_ID 未配置，跳过部署。"
+            echo "::warning::在 Settings → Secrets and variables → Actions 里添加后重新运行即可。"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Setup pnpm
+        if: steps.secrets.outputs.skip == 'false'
         uses: pnpm/action-setup@v4
 
       - name: Setup Node
+        if: steps.secrets.outputs.skip == 'false'
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: pnpm
 
       - name: Install dependencies
+        if: steps.secrets.outputs.skip == 'false'
         run: pnpm install --frozen-lockfile
 
       - name: Build
+        if: steps.secrets.outputs.skip == 'false'
         run: pnpm build
         env:
           # secret 未配置时为空字符串，astro.config.mjs 会回退到 example.com
           SITE_URL: ${{ secrets.SITE_URL }}
 
       - name: Deploy
+        if: steps.secrets.outputs.skip == 'false'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
