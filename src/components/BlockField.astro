@@ -226,8 +226,18 @@
       wake();
     }
 
+    // 文本、标签和导航区域不触发背景：指针落在这些内容上时让方块阵淡出，
+    // 只有空白区域才唤醒背景。Canvas 本身仍铺满首屏，不改变文字可读性。
+    const EXCLUDED_ZONES = '.profile-name, .profile-bio, .teaser, .recent, .nav';
+    const isExcluded = (target) =>
+      target instanceof Element && Boolean(target.closest(EXCLUDED_ZONES));
+
     function onPointerMove(event) {
       if (event.pointerType === 'touch') return;
+      if (isExcluded(event.target)) {
+        setActive(false);
+        return;
+      }
       const rect = canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;

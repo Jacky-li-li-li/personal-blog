@@ -26,7 +26,7 @@
 - 四个公开路由：`/`（简介 + 经历项目入口 + 最近笔记）、`/about`（简介 + 经历 + 项目）、`/notes`、`/notes/[slug]`。URL 不带尾斜杠，`/about/` 与 `/notes/` 由 `_redirects` 301 到无斜杠版本。
 - 技术栈：Astro 5 + Tailwind 4 + Content Collections + Zod；Cloudflare Pages 静态托管；无服务端与数据库。
 - 视觉：近白暖纸底 `#FEFDFA`、青碧强调 `#17A8B8`（文字用 `#0B7481`）、衬线标题（Instrument Serif + 系统中文字体）、姓名用 Array 点阵字体、话题标签用 Striper 描边字体、克制动效；暗色模式跟随系统并可手动切换。
-- 首页 Hero 背景为方块阵：24px 间距、3px 直角方块，静止完全隐藏；指针进入后整片底纹淡入，150px 半径内方块上抬 9px 并染青碧色，离开 380ms 回落。范围止于 Hero 下缘 +120px（最大 880px），触屏与 `prefers-reduced-motion` 不启用。
+- 首页 Hero 背景为方块阵：24px 间距、3px 直角方块，静止完全隐藏；指针进入后整片底纹淡入，150px 半径内方块上抬 9px 并染青碧色，离开 380ms 回落。只在空白区域触发，名称、简介、标签、导航与下方文本区域不唤醒背景。范围止于 Hero 下缘 +120px（最大 880px），触屏与 `prefers-reduced-motion` 不启用。
 - 头像下方的身份标签悬停时进入「对焦」态：当前标签亮起并浮现四角取景标记与跟随指针的柔光，同组其余标签虚化；触屏与 `prefers-reduced-motion` 下降级。头像与页面其他内容不参与该效果。
 - 断点：`< 761px` 单列，`761–959px` 过渡，`≥ 960px` 容器 1160px / 正文 680px。
 - 维护：Markdown + Git push 触发构建；每季度校对首页信息，每月合并依赖升级；无后台。
