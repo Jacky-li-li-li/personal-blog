@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Experience from '../components/Experience.astro';
+import WorkLandscape from '../components/WorkLandscape.astro';
+
+const description =
+  '李连硕（Jacky Li）的工作经历与代表项目：虚拟用户访谈、VOC 洞察 Agent、BEES 体验数据系统与 BEC 最佳体验目录。';
+---
+
+<BaseLayout title="Work" description={description}>
+  <div class="work-page" data-work-page>
+    <WorkLandscape />
+
+    <svg class="work-river" data-work-river aria-hidden="true">
+      <defs>
+        <linearGradient id="work-river-gradient" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="var(--work-water)" stop-opacity="0.28" />
+          <stop offset="0.48" stop-color="var(--work-water)" stop-opacity="0.48" />
+          <stop offset="0.86" stop-color="var(--accent-ink)" stop-opacity="0.22" />
+          <stop offset="1" stop-color="var(--accent-ink)" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+      <path class="work-river-bed" data-work-river-bed pathLength="1" />
+      <path class="work-river-water" data-work-river-water pathLength="1" />
+    </svg>
+
+    <header class="work-head page-head">
+      <p class="label">Work</p>
+      <h1>经历与项目。</h1>
+      <p>从体验问题出发，把 AI 做成真正可用的产品。</p>
+    </header>
+
+    <Experience />
+  </div>
+</BaseLayout>
+
+<script>
+  const workPage = document.querySelector<HTMLElement>('[data-work-page]');
+
+  if (workPage) {
+    const river = workPage.querySelector<SVGSVGElement>('[data-work-river]');
+    const bed = workPage.querySelector<SVGPathElement>('[data-work-river-bed]');
+    const water = workPage.querySelector<SVGPathElement>('[data-work-river-water]');
+    const landscape = workPage.querySelector<HTMLElement>('[data-work-landscape]');
+    const gradient = workPage.querySelector<SVGLinearGradientElement>('#work-river-gradient');
+    let frame = 0;
+
+    const drawRiver = () => {
+      frame = 0;
+      const first = workPage.querySelector<HTMLElement>('[data-experience]');
+      if (!river || !bed || !water || !landscape || !gradient || !first) return;
+
+      const bounds = river.getBoundingClientRect();
+      const itemBounds = first.getBoundingClientRect();
+      const sceneBounds = landscape.getBoundingClientRect();
+      const nodeStyle = getComputedStyle(first, '::after');
+      const nodeSize = Number.parseFloat(nodeStyle.width) || 9;
+      const nodeLeft = Number.parseFloat(nodeStyle.left) || 0;
+      const nodeTop = Number.parseFloat(nodeStyle.top) || 0;
+      const x = itemBounds.left + nodeLeft + nodeSize / 2 - bounds.left;
+      const firstY = itemBounds.top + nodeTop + nodeSize / 2 - bounds.top;
+      const mobile = window.matchMedia('(max-width: 760px)').matches;
+      const sourceY = mobile ? 112 : 146;
+      const sceneBottom = sceneBounds.bottom - bounds.top;
+      const bend = mobile ? 7 : 22;
+      const mountainSpan = sceneBottom - sourceY;
+      const lowerSpan = firstY - sceneBottom;
+
+      // 山间是连续 S 弯；进入标题区后振幅递减，最终收束成笔直时间轴。
+      const path = [
+        `M ${x} ${sourceY}`,
+        `C ${x - bend * 0.4} ${sourceY + mountainSpan * 0.08} ${x - bend * 1.2} ${sourceY + mountainSpan * 0.14} ${x - bend} ${sourceY + mountainSpan * 0.25}`,
+        `C ${x - bend * 0.8} ${sourceY + mountainSpan * 0.36} ${x + bend * 1.1} ${sourceY + mountainSpan * 0.4} ${x + bend} ${sourceY + mountainSpan * 0.52}`,
+        `C ${x + bend} ${sourceY + mountainSpan * 0.65} ${x - bend * 1.1} ${sourceY + mountainSpan * 0.7} ${x - bend * 0.8} ${sourceY + mountainSpan * 0.8}`,
+        `C ${x - bend * 0.4} ${sourceY + mountainSpan * 0.9} ${x + bend * 0.35} ${sourceY + mountainSpan * 0.96} ${x} ${sceneBottom}`,
+        `C ${x + bend * 0.5} ${sceneBottom + lowerSpan * 0.16} ${x - bend * 0.6} ${sceneBottom + lowerSpan * 0.28} ${x - bend * 0.4} ${sceneBottom + lowerSpan * 0.42}`,
+        `C ${x - bend * 0.2} ${sceneBottom + lowerSpan * 0.58} ${x + bend * 0.18} ${sceneBottom + lowerSpan * 0.72} ${x} ${sceneBottom + lowerSpan * 0.84}`,
+        `C ${x} ${firstY - 24} ${x} ${firstY - 8} ${x} ${firstY}`,
+      ].join(' ');
+
+      river.setAttribute('viewBox', `0 0 ${bounds.width} ${bounds.height}`);
+      bed.setAttribute('d', path);
+      water.setAttribute('d', path);
+      gradient.setAttribute('y1', String(sourceY));
+      gradient.setAttribute('y2', String(firstY));
+      gradient.setAttribute('x1', String(x));
+      gradient.setAttribute('x2', String(x));
+    };
+
+    const requestDraw = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(drawRiver);
+    };
+
+    drawRiver();
+    new ResizeObserver(requestDraw).observe(workPage);
+    window.addEventListener('resize', requestDraw);
+    document.fonts.ready.then(requestDraw);
+  }
+</script>

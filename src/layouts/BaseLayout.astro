@@ -35,9 +35,11 @@ const ogImage = new URL(image, siteUrl).href;
 const pageTitle = title ? `${title} · ${site.name}` : site.title;
 const active = Astro.url.pathname.startsWith('/notes')
   ? 'notes'
-  : Astro.url.pathname.startsWith('/about')
-    ? 'about'
-    : undefined;
+  : Astro.url.pathname.startsWith('/work')
+    ? 'work'
+    : Astro.url.pathname.startsWith('/about')
+      ? 'about'
+      : undefined;
 const jsonLdString = jsonLd
   ? JSON.stringify(jsonLd).replace(/</g, '\\u003c')
   : null;

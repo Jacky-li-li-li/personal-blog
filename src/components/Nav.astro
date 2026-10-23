@@ -2,20 +2,27 @@
 import ThemeToggle from './ThemeToggle.astro';
 
 interface Props {
-  active?: 'about' | 'notes';
+  active?: 'about' | 'work' | 'notes';
 }
 
 const { active } = Astro.props;
 ---
 
-<nav class="nav" aria-label="主导航">
+<nav class="nav" aria-label="主导航" data-site-nav>
   <div class="nav-links">
     <a
       class:list={['nav-link', { active: active === 'about' }]}
       href="/about"
-      aria-current={active === 'about' ? 'location' : undefined}
+      aria-current={active === 'about' ? 'page' : undefined}
     >
       About
+    </a>
+    <a
+      class:list={['nav-link', { active: active === 'work' }]}
+      href="/work"
+      aria-current={active === 'work' ? 'page' : undefined}
+    >
+      Work
     </a>
     <a
       class:list={['nav-link', { active: active === 'notes' }]}
@@ -27,3 +34,31 @@ const { active } = Astro.props;
   </div>
   <ThemeToggle />
 </nav>
+
+<script>
+  const nav = document.querySelector('[data-site-nav]');
+
+  if (nav) {
+    let frame = 0;
+    let scrolled = false;
+
+    const updateNav = () => {
+      frame = 0;
+      const y = window.scrollY;
+
+      // 进入与返回使用不同阈值，避免在临界位置反复收拢、展开。
+      if (!scrolled && y > 72) scrolled = true;
+      else if (scrolled && y < 24) scrolled = false;
+
+      nav.classList.toggle('is-scrolled', scrolled);
+    };
+
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(updateNav);
+    };
+
+    updateNav();
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+  }
+</script>

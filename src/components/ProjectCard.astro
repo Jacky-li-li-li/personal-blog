@@ -6,40 +6,39 @@ interface Props {
 }
 
 const { project } = Astro.props;
-const Tag = project.url ? 'a' : 'div';
 const external = project.url?.startsWith('http') ?? false;
 ---
 
-<Tag
-  class:list={['project', { 'is-static': !project.url }]}
-  href={project.url}
-  target={external ? '_blank' : undefined}
-  rel={external ? 'noopener' : undefined}
->
-  <h3>
-    {project.name}
-    {project.url && (
-      <svg
-        class="project-arrow"
-        viewBox="0 0 12 12"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.4"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M3.2 8.8 8.8 3.2M4.4 3.2h4.4v4.4"></path>
-      </svg>
+<li class="experience-project">
+  <div class="experience-project-meta">
+    <h4>{project.name}</h4>
+    {project.tags && project.tags.length > 0 && (
+      <ul class="tags" aria-label="项目类型">
+        {project.tags.map((tag) => <li class="tag">{tag}</li>)}
+      </ul>
     )}
-  </h3>
-  <p>{project.summary}</p>
+  </div>
 
-  {project.tags && project.tags.length > 0 && (
-    <ul class="tags">
-      {project.tags.map((tag) => <li class="tag">{tag}</li>)}
+  <p class="experience-project-summary">{project.summary}</p>
+
+  {project.outcomes && project.outcomes.length > 0 && (
+    <ul class="experience-outcomes" aria-label="项目成果">
+      {project.outcomes.map((outcome) => <li>{outcome}</li>)}
     </ul>
   )}
 
-  {external && <span class="sr-only">（新窗口打开）</span>}
-</Tag>
+  {project.url && (
+    <a
+      class="experience-project-link"
+      href={project.url}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener' : undefined}
+    >
+      查看案例
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+        <path d="M3.2 8.8 8.8 3.2M4.4 3.2h4.4v4.4"></path>
+      </svg>
+      {external && <span class="sr-only">（新窗口打开）</span>}
+    </a>
+  )}
+</li>

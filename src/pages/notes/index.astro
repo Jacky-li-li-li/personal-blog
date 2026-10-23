@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NoteRow from '../../components/NoteRow.astro';
+import NotesLandscape from '../../components/NotesLandscape.astro';
 import { site } from '../../data/site';
 import { getPublishedNotes, groupNotesByYear } from '../../utils/notes';
 
@@ -10,29 +11,33 @@ const description = '不定期更新。关于产品、写作、工具，以及�
 ---
 
 <BaseLayout title="Notes" description={description}>
-  <header class="page-head">
-    <p class="label">Notes</p>
-    <h1>想到什么，<br class="m-br" />写点什么。</h1>
-    <p>{description}</p>
-  </header>
+  <div class="notes-page">
+    <NotesLandscape />
 
-  {groups.length > 0 ? (
-    groups.map((group) => (
-      <section class="year-group" aria-labelledby={`year-${group.year}`}>
-        <div class="year-line">
-          <h2 class="label" id={`year-${group.year}`}>{group.year}</h2>
-        </div>
-        <div class="notes-list">
-          {group.notes.map((note) => <NoteRow note={note} />)}
-        </div>
-      </section>
-    ))
-  ) : (
-    <div class="empty-state">
-      <p>第一篇还在路上。</p>
-      <p>
-        想第一时间看到更新，可以 <a href={`mailto:${site.email}`}>写封邮件</a>。
-      </p>
-    </div>
-  )}
+    <header class="notes-head page-head">
+      <p class="label">Notes</p>
+      <h1>想到什么，<br class="m-br" />写点什么。</h1>
+      <p>{description}</p>
+    </header>
+
+    {groups.length > 0 ? (
+      groups.map((group) => (
+        <section class="year-group" aria-labelledby={`year-${group.year}`}>
+          <div class="year-line">
+            <h2 class="label" id={`year-${group.year}`}>{group.year}</h2>
+          </div>
+          <div class="notes-list">
+            {group.notes.map((note) => <NoteRow note={note} />)}
+          </div>
+        </section>
+      ))
+    ) : (
+      <div class="empty-state">
+        <p>第一篇还在路上。</p>
+        <p>
+          想第一时间看到更新，可以 <a href={`mailto:${site.email}`}>写封邮件</a>。
+        </p>
+      </div>
+    )}
+  </div>
 </BaseLayout>

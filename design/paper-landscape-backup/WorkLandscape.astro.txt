@@ -1,0 +1,84 @@
+<div class="work-landscape" data-work-landscape aria-hidden="true">
+  <div class="work-sun"></div>
+
+  <svg
+    class="work-mountains"
+    viewBox="0 0 1600 360"
+    preserveAspectRatio="xMidYMid slice"
+    role="presentation"
+  >
+    <defs>
+      <filter id="work-print" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="3" seed="17" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.7" xChannelSelector="R" yChannelSelector="G" result="rough" />
+        <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
+        <feComponentTransfer in="mono" result="ink">
+          <feFuncA type="table" tableValues="0 0.16" />
+        </feComponentTransfer>
+        <feComposite in="ink" in2="rough" operator="in" result="grain" />
+        <feBlend in="rough" in2="grain" mode="multiply" />
+      </filter>
+      <filter id="work-print-fine" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="2" seed="29" result="noise" />
+        <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
+        <feComponentTransfer in="mono" result="ink">
+          <feFuncA type="table" tableValues="0 0.12" />
+        </feComponentTransfer>
+        <feComposite in="ink" in2="SourceGraphic" operator="in" result="grain" />
+        <feBlend in="SourceGraphic" in2="grain" mode="multiply" />
+      </filter>
+      <linearGradient id="work-mountain-fade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0.58" stop-color="white" />
+        <stop offset="0.9" stop-color="white" stop-opacity="0.82" />
+        <stop offset="1" stop-color="white" stop-opacity="0" />
+      </linearGradient>
+      <mask id="work-mountain-mask">
+        <rect width="1600" height="360" fill="url(#work-mountain-fade)" />
+      </mask>
+    </defs>
+
+    <g mask="url(#work-mountain-mask)">
+      <g class="work-mountain-far" filter="url(#work-print-fine)">
+        <path
+          fill="var(--work-mountain-far)"
+          d="M-90 360V246L70 198l98 24 158-110 82 76 106-48 132 88 118-76 116 68 134-96 104 76 126-94 122 80 112-46 222 106v114Z"
+        />
+        <path
+          fill="var(--work-snow)"
+          opacity="0.72"
+          d="m250 190 76-78 47 43-35-13-14 23-18-12-28 38Zm361 61 35-23 34 26-25-9-12 12-12-9Zm387-30 16-21 30 22-20-7-9 12Zm246-15 70-62 54 42-34-14-18 19-17-13-29 30Z"
+        />
+      </g>
+
+      <g class="work-mountain-mid" filter="url(#work-print)">
+        <path
+          fill="var(--work-mountain-mid)"
+          d="M-100 360v-72l218-70 142 36 172-118 100 96 112-46 124 88 176-118 122 76 118-56 142 80 138-92 260 126v70Z"
+        />
+        <path
+          fill="var(--work-snow)"
+          opacity="0.84"
+          d="m330 204 102-68 61 59-39-20-24 25-21-17-35 36Zm488 102 126-150 72 47-42-12-27 30-23-16-43 48Zm468-18 58-32 49 28-31-8-17 16-18-11Z"
+        />
+        <path
+          fill="var(--work-mountain-near)"
+          opacity="0.2"
+          d="m432 136 100 96-78-37-22-12-21 17Zm512 20 122 76-82-29-40-12-23 16Zm460 8 138 126-108-55-30-23Z"
+        />
+      </g>
+
+      <g class="work-mountain-near" filter="url(#work-print)">
+        <path
+          fill="var(--work-mountain-near)"
+          opacity="0.7"
+          d="M-100 360v-34l222-54 158 52 202-98 178 88 202-62 190 66 218-84 162 72 168-58 120 52v60Z"
+        />
+        <path
+          fill="var(--work-snow)"
+          opacity="0.3"
+          d="m358 288 124-62 73 36-49-12-28 20-25-13-42 26Zm802 12 110-66 69 31-43-8-21 17-24-10Z"
+        />
+      </g>
+    </g>
+  </svg>
+</div>

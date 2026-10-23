@@ -1,4 +1,5 @@
 # 兼容改版前带尾斜杠的地址
 /about/  /about  301
+/work/  /work  301
 /notes/  /notes  301
 /notes/:slug/  /notes/:slug  301

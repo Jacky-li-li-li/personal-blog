@@ -1,6 +1,6 @@
 # personal blog
 
-Jacky Li 的个人站点：首页介绍、工作经历、个人项目与 Notes 随笔。
+Jacky Li 的个人站点：首页与 About 个人介绍、Work 工作经历与代表项目、Notes 随笔。
 
 当前实现对应 `docs/site-plan.md` 的 M1 骨架与 M2 的发布能力，视觉与交互来自 `design/prototype.html`。
 
@@ -101,6 +101,8 @@ pnpm deploy:preview   # 构建并部署为预览版本
 `.github/workflows/ci.yml` 在 push 到 `main`、PR 和手动触发时运行：类型检查 → 构建 → 校验 `dist/index.html`、`dist/notes/index.html`、`dist/rss.xml` 存在。
 
 ## 设计约定
+
+完整的色彩、排版、布局、组件与动效规范见根目录 `DESIGN.md`，样式 Token 以 `src/styles/global.css` 为实现入口。
 
 - 近白暖纸底 `#FEFDFA`，青碧强调 `#17A8B8`；文字态使用 `#0B7481`（暗色 `#4FCBD8`）保证对比度。
 - 标题字体 Instrument Serif，自托管 Latin 子集；中文使用系统宋体/黑体栈，不加载全量 CJK 字体。

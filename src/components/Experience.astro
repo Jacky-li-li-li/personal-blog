@@ -2,35 +2,155 @@
 import { experiences } from '../data/experience';
 import { projects } from '../data/projects';
 import ProjectCard from './ProjectCard.astro';
+
+const projectMap = new Map(projects.map((project) => [project.id, project]));
 ---
 
-<section class="panel reveal" id="work" aria-label="经历与项目">
+<section class="experience-panel reveal" id="work" aria-labelledby="experience-title">
   <h2 class="label" id="experience-title">Experience</h2>
-  <div class="exp" aria-labelledby="experience-title">
-    {experiences.map((item) => (
-      <div class="exp-row">
-        <div class="years">
-          {item.start} — {item.end === 'present' ? '现在' : item.end}
-        </div>
-        <div>
-          <h3 class="role">
-            {item.role}<span class="sep" aria-hidden="true">·</span><span class="org">{item.org}</span>
-          </h3>
-          <p class="exp-sum">{item.summary}</p>
-          {item.highlights && item.highlights.length > 0 && (
-            <ul class="exp-highlights">
-              {item.highlights.map((highlight) => <li>{highlight}</li>)}
-            </ul>
-          )}
-        </div>
-      </div>
-    ))}
-  </div>
 
-  <div class="divider" role="presentation"></div>
+  <div class="experience-list">
+    {experiences.map((item, index) => {
+      const relatedProjects = (item.projects ?? [])
+        .map((id) => projectMap.get(id))
+        .filter((project) => project !== undefined);
+      const hasProjects = relatedProjects.length > 0;
+      const isOpen = hasProjects && index === 0;
+      const projectsId = `experience-projects-${item.id}`;
+      const companyId = `experience-company-${item.id}`;
+      const HeaderTag = hasProjects ? 'button' : 'span';
 
-  <h2 class="label" id="projects-title">Selected Projects</h2>
-  <div class="projects" aria-labelledby="projects-title">
-    {projects.map((project) => <ProjectCard project={project} />)}
+      return (
+        <article
+          class:list={['experience-item', { 'is-open': isOpen, 'is-active': index === 0 }]}
+          id={`experience-${item.id}`}
+          aria-labelledby={companyId}
+          data-experience
+          data-current={item.end === 'present' ? 'true' : 'false'}
+        >
+          <a
+            class="experience-years"
+            href={`#experience-${item.id}`}
+            aria-current={index === 0 ? 'location' : undefined}
+            aria-label={`跳到 ${item.org} 的经历`}
+          >
+            {item.start} — {item.end === 'present' ? '现在' : item.end}
+          </a>
+
+          <div class="experience-body">
+            <h3 class="experience-heading">
+              <HeaderTag
+                class:list={['experience-toggle', { 'is-static': !hasProjects }]}
+                type={hasProjects ? 'button' : undefined}
+                aria-expanded={hasProjects ? isOpen : undefined}
+                aria-controls={hasProjects ? projectsId : undefined}
+                data-experience-toggle={hasProjects ? '' : undefined}
+              >
+                <span class="experience-company" id={companyId}>{item.org}</span>
+                <span class="experience-role">{item.role}</span>
+
+                {item.awards && item.awards.length > 0 && (
+                  <span class="experience-awards">
+                    <span class="experience-awards-label">Honors</span>
+                    <span>{item.awards.join(' · ')}</span>
+                  </span>
+                )}
+
+                <span class="experience-summary">{item.summary}</span>
+
+                {hasProjects && (
+                  <span class="experience-action">
+                    <span>{relatedProjects.length} 个代表项目</span>
+                    <span class="experience-action-hint">{isOpen ? '收起' : '查看'}</span>
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+                      <path d="m4 6 4 4 4-4"></path>
+                    </svg>
+                  </span>
+                )}
+              </HeaderTag>
+            </h3>
+
+            {hasProjects && (
+              <div
+                class="experience-projects"
+                id={projectsId}
+                aria-hidden={!isOpen}
+                inert={!isOpen}
+                data-experience-projects
+              >
+                <div class="experience-projects-inner">
+                  <div class="experience-projects-heading">
+                    <span>Selected Work</span>
+                    <span>{relatedProjects.length} 个项目</span>
+                  </div>
+                  <ul class="experience-project-list">
+                    {relatedProjects.map((project) => <ProjectCard project={project} />)}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+        </article>
+      );
+    })}
   </div>
 </section>
+
+<script>
+  const experienceItems = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-experience]'),
+  );
+
+  experienceItems.forEach((item) => {
+    const toggle = item.querySelector<HTMLButtonElement>('[data-experience-toggle]');
+    const panel = item.querySelector<HTMLElement>('[data-experience-projects]');
+    const hint = item.querySelector<HTMLElement>('.experience-action-hint');
+    if (!toggle || !panel || !hint) return;
+
+    toggle.addEventListener('click', () => {
+      const open = !item.classList.contains('is-open');
+      item.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      panel.setAttribute('aria-hidden', String(!open));
+      panel.inert = !open;
+      hint.textContent = open ? '收起' : '查看';
+    });
+  });
+
+  // 时间线同时承担阅读定位：当前任职与视口内经历使用不同状态。
+  let activeItem: HTMLElement | undefined;
+  let frame = 0;
+
+  const updateExperiencePosition = () => {
+    frame = 0;
+    const readingLine = window.innerHeight * 0.38;
+    let next: HTMLElement | undefined = experienceItems[0];
+
+    experienceItems.forEach((item) => {
+      if (item.getBoundingClientRect().top <= readingLine) next = item;
+    });
+
+    // 页面到底时，最后一段可能无法越过阅读线，此时仍应定位到最后一段。
+    const atPageEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+    if (atPageEnd) next = experienceItems.at(-1);
+    if (!next || next === activeItem) return;
+
+    activeItem = next;
+    experienceItems.forEach((item) => {
+      const active = item === next;
+      item.classList.toggle('is-active', active);
+      const year = item.querySelector('.experience-years');
+      if (active) year?.setAttribute('aria-current', 'location');
+      else year?.removeAttribute('aria-current');
+    });
+  };
+
+  const requestPositionUpdate = () => {
+    if (frame) return;
+    frame = window.requestAnimationFrame(updateExperiencePosition);
+  };
+
+  updateExperiencePosition();
+  window.addEventListener('scroll', requestPositionUpdate, { passive: true });
+  window.addEventListener('resize', requestPositionUpdate);
+</script>

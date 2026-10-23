@@ -1,0 +1,114 @@
+<div class="about-landscape" aria-hidden="true">
+  <svg class="about-prairie" viewBox="0 0 1600 380" preserveAspectRatio="xMidYMid slice" role="presentation">
+    <defs>
+      <filter id="about-paper" x="-3%" y="-5%" width="106%" height="110%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" seed="24" result="noise" />
+        <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
+        <feComponentTransfer in="mono" result="grain-ink">
+          <feFuncA type="table" tableValues="0 0.13" />
+        </feComponentTransfer>
+        <feComposite in="grain-ink" in2="SourceGraphic" operator="in" result="grain" />
+        <feBlend in="SourceGraphic" in2="grain" mode="multiply" />
+      </filter>
+      <linearGradient id="about-scene-fade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0.68" stop-color="white" />
+        <stop offset="0.9" stop-color="white" stop-opacity="0.88" />
+        <stop offset="1" stop-color="white" stop-opacity="0" />
+      </linearGradient>
+      <mask id="about-scene-mask">
+        <rect width="1600" height="380" fill="url(#about-scene-fade)" />
+      </mask>
+      <pattern id="about-grass-texture" width="92" height="52" patternUnits="userSpaceOnUse">
+        <g fill="none" stroke="var(--about-grass-ink)" stroke-linecap="round">
+          <path d="m8 42 2-8m0 8 6-5M39 19l1-5m0 5 4-3M72 44l-2-9m2 9 4-7" stroke-width="1" opacity="0.24" />
+          <path d="m19 11 6-1m31 31 8-2M84 17l5-1M4 25l5 1" stroke-width="0.8" opacity="0.18" />
+        </g>
+      </pattern>
+      <g id="about-yurt">
+        <ellipse cx="0" cy="34" rx="54" ry="8" fill="var(--about-grass-deep)" opacity="0.16" />
+        <path d="M-42 0Q0 9 42 0L40 30Q0 39-40 30Z" fill="var(--about-canvas)" />
+        <path d="M-48 1Q-35-21 0-29Q35-21 48 1Q0 12-48 1Z" fill="var(--about-yurt-roof)" />
+        <path d="M-48 1Q0 12 48 1M-40 13Q0 21 40 13" fill="none" stroke="var(--about-yurt-line)" stroke-width="1.5" opacity="0.64" />
+        <path d="M0-28V5M-24-17-15 6M24-17 15 6" fill="none" stroke="var(--about-yurt-line)" stroke-width="1" opacity="0.38" />
+        <path d="M-9 34V13Q0 7 9 13V35Z" fill="var(--about-horse)" opacity="0.9" />
+        <path d="M-3-31H3V-26H-3Z" fill="var(--about-yurt-line)" />
+      </g>
+      <g id="about-horse">
+        <path d="M-38-9C-28-20 2-21 20-12C25-18 26-31 33-38C38-44 43-42 45-35L52-30 62-25 60-19 48-18 41-22C39-10 34-1 25 5C10 11-20 9-31 4Z" fill="var(--about-horse)" />
+        <path d="M-23 3-28 23-35 34M-9 5-4 23-10 36M16 5 25 20 21 35M26 2 34 14 40 26" fill="none" stroke="var(--about-horse)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M-35-8C-51-10-56 3-50 19C-48 10-43 5-37 3ZM31-35C25-29 25-20 22-14L28-17 32-28Z" fill="var(--about-horse)" />
+        <path d="M36-40 36-47 41-42M43-40 47-45 47-38" fill="var(--about-horse)" />
+      </g>
+      <g id="about-smoke" fill="none" stroke="var(--about-yurt-line)" stroke-linecap="round">
+        <path d="M0 0C-12-14 10-23 1-39C-7-52 8-61 3-75" stroke-width="5" opacity="0.12" />
+        <path d="M0 0C-12-14 10-23 1-39C-7-52 8-61 3-75" stroke-width="2.2" opacity="0.32" />
+      </g>
+      <g id="about-sheep">
+        <ellipse cx="0" cy="2" rx="19" ry="2.6" fill="var(--about-grass-deep)" opacity="0.16" />
+        <path d="M-10-7-11 1M7-7 9 1" fill="none" stroke="var(--about-horse)" stroke-width="2" stroke-linecap="round" />
+        <path d="M-17-10C-20-15-15-20-10-19C-8-24 0-24 3-20C10-23 16-18 14-13C19-9 14-4 8-5H-10C-16-5-20-7-17-10Z" fill="var(--about-yurt-roof)" />
+        <path d="M12-15Q20-18 22-12L20-6 14-7Z" fill="var(--about-horse)" />
+      </g>
+      <g id="about-wildflowers">
+        <path d="M0 0-2-18M0 0 10-13M0 0-12-10M-2-18l-5-4M10-13l5-4" fill="none" stroke="var(--about-grass-ink)" stroke-width="1.2" stroke-linecap="round" opacity="0.66" />
+        <g fill="var(--about-flower)">
+          <circle cx="-2" cy="-19" r="2.7" />
+          <circle cx="10" cy="-14" r="2.3" />
+          <circle cx="-12" cy="-11" r="2" />
+        </g>
+        <g fill="var(--about-yurt-roof)" opacity="0.82">
+          <circle cx="-2" cy="-19" r="0.8" />
+          <circle cx="10" cy="-14" r="0.7" />
+        </g>
+      </g>
+    </defs>
+
+    <g mask="url(#about-scene-mask)">
+      <g class="about-clouds" fill="none" stroke="var(--line-strong)" stroke-linecap="round">
+        <path d="M160 83Q245 65 335 80T520 76" opacity="0.34" />
+        <path d="M1020 92Q1110 74 1190 88T1390 82" opacity="0.28" />
+        <path d="M610 52Q680 43 748 53" opacity="0.22" />
+      </g>
+
+      <g class="about-birds" fill="none" stroke="var(--about-grass-ink)" stroke-width="1.5" stroke-linecap="round" opacity="0.46">
+        <path d="M760 97q8-7 16 0q8-7 16 0M809 75q6-5 12 0q6-5 12 0M849 105q5-4 10 0q5-4 10 0" />
+      </g>
+
+      <g class="about-layer-far" filter="url(#about-paper)">
+        <path d="M-80 260V220Q80 164 220 204Q360 137 500 194Q650 145 800 202Q960 142 1120 196Q1280 151 1440 197Q1560 169 1680 195V380H-80Z" fill="var(--about-grass-far)" opacity="0.38" />
+        <path d="M-80 260V210Q95 156 250 190T540 176Q690 128 842 183T1110 171Q1300 134 1680 201V380H-80Z" fill="var(--about-grass-far)" />
+        <path d="M-60 238Q160 192 330 215T690 203Q850 172 1030 206T1370 193Q1510 176 1660 201V380H-60Z" fill="var(--about-grass-far)" opacity="0.72" />
+      </g>
+
+      <g class="about-layer-mid" filter="url(#about-paper)">
+        <path d="M-80 380V271Q120 208 350 245T730 229Q950 185 1150 231T1680 214V380Z" fill="var(--about-grass-mid)" />
+        <path d="M-40 298Q190 245 425 274T830 259Q1080 215 1270 253T1640 245V380H-40Z" fill="var(--about-grass-near)" opacity="0.48" />
+      </g>
+
+      <g class="about-layer-near" filter="url(#about-paper)">
+        <path d="M-80 380V335Q160 267 420 315T860 295Q1090 263 1300 301T1680 282V380Z" fill="var(--about-grass-near)" />
+        <path d="M-80 380V363Q190 311 490 350T990 330Q1290 299 1680 341V380Z" fill="var(--about-grass-deep)" opacity="0.66" />
+        <path d="M-80 380V335Q160 267 420 315T860 295Q1090 263 1300 301T1680 282V380Z" fill="url(#about-grass-texture)" />
+      </g>
+
+      <g class="about-details">
+        <use class="about-smoke-main" href="#about-smoke" transform="translate(1250 214)" />
+        <use class="about-yurt-main" href="#about-yurt" transform="translate(1250 244) scale(1.06)" />
+        <use class="about-yurt-far" href="#about-yurt" transform="translate(1390 220) scale(.61)" opacity="0.88" />
+        <use class="about-horse-main" href="#about-horse" transform="translate(450 274) scale(.88)" />
+        <use class="about-horse-second" href="#about-horse" transform="translate(570 266) scale(-.63 .63)" opacity="0.88" />
+        <use class="about-horse-far" href="#about-horse" transform="translate(680 237) scale(.38)" opacity="0.68" />
+        <use class="about-sheep-first" href="#about-sheep" transform="translate(915 266) scale(.64)" />
+        <use class="about-sheep-second" href="#about-sheep" transform="translate(990 276) scale(-.74 .74)" />
+        <use class="about-sheep-third" href="#about-sheep" transform="translate(1070 254) scale(.5)" opacity="0.86" />
+        <use class="about-flowers-first" href="#about-wildflowers" transform="translate(360 340) scale(.9)" />
+        <use class="about-flowers-second" href="#about-wildflowers" transform="translate(1160 337) scale(.8)" />
+      </g>
+
+      <g class="about-foreground-grass" fill="none" stroke="var(--about-grass-ink)" stroke-linecap="round" opacity="0.36">
+        <path d="m94 355 4-19m-4 19-7-12m7 12 10-9M214 337l3-13m-3 13-6-8M1060 350l4-18m-4 18-8-11m8 11 9-8M1460 337l3-15m-3 15-7-9" />
+        <path d="M20 329Q110 316 186 326M770 344Q850 330 930 338M1320 356Q1410 337 1510 348" stroke-width="1.2" opacity="0.56" />
+      </g>
+    </g>
+  </svg>
+</div>

@@ -1,0 +1,113 @@
+<div class="work-landscape" data-work-landscape aria-hidden="true">
+  <div class="work-sun"></div>
+
+  <svg
+    class="work-mountains"
+    data-work-mountains
+    viewBox="0 0 1600 360"
+    preserveAspectRatio="xMidYMid slice"
+    role="presentation"
+  >
+    <defs>
+      <filter id="work-print" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="3" seed="17" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="0.7" xChannelSelector="R" yChannelSelector="G" result="rough" />
+        <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
+        <feComponentTransfer in="mono" result="ink">
+          <feFuncA type="table" tableValues="0 0.16" />
+        </feComponentTransfer>
+        <feComposite in="ink" in2="rough" operator="in" result="grain" />
+        <feBlend in="rough" in2="grain" mode="multiply" />
+      </filter>
+      <filter id="work-print-fine" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="2" seed="29" result="noise" />
+        <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
+        <feComponentTransfer in="mono" result="ink">
+          <feFuncA type="table" tableValues="0 0.12" />
+        </feComponentTransfer>
+        <feComposite in="ink" in2="SourceGraphic" operator="in" result="grain" />
+        <feBlend in="SourceGraphic" in2="grain" mode="multiply" />
+      </filter>
+      <linearGradient id="work-mountain-fade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0.58" stop-color="white" />
+        <stop offset="0.9" stop-color="white" stop-opacity="0.82" />
+        <stop offset="1" stop-color="white" stop-opacity="0" />
+      </linearGradient>
+      <mask id="work-mountain-mask">
+        <rect width="1600" height="360" fill="url(#work-mountain-fade)" />
+      </mask>
+      <g id="work-climber">
+        <ellipse cx="0" cy="7" rx="4.6" ry="1.1" fill="var(--work-climber-ink)" opacity="0.2" />
+        <circle cx="0" cy="-10" r="2.2" fill="var(--work-climber-ink)" />
+        <path d="M-5-8H-1V0H-5Q-7-4-5-8Z" fill="var(--work-climber-ink)" opacity="0.86" />
+        <path d="M-2-8H3L4 0H-3Z" fill="var(--climber-jacket)" />
+        <path d="M2-6 6-2M-1 0-4 7M2 0 5 6M6-2 8 7" fill="none" stroke="var(--work-climber-ink)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M-1-11 2-11" stroke="var(--climber-jacket)" stroke-width="1.4" stroke-linecap="round" />
+      </g>
+    </defs>
+
+    <g mask="url(#work-mountain-mask)">
+      <g class="work-mountain-far" filter="url(#work-print-fine)">
+        <path
+          id="work-terrain-far"
+          fill="var(--work-mountain-far)"
+          d="M-90 360V246L70 198l98 24 158-110 82 76 106-48 132 88 118-76 116 68 134-96 104 76 126-94 122 80 112-46 222 106v114Z"
+        />
+        <path
+          fill="var(--work-snow)"
+          opacity="0.72"
+          d="m250 190 76-78 47 43-35-13-14 23-18-12-28 38Zm361 61 35-23 34 26-25-9-12 12-12-9Zm387-30 16-21 30 22-20-7-9 12Zm246-15 70-62 54 42-34-14-18 19-17-13-29 30Z"
+        />
+      </g>
+
+      <g class="work-mountain-mid" filter="url(#work-print)">
+        <path
+          id="work-terrain-mid"
+          fill="var(--work-mountain-mid)"
+          d="M-100 360v-72l218-70 142 36 172-118 100 96 112-46 124 88 176-118 122 76 118-56 142 80 138-92 260 126v70Z"
+        />
+        <path
+          fill="var(--work-snow)"
+          opacity="0.84"
+          d="m330 204 102-68 61 59-39-20-24 25-21-17-35 36Zm488 102 126-150 72 47-42-12-27 30-23-16-43 48Zm468-18 58-32 49 28-31-8-17 16-18-11Z"
+        />
+        <path
+          fill="var(--work-mountain-near)"
+          opacity="0.2"
+          d="m432 136 100 96-78-37-22-12-21 17Zm512 20 122 76-82-29-40-12-23 16Zm460 8 138 126-108-55-30-23Z"
+        />
+      </g>
+
+      <g class="work-mountain-near" filter="url(#work-print)">
+        <path
+          id="work-terrain-near"
+          fill="var(--work-mountain-near)"
+          opacity="0.7"
+          d="M-100 360v-34l222-54 158 52 202-98 178 88 202-62 190 66 218-84 162 72 168-58 120 52v60Z"
+        />
+        <path
+          fill="var(--work-snow)"
+          opacity="0.3"
+          d="m358 288 124-62 73 36-49-12-28 20-25-13-42 26Zm802 12 110-66 69 31-43-8-21 17-24-10Z"
+        />
+      </g>
+
+      <g class="work-climbers-position">
+        <g class="work-climbing-party">
+          <path d="M890 314C920 316 948 304 970 292C992 280 1010 273 1026 265M1032 253C1020 244 1024 235 1046 230C1070 224 1090 236 1121 216" fill="none" stroke="var(--work-snow)" stroke-width="4.2" stroke-linecap="round" opacity="0.38" />
+          <path d="M890 314C920 316 948 304 970 292C992 280 1010 273 1026 265M1032 253C1020 244 1024 235 1046 230C1070 224 1090 236 1121 216" fill="none" stroke="var(--work-climber-ink)" stroke-width="0.75" opacity="0.3" />
+          <use class="work-climber-rust" href="#work-climber" transform="translate(900 310) scale(.82)" />
+          <use class="work-climber-blue" href="#work-climber" transform="translate(930 301) scale(.79)" />
+          <use class="work-climber-ochre" href="#work-climber" transform="translate(960 292) scale(.76)" />
+          <use class="work-climber-rust" href="#work-climber" transform="translate(990 281) scale(.73)" />
+          <use class="work-climber-blue" href="#work-climber" transform="translate(1020 270) scale(.7)" />
+          <use class="work-climber-ochre" href="#work-climber" transform="translate(1040 257) scale(.66)" />
+          <use class="work-climber-rust" href="#work-climber" transform="translate(1028 244) scale(.63)" />
+          <use class="work-climber-blue" href="#work-climber" transform="translate(1055 232) scale(.6)" />
+          <use class="work-climber-ochre" href="#work-climber" transform="translate(1085 232) scale(.57)" />
+          <use class="work-climber-rust" href="#work-climber" transform="translate(1115 221) scale(.54)" />
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
