@@ -1,5 +1,8 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
+import AboutNavMist from './AboutNavMist.astro';
+import WorkNavFrost from './WorkNavFrost.astro';
+import NotesNavSand from './NotesNavSand.astro';
 
 interface Props {
   active?: 'about' | 'work' | 'notes';
@@ -8,7 +11,21 @@ interface Props {
 const { active } = Astro.props;
 ---
 
-<nav class="nav" aria-label="主导航" data-site-nav>
+<nav
+  class:list={[
+    'nav',
+    {
+      'nav--about': active === 'about',
+      'nav--work': active === 'work',
+      'nav--notes': active === 'notes',
+    },
+  ]}
+  aria-label="主导航"
+  data-site-nav
+>
+  {active === 'about' && <AboutNavMist />}
+  {active === 'work' && <WorkNavFrost />}
+  {active === 'notes' && <NotesNavSand />}
   <div class="nav-links">
     <a
       class:list={['nav-link', { active: active === 'about' }]}
@@ -36,21 +53,75 @@ const { active } = Astro.props;
 </nav>
 
 <script>
-  const nav = document.querySelector('[data-site-nav]');
+  const nav = document.querySelector<HTMLElement>('[data-site-nav]');
 
   if (nav) {
+    const aboutMist = nav.querySelector('.about-nav-mist');
+    const workFrost = nav.querySelector('.work-nav-frost');
+    const notesSand = nav.querySelector('.notes-nav-sand');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
     let scrolled = false;
+
+    const smoothstep = (start: number, end: number, value: number) => {
+      const x = Math.min(1, Math.max(0, (value - start) / (end - start)));
+      return x * x * (3 - 2 * x);
+    };
 
     const updateNav = () => {
       frame = 0;
       const y = window.scrollY;
+      const root = document.documentElement;
+      const scrollable = Math.max(1, root.scrollHeight - window.innerHeight);
 
       // 进入与返回使用不同阈值，避免在临界位置反复收拢、展开。
-      if (!scrolled && y > 72) scrolled = true;
-      else if (scrolled && y < 24) scrolled = false;
+      // 短页面提前收拢，让材质变化发生在悬浮玻璃上，而不是通栏导航上。
+      const hasWeather = aboutMist || workFrost || notesSand;
+      const enterThreshold = hasWeather ? Math.min(72, Math.max(24, scrollable * 0.18)) : 72;
+      const exitThreshold = hasWeather ? Math.min(24, enterThreshold * 0.45) : 24;
+      if (!scrolled && y > enterThreshold) scrolled = true;
+      else if (scrolled && y < exitThreshold) scrolled = false;
 
       nav.classList.toggle('is-scrolled', scrolled);
+      if (reducedMotion.matches) return;
+
+      if (aboutMist) {
+        // 短页面也能走完整过程；长页面则在前 420px 内完成凝露与蒸腾。
+        const distance = Math.min(420, scrollable);
+        const progress = Math.min(1, Math.max(0, y / distance));
+        const dew = smoothstep(0.04, 0.26, progress) * (1 - smoothstep(0.42, 0.78, progress));
+        const vapor = smoothstep(0.25, 0.8, progress);
+        const mist = smoothstep(0.38, 1, progress);
+
+        nav.style.setProperty('--about-dew-alpha', (dew * 0.95).toFixed(3));
+        nav.style.setProperty('--about-vapor', vapor.toFixed(3));
+        nav.style.setProperty('--about-mist', mist.toFixed(3));
+        nav.style.setProperty('--about-mist-alpha', (mist * 0.78).toFixed(3));
+        nav.style.setProperty('--about-haze-alpha', (mist * 0.42).toFixed(3));
+      }
+
+      if (workFrost) {
+        const distance = Math.min(560, scrollable);
+        const progress = Math.min(1, Math.max(0, y / distance));
+        const frost = smoothstep(0.1, 0.52, progress);
+        const fracture = smoothstep(0.5, 0.94, progress);
+        const stress = smoothstep(0.82, 1, progress);
+
+        nav.style.setProperty('--work-frost-alpha', (frost * 0.92).toFixed(3));
+        nav.style.setProperty('--work-ice-alpha', (frost * 0.72).toFixed(3));
+        nav.style.setProperty('--work-fracture', fracture.toFixed(3));
+        nav.style.setProperty('--work-fracture-alpha', (fracture * 0.86).toFixed(3));
+        nav.style.setProperty('--work-stress-alpha', stress.toFixed(3));
+      }
+
+      if (notesSand) {
+        const distance = Math.min(480, scrollable);
+        const progress = Math.min(1, Math.max(0, y / distance));
+        const sand = smoothstep(0.08, 0.72, progress);
+
+        nav.style.setProperty('--notes-sand-surface-alpha', (sand * 0.62).toFixed(3));
+        nav.style.setProperty('--notes-sand-intensity', sand.toFixed(3));
+      }
     };
 
     const requestUpdate = () => {
@@ -60,5 +131,7 @@ const { active } = Astro.props;
 
     updateNav();
     window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate, { passive: true });
+    reducedMotion.addEventListener('change', requestUpdate);
   }
 </script>

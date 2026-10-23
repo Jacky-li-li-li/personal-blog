@@ -385,6 +385,325 @@ svg {
   box-shadow: var(--shadow-2);
 }
 
+/* About 顶栏的水汽外饰：露珠只沿下缘凝结，随后向上蒸腾并顺风展开。
+   装饰独立于导航内容，文字、点击热区与玻璃主体始终不被雾气遮盖。 */
+.nav--about {
+  --about-mist-line: 72 98 79;
+  --about-mist-cloud: 248 250 241;
+  isolation: isolate;
+}
+
+[data-theme="dark"] .nav--about {
+  --about-mist-line: 190 211 190;
+  --about-mist-cloud: 164 185 169;
+}
+
+.nav--about .nav-links,
+.nav--about .theme-btn {
+  position: relative;
+  z-index: 2;
+}
+
+.about-nav-mist {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: visible;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.about-nav-dew-rim {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid rgb(var(--about-mist-line) / 0.18);
+  border-radius: inherit;
+  opacity: var(--about-dew-alpha, 0);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 -5px 10px -8px rgb(var(--about-mist-line) / 0.66),
+    0 1px 5px -3px rgb(var(--about-mist-line) / 0.4);
+}
+
+.about-nav-drops {
+  position: absolute;
+  inset: 0;
+}
+
+.about-nav-drops span {
+  position: absolute;
+  left: var(--left);
+  bottom: 3px;
+  width: var(--size);
+  height: calc(var(--size) * 1.65);
+  border-radius: 58% 42% 55% 45%;
+  opacity: var(--about-dew-alpha, 0);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.94) 4%,
+    rgb(var(--about-mist-line) / 0.3) 72%
+  );
+  box-shadow:
+    inset 0.6px 0.6px 0.8px rgba(255, 255, 255, 0.9),
+    0 0.5px 1.5px rgb(var(--about-mist-line) / 0.28);
+  transform: translate3d(
+      calc(var(--about-vapor, 0) * var(--drift)),
+      calc(var(--about-vapor, 0) * var(--rise) * -1),
+      0
+    )
+    scale(calc(1 - var(--about-vapor, 0) * 0.48));
+  transform-origin: 50% 100%;
+}
+
+.about-nav-drops span:nth-child(2n) {
+  opacity: calc(var(--about-dew-alpha, 0) * 0.68);
+}
+
+.about-nav-vapor {
+  position: absolute;
+  top: -34px;
+  left: -50px;
+  width: calc(100% + 100px);
+  height: 104px;
+  overflow: visible;
+  color: rgb(var(--about-mist-cloud) / 0.82);
+  opacity: var(--about-mist-alpha, 0);
+  filter: drop-shadow(0 1px 2px rgb(var(--about-mist-line) / 0.14));
+  transform: translate3d(
+    calc(var(--about-mist, 0) * 16px),
+    calc(var(--about-mist, 0) * -5px),
+    0
+  );
+}
+
+.about-nav-vapor path {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: about-nav-mist-drift 7s ease-in-out infinite alternate;
+}
+
+.about-nav-vapor-wide {
+  stroke-width: 10;
+  opacity: 0.38;
+  filter: blur(3.5px);
+  animation-duration: 9s;
+}
+
+.about-nav-vapor-mid {
+  stroke-width: 5;
+  opacity: 0.46;
+  filter: blur(2px);
+  animation-delay: -2.6s !important;
+  animation-duration: 7s !important;
+  animation-direction: alternate-reverse !important;
+}
+
+.about-nav-vapor-fine {
+  stroke-width: 1.4;
+  opacity: 0.48;
+  filter: blur(0.5px);
+  animation-delay: -4.2s !important;
+  animation-duration: 5.5s !important;
+}
+
+.about-nav-haze {
+  position: absolute;
+  top: -14px;
+  left: -36px;
+  width: calc(100% + 92px);
+  height: 64px;
+  opacity: var(--about-haze-alpha, 0);
+  background: radial-gradient(
+    ellipse at 50% 70%,
+    rgb(var(--about-mist-cloud) / 0.5),
+    rgb(var(--about-mist-cloud) / 0.12) 48%,
+    transparent 74%
+  );
+  filter: blur(8px);
+  transform: translate3d(calc(var(--about-mist, 0) * 12px), 0, 0);
+  animation: about-nav-haze-drift 9s ease-in-out infinite alternate;
+}
+
+@keyframes about-nav-mist-drift {
+  from { transform: translate3d(-12px, 2px, 0) scaleX(0.96); }
+  to { transform: translate3d(14px, -2px, 0) scaleX(1.04); }
+}
+
+@keyframes about-nav-haze-drift {
+  from { translate: -8px 1px; }
+  to { translate: 8px -1px; }
+}
+
+/* Work 顶栏的冰层外饰：霜花沿边缘生长，裂纹从两侧向中央延伸。
+   最后一阶段只增加应力闪光，不移动导航，也不让玻璃真正破裂。 */
+.nav--work {
+  --work-ice-rgb: 197 225 229;
+  --work-frost-ink: 90 139 148;
+  --work-crack-ink: 41 83 94;
+  isolation: isolate;
+}
+
+[data-theme="dark"] .nav--work {
+  --work-ice-rgb: 85 125 136;
+  --work-frost-ink: 165 211 218;
+  --work-crack-ink: 190 227 232;
+}
+
+.nav--work .nav-links,
+.nav--work .theme-btn {
+  position: relative;
+  z-index: 2;
+}
+
+.work-nav-frost {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: visible;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.work-nav-ice-shell {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid rgb(var(--work-frost-ink) / 0.32);
+  border-radius: inherit;
+  opacity: var(--work-ice-alpha, 0);
+  background: linear-gradient(
+    112deg,
+    rgba(255, 255, 255, 0.68),
+    rgb(var(--work-ice-rgb) / 0.28) 42%,
+    rgba(255, 255, 255, 0.46) 68%,
+    rgb(var(--work-ice-rgb) / 0.2)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    inset 0 -7px 12px -11px rgb(var(--work-frost-ink) / 0.9),
+    0 0 9px -5px rgb(var(--work-frost-ink) / 0.66);
+}
+
+.work-nav-crystals,
+.work-nav-fractures {
+  position: absolute;
+  overflow: visible;
+}
+
+.work-nav-crystals {
+  inset: -6px -7px;
+  width: calc(100% + 14px);
+  height: calc(100% + 12px);
+  color: rgb(var(--work-frost-ink) / 0.88);
+  opacity: var(--work-frost-alpha, 0);
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.84));
+}
+
+.work-nav-crystals path {
+  stroke-width: 0.85;
+  vector-effect: non-scaling-stroke;
+}
+
+.work-nav-fractures {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: var(--work-fracture-alpha, 0);
+}
+
+.work-nav-crack-highlight,
+.work-nav-crack-core {
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--work-fracture, 0));
+}
+
+.work-nav-crack-highlight {
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 1.5;
+}
+
+.work-nav-crack-core {
+  stroke: rgb(var(--work-crack-ink) / 0.72);
+  stroke-width: 0.72;
+}
+
+.work-nav-stress {
+  position: absolute;
+  inset: 0;
+}
+
+.work-nav-stress span {
+  position: absolute;
+  left: var(--glint-x);
+  top: var(--glint-y);
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  opacity: var(--work-stress-alpha, 0);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 0 5px 1px rgb(var(--work-frost-ink) / 0.52);
+  animation: work-nav-stress-glint 2.4s ease-in-out infinite;
+}
+
+.work-nav-stress span:nth-child(2) { animation-delay: -0.8s; }
+.work-nav-stress span:nth-child(3) { animation-delay: -1.6s; }
+
+@keyframes work-nav-stress-glint {
+  0%, 100% { filter: brightness(0.8); }
+  50% { filter: brightness(1.45); }
+}
+
+/* Notes 顶栏的风沙外饰：细沙以不同速度和粒径横向掠过玻璃，
+   少量短轨迹表现风向；磨砂只作用于背景，导航文字保持清晰。 */
+.nav--notes {
+  --notes-wind-rgb: 156 113 66;
+  --notes-sand-surface-rgb: 213 185 133;
+  isolation: isolate;
+}
+
+[data-theme="dark"] .nav--notes {
+  --notes-wind-rgb: 197 163 111;
+  --notes-sand-surface-rgb: 112 88 58;
+}
+
+.nav--notes .nav-links,
+.nav--notes .theme-btn {
+  position: relative;
+  z-index: 2;
+}
+
+.notes-nav-sand {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: visible;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.notes-nav-sand-surface {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid rgb(var(--notes-wind-rgb) / 0.2);
+  border-radius: inherit;
+  opacity: var(--notes-sand-surface-alpha, 0);
+  background:
+    radial-gradient(ellipse at 16% 110%, rgb(var(--notes-sand-surface-rgb) / 0.2), transparent 46%),
+    linear-gradient(102deg, transparent 12%, rgb(var(--notes-sand-surface-rgb) / 0.12) 54%, transparent 88%);
+  -webkit-backdrop-filter: blur(0.6px) saturate(0.78);
+  backdrop-filter: blur(0.6px) saturate(0.78);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    inset 0 -5px 9px -9px rgb(var(--notes-wind-rgb) / 0.66);
+}
+
+.notes-nav-sand-canvas {
+  position: absolute;
+  inset: -12px -22px;
+  width: calc(100% + 44px);
+  height: calc(100% + 24px);
+  overflow: visible;
+}
+
 /* 左侧导航项聚成一簇 */
 .nav-links {
   display: flex;
@@ -1647,6 +1966,16 @@ footer nav {
     padding: 6px 8px;
   }
 
+  .about-nav-vapor {
+    top: -28px;
+    left: -24px;
+    width: calc(100% + 48px);
+  }
+
+  .about-nav-drops span:nth-child(n + 6) {
+    display: none;
+  }
+
   .hero {
     padding-top: 122px;
   }
@@ -1866,6 +2195,12 @@ footer nav {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .about-nav-mist,
+  .work-nav-frost,
+  .notes-nav-sand {
+    display: none;
   }
 
   .js .reveal {

@@ -1,0 +1,105 @@
+<div class="notes-nav-sand" aria-hidden="true">
+  <div class="notes-nav-sand-surface"></div>
+  <canvas class="notes-nav-sand-canvas" data-notes-sand></canvas>
+</div>
+
+<script>
+  const sandCanvas = document.querySelector<HTMLCanvasElement>('[data-notes-sand]');
+
+  if (sandCanvas) {
+    const context = sandCanvas.getContext('2d');
+    const nav = sandCanvas.closest<HTMLElement>('[data-site-nav]');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    if (context && nav) {
+      type SandGrain = {
+        x: number;
+        y: number;
+        speed: number;
+        radius: number;
+        alpha: number;
+        phase: number;
+        drift: number;
+        streak: boolean;
+      };
+
+      let width = 0;
+      let height = 0;
+      let grains: SandGrain[] = [];
+      let previousTime = 0;
+      let seed = 7421;
+
+      const random = () => {
+        seed = (seed * 16807) % 2147483647;
+        return (seed - 1) / 2147483646;
+      };
+
+      const resetGrain = (grain: SandGrain, initial = false) => {
+        grain.x = initial ? random() * width : -8 - random() * width * 0.22;
+        grain.y = height * (0.24 + random() * 0.56);
+        grain.speed = 52 + random() * 118;
+        grain.radius = 0.32 + random() * 0.72;
+        grain.alpha = 0.16 + random() * 0.44;
+        grain.phase = random() * Math.PI * 2;
+        grain.drift = (random() - 0.5) * 5;
+        grain.streak = random() > 0.68;
+      };
+
+      const resize = () => {
+        const bounds = sandCanvas.getBoundingClientRect();
+        const ratio = Math.min(2, window.devicePixelRatio || 1);
+        width = bounds.width;
+        height = bounds.height;
+        sandCanvas.width = Math.round(width * ratio);
+        sandCanvas.height = Math.round(height * ratio);
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        grains = Array.from({ length: width < 420 ? 34 : 52 }, () => {
+          const grain = {} as SandGrain;
+          resetGrain(grain, true);
+          return grain;
+        });
+      };
+
+      const draw = (time: number) => {
+        const elapsed = previousTime ? Math.min(0.05, (time - previousTime) / 1000) : 0;
+        previousTime = time;
+        context.clearRect(0, 0, width, height);
+
+        const intensity = Number(nav.style.getPropertyValue('--notes-sand-intensity')) || 0;
+        if (!reducedMotion.matches && intensity > 0.01 && !document.hidden) {
+          const rgb = getComputedStyle(sandCanvas).getPropertyValue('--notes-wind-rgb').trim().split(/\s+/).join(',');
+
+          grains.forEach((grain) => {
+            grain.x += grain.speed * (0.3 + intensity * 0.7) * elapsed;
+            grain.y += (Math.sin(time * 0.0015 + grain.phase) * 3 + grain.drift) * elapsed;
+            if (grain.x > width + 12 || grain.y < 0 || grain.y > height) resetGrain(grain);
+
+            const edge = Math.min(1, Math.max(0, grain.x / 22), Math.max(0, (width - grain.x) / 22));
+            const alpha = grain.alpha * intensity * edge;
+            if (alpha <= 0) return;
+
+            if (grain.streak) {
+              context.beginPath();
+              context.moveTo(grain.x - grain.speed * 0.045, grain.y - grain.drift * 0.12);
+              context.lineTo(grain.x, grain.y);
+              context.strokeStyle = `rgba(${rgb},${alpha * 0.42})`;
+              context.lineWidth = Math.max(0.35, grain.radius * 0.52);
+              context.stroke();
+            }
+
+            context.beginPath();
+            context.ellipse(grain.x, grain.y, grain.radius * 1.2, grain.radius * 0.58, 0, 0, Math.PI * 2);
+            context.fillStyle = `rgba(${rgb},${alpha})`;
+            context.fill();
+          });
+        }
+
+        window.requestAnimationFrame(draw);
+      };
+
+      resize();
+      new ResizeObserver(resize).observe(sandCanvas);
+      window.requestAnimationFrame(draw);
+    }
+  }
+</script>

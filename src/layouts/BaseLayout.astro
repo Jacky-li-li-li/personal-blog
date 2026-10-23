@@ -39,7 +39,7 @@ const active = Astro.url.pathname.startsWith('/notes')
   ? 'notes'
   : Astro.url.pathname.startsWith('/work')
     ? 'work'
-    : Astro.url.pathname.startsWith('/about')
+    : Astro.url.pathname.startsWith('/about') || Astro.url.pathname === '/'
       ? 'about'
       : undefined;
 const jsonLdString = jsonLd
