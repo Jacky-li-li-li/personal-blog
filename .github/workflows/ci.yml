@@ -45,6 +45,7 @@ jobs:
       - name: Check build output
         run: |
           test -f dist/index.html || { echo "dist/index.html 缺失"; exit 1; }
-          test -f dist/notes/index.html || { echo "dist/notes/index.html 缺失"; exit 1; }
+          test -f dist/about.html || { echo "dist/about.html 缺失"; exit 1; }
+          test -f dist/notes.html || { echo "dist/notes.html 缺失"; exit 1; }
           test -f dist/rss.xml || { echo "dist/rss.xml 缺失"; exit 1; }
           echo "构建产物检查通过"
