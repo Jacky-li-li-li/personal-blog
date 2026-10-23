@@ -53,6 +53,42 @@ import { site } from '../data/site';
     <div class="profile-bio">
       <p class="lede">{site.tagline}</p>
       <p class="intro blur-highlight" set:html={site.intro}></p>
+      <script is:inline>
+        // 把简介拆成「英文词 / 中文单字 / 标点」序列，按顺序给出递增延迟，
+        // 形成从左到右依次清晰的扫过效果；无脚本时文字保持正常可见。
+        (() => {
+          const intro = document.querySelector('.intro.blur-highlight');
+          if (!intro) return;
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+          let index = 0;
+          const split = (node) => {
+            if (node.nodeType === Node.TEXT_NODE) {
+              const frag = document.createDocumentFragment();
+              const tokens = node.textContent.match(/[A-Za-z0-9][A-Za-z0-9+#._-]*|\s+|[^\s]/g) || [];
+              tokens.forEach((token) => {
+                if (/^\s+$/.test(token)) {
+                  frag.appendChild(document.createTextNode(token));
+                  return;
+                }
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.style.setProperty('--i', index++);
+                span.textContent = token;
+                frag.appendChild(span);
+              });
+              return frag;
+            }
+            const clone = node.cloneNode(false);
+            node.childNodes.forEach((child) => clone.appendChild(split(child)));
+            return clone;
+          };
+
+          const replacement = document.createDocumentFragment();
+          intro.childNodes.forEach((child) => replacement.appendChild(split(child)));
+          intro.replaceChildren(replacement);
+        })();
+      </script>
     </div>
   </div>
 </header>
