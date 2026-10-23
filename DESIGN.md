@@ -1,6 +1,6 @@
 # clok.fun 全站设计规范
 
-> 版本：v1.0 · 2026-10-24  
+> 版本：v1.1 · 2026-10-24
 > 适用范围：首页、About、Work、Notes 列表、笔记正文、404，以及后续新增页面与组件。  
 > 实现入口：`src/styles/global.css`；产品背景与历史方案见 `docs/site-plan.md`。
 
@@ -10,7 +10,7 @@ clok.fun 是「一份可被阅读的个人介绍 + 一本持续生长的笔记�
 
 - **纸，不是屏幕**：暖纸底、微弱颗粒、低对比边界，让长文阅读不被 UI 打断。
 - **排版即品牌**：依靠留白、字号和字体角色建立识别，不依赖插画、渐变或大面积色块。
-- **一个视觉焦点**：首页方块阵与身份标签对焦是签名交互，其余组件保持安静。
+- **一个视觉焦点**：首页方块阵与身份标签对焦是签名交互，其余组件保持安静；顶栏的页面感知材质（§8.1.1）是各页面的环境签名，同样保持克制。
 - **颜色服务阅读**：青碧只做强调，不大面积铺色，不用低对比文字换取“更亮”。
 - **动效解释状态**：只用于进入、悬停反馈和顶栏形态衔接，不做无目的漂浮或循环动画。
 
@@ -205,6 +205,7 @@ clok.fun 是「一份可被阅读的个人介绍 + 一本持续生长的笔记�
 - 滚动监听必须 passive，并通过 `requestAnimationFrame` 合并写入。
 - 优先动画 `transform` 与 `opacity`；顶栏收拢是明确的容器形变例外，但文字尺寸不变。
 - `prefers-reduced-motion: reduce` 下取消平滑滚动、位移和入场动画；方块阵不启用。
+- 顶栏的页面感知材质（§8.1.1）由滚动进度编排，属于环境微动：停止滚动后仍可保留底层动态，但不得自主吸引注意力。
 
 ## 8. 核心组件
 
@@ -222,6 +223,26 @@ clok.fun 是「一份可被阅读的个人介绍 + 一本持续生长的笔记�
 | 触控 | 视觉图标可小于 44px，但实际点击热区至少 44px |
 
 顶栏收拢只改变容器宽度、内边距、背景和阴影，不改变文字与控件尺寸。
+
+#### 8.1.1 页面感知玻璃导航
+
+液态玻璃顶栏在存在顶部装饰场景的路由上，会随向下滚动逐步呈现该页主题的顶栏材质；世界观统一为「水态」：About 是清晨草叶水汽凝结成雾，Work 是融雪遇冷冻结且应力累积，Notes 是古道水资源极度匮乏、只剩风沙侵蚀玻璃。三者都只做渐变、缓慢的编排，不做突然变形、持续闪烁或拟物水滴。
+
+共享机制（实现统一在 `src/components/Nav.astro` 与各页装饰组件中）：
+
+- 页面存在装饰层时，顶栏收拢的进入阈值为 `Math.min(72, Math.max(24, scrollable * 0.18))`，返回阈值为 `Math.min(24, enterThreshold * 0.45)`；普通页面仍是 72 / 24。
+- 滚动监听使用 passive + `requestAnimationFrame` 合并写入；`prefers-reduced-motion: reduce` 下不写任何材质变量。
+- 材质层统一 `aria-hidden="true"`、`pointer-events: none`、容器 `z-index: 1`；`.nav-links` 与 `.theme-btn` 为 `z-index: 2`，材质不得遮挡文字与热区。
+- 全局 reduced-motion 媒体查询将 `.about-nav-mist`、`.work-nav-frost`、`.notes-nav-sand` 全部 `display: none`；Notes 的 Canvas 脚本自身也检查 reduced-motion 与 `document.hidden`。
+- `/` 与 `/about` 渲染同一 `src/components/AboutPage.astro`，About 材质同样出现在首页；`/work`、`/notes` 分别挂载各自材质。
+
+| 页面 | 材质阶段 | 编排 |
+| --- | --- | --- |
+| About（`AboutNavMist.astro`） | 露珠 → 晨雾 | 滚动距离 `min(420, scrollable)`；露珠 `smoothstep(.04,.26,p) × (1 − smoothstep(.42,.78,p))`，写 `--about-dew-alpha`（峰值 .95）与 `--about-vapor`；雾 `smoothstep(.38,1,p)`，写 `--about-mist`（透明 .78）与 haze（.42）。雾层贴液态玻璃上缘偏下：桌面 top −34px、移动 −28px；三层雾丝周期 9s / 7s / 5.5s，底层雾周期 9s，停止滚动后仍持续动态。浅色 `--about-mist-line: 72 98 79`、`--about-mist-cloud: 248 250 241`；暗色 `190 211 190`、`164 185 169`。 |
+| Work（`WorkNavFrost.astro`） | 霜 → 裂纹 → 应力闪光 | 滚动距离 `min(560, scrollable)`；霜 `smoothstep(.10,.52,p)`，写 `--work-frost-alpha`（.92）与 `--work-ice-alpha`（.72）；裂纹 `smoothstep(.50,.94,p)`，SVG `pathLength=1` + `stroke-dasharray: 1` 配合 CSS dashoffset 描绘，透明 .86；应力 `smoothstep(.82,1,p)`，仅 2px 静态闪光，不移动、不真正破碎。浅色 `--work-ice-rgb: 197 225 229`、`--work-frost-ink: 90 139 148`、`--work-crack-ink: 41 83 94`；暗色 `85 125 136`、`165 211 218`、`190 227 232`。 |
+| Notes（`NotesNavSand.astro`） | 磨砂 → 风沙 | 拟物水滴方案已否决并移除。滚动距离 `min(480, scrollable)`；风强 `smoothstep(.08,.72,p)`，写 `--notes-sand-surface-alpha`（峰值 .62）与 `--notes-sand-intensity`。Canvas 粒子桌面 52、移动 34，DPR 上限 2；速度基础 52–170 px/s 再乘 `(0.3 + intensity × .7)`，半径 .32–1.04，透明度 .16–.60，约 32% 粒子带短轨迹。浅色 `--notes-wind-rgb: 156 113 66`、`--notes-sand-surface-rgb: 213 185 133`；暗色 `197 163 111`、`112 88 58`。 |
+
+新增或修改顶栏材质时：先确认它属于某个页面的水态叙事；材质透明度峰值不超过表中所列；任何新增变量必须同时给出浅色与暗色值，并通过 §9 的全部检查项。
 
 ### 8.2 About 纸版草原
 
