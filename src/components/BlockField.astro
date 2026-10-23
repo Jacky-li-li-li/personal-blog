@@ -256,6 +256,9 @@
     resize();
 
     window.addEventListener('pointermove', onPointerMove, { passive: true });
+    // 页面加载时指针已经停在英雄区（例如刷新时停在标签上）只会派发 pointerover，
+    // 不会派发 pointermove；补上它，避免标签已进入 hover 而背景仍是空的。
+    window.addEventListener('pointerover', onPointerMove, { passive: true });
     window.addEventListener('pointerout', onPointerOut, { passive: true });
     window.addEventListener('blur', () => setActive(false));
     window.addEventListener('scroll', () => setActive(false), { passive: true });
