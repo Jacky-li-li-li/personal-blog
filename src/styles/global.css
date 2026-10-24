@@ -1129,6 +1129,13 @@ html[data-theme="dark"] .icon-moon {
 
 /* ---------- experience / projects ---------- */
 /* 编辑式履历：没有卡片外框，仅靠分隔线、时间线与留白建立层级。 */
+@media (prefers-reduced-motion: reduce) {
+  .experience-projects,
+  .experience-action svg {
+    transition: none;
+  }
+}
+
 .experience-panel {
   margin-top: 96px;
   padding-top: 28px;
@@ -1235,24 +1242,11 @@ html[data-theme="dark"] .icon-moon {
   line-height: inherit;
 }
 
+/* 展开由悬停与键盘聚焦驱动，整块经历区域是悬停敏感区，无点击交互。 */
 .experience-toggle {
   display: block;
   width: 100%;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: transparent;
   text-align: left;
-  cursor: pointer;
-}
-
-.experience-toggle.is-static {
-  cursor: default;
-}
-
-.experience-toggle:focus-visible {
-  outline-offset: 8px;
 }
 
 /* 主次层级：首行左侧为公司 logo（素材已裁切左右安全留白，首字母与正文左缘对齐；缺官方 logo 时回退公司名文本），
