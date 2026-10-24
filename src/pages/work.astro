@@ -100,6 +100,7 @@ const description =
     const waterFront = workPage.querySelector<SVGRectElement>('[data-work-water-front]');
     let frame = 0;
     let flowFrame = 0;
+    let lastLayoutKey = '';
 
     const drawRiver = () => {
       frame = 0;
@@ -122,6 +123,16 @@ const description =
       const mobile = window.matchMedia('(max-width: 760px)').matches;
       const sourceY = mobile ? 104 : 140;
       const sceneBottom = sceneBounds.bottom - bounds.top;
+
+      // 经历面板开合不改变河道几何（河道止于首个节点，面板都在它下方）。
+      // 布局指纹未变时跳过重建，避免过渡期间逐帧重绘导致闪烁。
+      const layoutKey = [
+        Math.round(bounds.width), Math.round(x), Math.round(firstY),
+        Math.round(sceneBottom), mobile ? 1 : 0,
+      ].join('|');
+      if (layoutKey === lastLayoutKey) return;
+      lastLayoutKey = layoutKey;
+
       const bend = mobile ? 8 : 26;
       const widthScale = mobile ? 0.58 : 1;
       const mountainSpan = sceneBottom - sourceY;
@@ -187,7 +198,11 @@ const description =
         return `${outline.map(([px, py], index) => `${index === 0 ? 'M' : 'L'}${round(px)} ${round(py)}`).join(' ')} Z`;
       };
 
-      river.setAttribute('viewBox', `0 0 ${bounds.width} ${bounds.height}`);
+      // SVG 高度按河道实际范围固定（首个节点 + 余量），与页面高度解耦：
+      // 面板开合过渡改变页面高度时，元素尺寸稳定，viewBox 不会与布局错帧。
+      const svgHeight = Math.ceil(firstY + 48);
+      river.setAttribute('viewBox', `0 0 ${bounds.width} ${svgHeight}`);
+      river.style.height = `${svgHeight}px`;
 
       // 将三座山的实际轮廓映射到河道坐标系，山体外的河段一律裁掉。
       const riverMatrix = river.getCTM();
