@@ -37,12 +37,4 @@ export const experiences: Experience[] = [
       '负责体验域 AI 产品从 0 到 1：把用户调研、VOC 洞察与体验标准做成可验收、可复用的 Agent 产品。',
     projects: ['virtual-interview', 'voc-agent', 'bees', 'bec'],
   },
-  {
-    id: 'designer-years',
-    start: '2022',
-    end: '2024',
-    role: '交互设计师',
-    org: ' preceding company',
-    summary: '测试用临时经历条目，验证时间线水流，不会提交。',
-  },
 ];
