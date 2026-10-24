@@ -1255,6 +1255,7 @@ html[data-theme="dark"] .icon-moon {
   outline-offset: 8px;
 }
 
+/* 主次层级：公司一级、职位次级（同为墨色），简介弱化为辅助信息。 */
 .experience-company {
   display: block;
   color: var(--ink);
@@ -1271,10 +1272,11 @@ html[data-theme="dark"] .icon-moon {
 
 .experience-role {
   display: block;
-  margin-top: 3px;
-  color: var(--muted);
-  font-size: 14.5px;
-  line-height: 1.6;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 15.5px;
+  font-weight: 500;
+  line-height: 1.55;
 }
 
 .experience-awards {
@@ -1305,22 +1307,23 @@ html[data-theme="dark"] .icon-moon {
   text-wrap: pretty;
 }
 
+/* 项目入口：简介下方单一的青碧文字与箭头，不与简介之间画分割线。 */
 .experience-action {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   margin-top: 18px;
-  padding-top: 15px;
-  border-top: 1px solid var(--line);
   color: var(--accent-ink);
   font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   line-height: 1.5;
 }
 
-.experience-action-hint {
-  margin-left: auto;
-  color: var(--muted);
-  font-size: 12.5px;
+.experience-toggle:hover .experience-action {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
 }
 
 .experience-action svg {

@@ -60,7 +60,6 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
                 {hasProjects && (
                   <span class="experience-action">
                     <span>{relatedProjects.length} 个代表项目</span>
-                    <span class="experience-action-hint">查看</span>
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
                       <path d="m4 6 4 4 4-4"></path>
                     </svg>
@@ -103,8 +102,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
   experienceItems.forEach((item) => {
     const toggle = item.querySelector<HTMLButtonElement>('[data-experience-toggle]');
     const panel = item.querySelector<HTMLElement>('[data-experience-projects]');
-    const hint = item.querySelector<HTMLElement>('.experience-action-hint');
-    if (!toggle || !panel || !hint) return;
+    if (!toggle || !panel) return;
 
     toggle.addEventListener('click', () => {
       const open = !item.classList.contains('is-open');
@@ -112,7 +110,6 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
       toggle.setAttribute('aria-expanded', String(open));
       panel.setAttribute('aria-hidden', String(!open));
       panel.inert = !open;
-      hint.textContent = open ? '收起' : '查看';
     });
   });
 
