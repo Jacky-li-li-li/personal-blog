@@ -1255,11 +1255,13 @@ html[data-theme="dark"] .icon-moon {
   outline-offset: 8px;
 }
 
-/* 主次层级：首行左侧为公司 logo（缺官方 logo 时回退公司名文本），「部门 · 岗位」左对齐紧随其后。 */
+/* 主次层级：首行左侧为公司 logo（素材已裁切左右安全留白，首字母与正文左缘对齐；缺官方 logo 时回退公司名文本），
+   右侧为「部门 · 岗位」次级（字号略小）。 */
 .experience-heading-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 8px 20px;
 }
 
