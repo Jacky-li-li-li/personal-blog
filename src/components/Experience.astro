@@ -15,14 +15,13 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
         .map((id) => projectMap.get(id))
         .filter((project) => project !== undefined);
       const hasProjects = relatedProjects.length > 0;
-      const isOpen = hasProjects && index === 0;
       const projectsId = `experience-projects-${item.id}`;
       const companyId = `experience-company-${item.id}`;
       const HeaderTag = hasProjects ? 'button' : 'span';
 
       return (
         <article
-          class:list={['experience-item', { 'is-open': isOpen, 'is-active': index === 0 }]}
+          class:list={['experience-item', { 'is-active': index === 0 }]}
           id={`experience-${item.id}`}
           aria-labelledby={companyId}
           data-experience
@@ -42,7 +41,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
               <HeaderTag
                 class:list={['experience-toggle', { 'is-static': !hasProjects }]}
                 type={hasProjects ? 'button' : undefined}
-                aria-expanded={hasProjects ? isOpen : undefined}
+                aria-expanded={hasProjects ? 'false' : undefined}
                 aria-controls={hasProjects ? projectsId : undefined}
                 data-experience-toggle={hasProjects ? '' : undefined}
               >
@@ -61,7 +60,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
                 {hasProjects && (
                   <span class="experience-action">
                     <span>{relatedProjects.length} 个代表项目</span>
-                    <span class="experience-action-hint">{isOpen ? '收起' : '查看'}</span>
+                    <span class="experience-action-hint">查看</span>
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
                       <path d="m4 6 4 4 4-4"></path>
                     </svg>
@@ -74,8 +73,8 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
               <div
                 class="experience-projects"
                 id={projectsId}
-                aria-hidden={!isOpen}
-                inert={!isOpen}
+                aria-hidden="true"
+                inert
                 data-experience-projects
               >
                 <div class="experience-projects-inner">
