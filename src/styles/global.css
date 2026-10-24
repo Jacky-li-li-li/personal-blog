@@ -1677,7 +1677,7 @@ footer {
   justify-content: space-between;
   gap: var(--space-4);
   color: var(--muted);
-  font-size: 12.5px;
+  font-size: 14px;
   letter-spacing: 0.01em;
 }
 
@@ -1690,10 +1690,10 @@ footer nav {
   margin-right: -12px;
 }
 
-/* 页脚署名用 Comico：漫画感的展示字体，放大一号保持小字号下的可读性。 */
+/* 页脚署名用 Comico：漫画感的展示字体，随版权文字同步放大保持层级。 */
 .footer-name {
   font-family: var(--font-comico);
-  font-size: 14px;
+  font-size: 16px;
   letter-spacing: 0.02em;
 }
 
