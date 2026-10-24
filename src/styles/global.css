@@ -1166,7 +1166,7 @@ html[data-theme="dark"] .icon-moon {
 .experience-item:not(:last-child)::before {
   content: "";
   position: absolute;
-  top: 11px;
+  top: 28px;
   bottom: 0;
   left: 128px;
   width: 1px;
@@ -1176,7 +1176,7 @@ html[data-theme="dark"] .icon-moon {
 .experience-item::after {
   content: "";
   position: absolute;
-  top: 11px;
+  top: 28px;
   left: 124px;
   z-index: 2;
   width: 9px;
@@ -1255,13 +1255,12 @@ html[data-theme="dark"] .icon-moon {
   outline-offset: 8px;
 }
 
-/* 主次层级：首行左侧为公司 logo（缺官方 logo 时回退公司名文本），右侧为「部门 · 岗位」次级（字号略小）。 */
+/* 主次层级：首行左侧为公司 logo（缺官方 logo 时回退公司名文本），「部门 · 岗位」左对齐紧随其后。 */
 .experience-heading-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px 16px;
+  gap: 8px 20px;
 }
 
 .experience-company {
@@ -1284,7 +1283,7 @@ html[data-theme="dark"] .icon-moon {
 }
 
 .experience-logo {
-  height: 34px;
+  height: 68px;
   width: auto;
 }
 
@@ -2086,12 +2085,12 @@ footer nav {
   }
 
   .experience-item:not(:last-child)::before {
-    top: 11px;
+    top: 28px;
     left: 0;
   }
 
   .experience-item::after {
-    top: 11px;
+    top: 28px;
     left: -4px;
   }
 
