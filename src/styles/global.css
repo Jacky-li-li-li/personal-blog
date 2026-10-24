@@ -165,6 +165,7 @@
   --about-yurt-roof: #f4f0e4;
   --about-yurt-line: #7c8468;
   --about-horse: #394738;
+  --about-boy-shirt: #9b6b4f;
   --about-flower: #d2b66f;
   --notes-sun: #d9a45b;
   --notes-sun-halo: rgba(217, 164, 91, 0.14);
@@ -218,6 +219,7 @@
   --about-yurt-roof: #c9c0a7;
   --about-yurt-line: #5c654f;
   --about-horse: #17251f;
+  --about-boy-shirt: #b08163;
   --about-flower: #a28d5c;
   --notes-sun: #8e6c45;
   --notes-sun-halo: rgba(142, 108, 69, 0.1);
@@ -804,12 +806,13 @@ html[data-theme="dark"] .icon-moon {
   row-gap: 0;
 }
 
-/* 左栏：头像 + 联系方式，整体靠左 */
+/* 左栏：头像 + 联系方式，整体靠左，并相对右栏姓名 + 简介整体垂直居中 */
 .profile-id {
   grid-area: id;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  align-self: center;
   gap: var(--space-6);
 }
 
@@ -2420,6 +2423,7 @@ footer nav {
   .about-sheep-first { transform: translate(850px, 264px) scale(0.55); }
   .about-sheep-second { transform: translate(900px, 276px) scale(-0.62, 0.62); }
   .about-sheep-third { transform: translate(930px, 252px) scale(0.4); }
+  .about-boy-seat { transform: translate(880px, 234px) rotate(-2deg) scale(0.6); }
   .about-flowers-first { transform: translate(610px, 340px) scale(0.7); }
   .about-flowers-second { transform: translate(1040px, 337px) scale(0.65); }
 
