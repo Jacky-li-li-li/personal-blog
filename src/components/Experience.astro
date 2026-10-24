@@ -158,15 +158,17 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
   });
 
   // 时间线同时承担阅读定位：当前任职与视口内经历使用不同状态。
-  // 水流与年份高亮共用同一套阅读线判定：水位前端锚定当前阅读段落的节点，
-  // is-active 切换到哪段，水流就以过渡动画流到哪个节点。
+  // 青碧水流沿轨道随滚动以阅读线连续跟随：水位前端始终指向阅读线所在位置，
+  // 范围覆盖最后一段的完整轨道与渐隐尾段；reduced-motion 下直接满水。
   let activeItem: HTMLElement | undefined;
   let frame = 0;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  const updateExperienceFlow = (active: HTMLElement) => {
+  const updateExperienceFlow = (atPageEnd: boolean) => {
     if (!flow) return;
     const first = experienceItems[0];
-    if (!first || !flow.parentElement) return;
+    const last = experienceItems.at(-1);
+    if (!first || !last || !flow.parentElement) return;
     const nodeStyle = getComputedStyle(first, '::after');
     const nodeSize = Number.parseFloat(nodeStyle.width) || 9;
     const nodeLeft = Number.parseFloat(nodeStyle.left) || 0;
@@ -175,9 +177,14 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
     const firstBounds = first.getBoundingClientRect();
     flow.style.left = `${(firstBounds.left + nodeLeft + nodeSize / 2 - listBounds.left).toFixed(1)}px`;
     const startY = firstBounds.top + nodeTop + nodeSize / 2 - listBounds.top;
-    const activeBounds = active.getBoundingClientRect();
-    const front = activeBounds.top + nodeTop + nodeSize / 2 - listBounds.top;
+    // 轨道终点 = 最后一段内容底部 + 渐隐尾段（:last-child::before 的 bottom 为负值）。
+    const tail = Math.abs(Number.parseFloat(getComputedStyle(last, '::before').bottom)) || 0;
+    const endY = last.getBoundingClientRect().bottom + tail - listBounds.top;
     flow.style.top = `${startY.toFixed(1)}px`;
+    const readingLine = window.innerHeight * 0.38 - listBounds.top;
+    const front = atPageEnd || reducedMotion.matches
+      ? endY
+      : Math.min(endY, Math.max(startY, readingLine));
     flow.style.height = `${Math.max(0, front - startY).toFixed(1)}px`;
   };
 
@@ -194,7 +201,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
     const atPageEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
     if (atPageEnd) next = experienceItems.at(-1);
 
-    if (next) updateExperienceFlow(next);
+    updateExperienceFlow(atPageEnd);
     if (!next || next === activeItem) return;
 
     activeItem = next;

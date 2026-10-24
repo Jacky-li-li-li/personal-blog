@@ -1131,8 +1131,7 @@ html[data-theme="dark"] .icon-moon {
 /* 编辑式履历：没有卡片外框，仅靠分隔线、时间线与留白建立层级。 */
 @media (prefers-reduced-motion: reduce) {
   .experience-projects,
-  .experience-action svg,
-  .experience-flow {
+  .experience-action svg {
     transition: none;
   }
 }
@@ -1158,7 +1157,7 @@ html[data-theme="dark"] .icon-moon {
   margin-top: 30px;
 }
 
-/* 融水在时间线上的延续：水位前端锚定阅读线判定的当前段落节点，随段落切换流动；河床（灰轨道）先行。 */
+/* 融水在时间线上的延续：水位以阅读线连续跟随滚动，覆盖最后一段的完整轨道与渐隐尾段；河床（灰轨道）先行。 */
 .experience-flow {
   position: absolute;
   z-index: 1;
@@ -1168,7 +1167,6 @@ html[data-theme="dark"] .icon-moon {
   background: linear-gradient(to bottom, var(--work-water), var(--accent-ink));
   border-radius: 999px;
   pointer-events: none;
-  transition: height var(--duration-focus) var(--ease-out);
 }
 
 .experience-flow::after {
@@ -1672,7 +1670,7 @@ html[data-theme="dark"] .experience-logo-reverse {
 /* ---------- footer ---------- */
 footer {
   margin-top: 92px;
-  padding: 26px 0 44px;
+  padding: 22px 0 28px;
   border-top: 1px solid var(--line);
   display: flex;
   align-items: center;
@@ -2210,8 +2208,7 @@ footer nav {
   }
 
   footer {
-    flex-direction: column;
-    align-items: flex-start;
+    /* 移动端保持版权与联系入口同一行，沿用桌面的 space-between 布局。 */
     margin-top: var(--space-11);
   }
 
