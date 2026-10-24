@@ -141,17 +141,85 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
 
   // 悬停或键盘聚焦某段经历时自动展开，其余段落自动收起；
   // 触屏设备上点按会先触发 mouseenter，因此同样能展开。
-  const setItemOpen = (item: HTMLElement, open: boolean) => {
-    item.classList.toggle('is-open', open);
+  // 面板开合的滚动补偿：面板完全位于视口上方时，开合位移全部发生在视口外，
+  // 用与 CSS 过渡（--duration-panel / --ease-panel）同步的滚动动画抵消，
+  // 下方内容保持视觉静止；面板在视口内时保持自然展开效果。缓动参数须与 CSS 一致。
+  const PANEL_DURATION = 460;
+  const PANEL_EASE: [number, number, number, number] = [0.45, 0.05, 0.25, 1];
+  let scrollTweenFrame = 0;
+
+  const cancelScrollTween = () => {
+    if (scrollTweenFrame) {
+      window.cancelAnimationFrame(scrollTweenFrame);
+      scrollTweenFrame = 0;
+    }
+  };
+
+  window.addEventListener('wheel', cancelScrollTween, { passive: true });
+  window.addEventListener('touchstart', cancelScrollTween, { passive: true });
+
+  const tweenScrollBy = (delta: number) => {
+    cancelScrollTween();
+    if (reducedMotion.matches) {
+      window.scrollBy(0, delta);
+      return;
+    }
+    const startY = window.scrollY;
+    const startedAt = performance.now();
+    const step = (now: number) => {
+      const t = Math.min(1, (now - startedAt) / PANEL_DURATION);
+      let s = t;
+      if (t > 0 && t < 1) {
+        const [x1, , x2] = PANEL_EASE;
+        let lo = 0;
+        let hi = 1;
+        for (let i = 0; i < 24; i += 1) {
+          s = (lo + hi) / 2;
+          const x = 3 * s * (1 - s) * (1 - s) * x1 + 3 * s * s * (1 - s) * x2 + s * s * s;
+          if (Math.abs(x - t) < 1e-4) break;
+          if (x < t) lo = s;
+          else hi = s;
+        }
+      }
+      const [, y1, , y2] = PANEL_EASE;
+      const eased = 3 * s * (1 - s) * (1 - s) * y1 + 3 * s * s * (1 - s) * y2 + s * s * s;
+      window.scrollTo(0, startY + delta * eased);
+      scrollTweenFrame = t < 1 ? window.requestAnimationFrame(step) : 0;
+    };
+    scrollTweenFrame = window.requestAnimationFrame(step);
+  };
+
+  const setItemOpen = (item: HTMLElement, open: boolean, compensate = false) => {
     const panel = item.querySelector<HTMLElement>('[data-experience-projects]');
-    if (!panel) return;
+    const wasOpen = item.classList.contains('is-open');
+    item.classList.toggle('is-open', open);
+    if (!panel || wasOpen === open) {
+      if (panel) {
+        panel.setAttribute('aria-hidden', String(!open));
+        panel.inert = !open;
+      }
+      return;
+    }
     panel.setAttribute('aria-hidden', String(!open));
     panel.inert = !open;
+    if (!compensate) return;
+    const inner = panel.querySelector<HTMLElement>('.experience-projects-inner');
+    if (!inner) return;
+    // 折叠总是补偿：下方内容保持视觉静止。展开仅在面板完全位于视口上方时补偿，
+    // 视口内的展开保持自然铺开效果。
+    if (open) {
+      if (panel.getBoundingClientRect().top >= 0) return;
+      const delta = inner.scrollHeight;
+      if (delta > 0) tweenScrollBy(delta);
+    } else {
+      const delta = inner.getBoundingClientRect().height;
+      if (delta > 0) tweenScrollBy(-delta);
+    }
   };
 
   experienceItems.forEach((item) => {
     const expand = () => {
-      experienceItems.forEach((other) => setItemOpen(other, other === item));
+      experienceItems.forEach((other) => setItemOpen(other, other === item, true));
     };
     item.addEventListener('mouseenter', expand);
     item.addEventListener('focusin', expand);
@@ -172,7 +240,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
     experienceList.addEventListener('mouseenter', () => { pointerInList = true; });
     experienceList.addEventListener('mouseleave', () => {
       pointerInList = false;
-      experienceItems.forEach((other) => setItemOpen(other, false));
+      experienceItems.forEach((other) => setItemOpen(other, false, true));
       // 折叠让页面变矮，浏览器夹紧 scrollY 并派发程序性 scroll 事件（scrollY 减小）。
       // 守卫窗口内只放行向下的滚动接管，避免「刚折叠又被夹紧事件重新展开」。
       collapseGuardUntil = performance.now() + 600;

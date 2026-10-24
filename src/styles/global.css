@@ -122,11 +122,13 @@
   --duration-hover: 180ms;
   --duration-base: 200ms;
   --duration-focus: 300ms;
+  --duration-panel: 460ms;
   --duration-theme: 400ms;
   --duration-enter: 550ms;
   --duration-nav: 560ms;
   --duration-char: 600ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-panel: cubic-bezier(0.45, 0.05, 0.25, 1);
 
   /* 语义色：组件只消费这一层，不直接引用品牌色或页面底色。 */
   --bg: #fefdfa;
@@ -1140,6 +1142,8 @@ html[data-theme="dark"] .icon-moon {
   margin-top: 96px;
   padding-top: 28px;
   border-top: 1px solid var(--line);
+  /* 开合位移由组件内的同步滚动补偿负责，排除原生滚动锚定的双重叠加。 */
+  overflow-anchor: none;
 }
 
 .label {
@@ -1407,9 +1411,9 @@ html[data-theme="dark"] .experience-logo-reverse {
   opacity: 0;
   transform: translateY(-8px);
   transition:
-    grid-template-rows var(--duration-focus) var(--ease-out),
+    grid-template-rows var(--duration-panel) var(--ease-panel),
     opacity var(--duration-base) ease,
-    transform var(--duration-focus) var(--ease-out);
+    transform var(--duration-panel) var(--ease-panel);
 }
 
 .experience-projects-inner {
