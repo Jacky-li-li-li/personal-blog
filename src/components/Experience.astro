@@ -139,7 +139,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
   );
   const flow = document.querySelector<HTMLElement>('[data-experience-flow]');
 
-  // 悬停或键盘聚焦某段经历时自动展开，其余段落自动收起；指针移出后保持最后一段展开，
+  // 悬停或键盘聚焦某段经历时自动展开，其余段落自动收起；
   // 触屏设备上点按会先触发 mouseenter，因此同样能展开。
   const setItemOpen = (item: HTMLElement, open: boolean) => {
     item.classList.toggle('is-open', open);
@@ -159,6 +159,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
 
   // 展开的优先级：指针在经历列表内时悬停优先，滚动不改变展开；指针离开（或设备无
   // 悬停能力，如触屏）后由滚动接管——滚动停止约 250ms 后自动展开阅读线所在段落。
+  // 指针离开列表时立即折叠：展开只由当前意图（悬停或滚动接管）持有，不粘滞。
   const canHover = window.matchMedia('(hover: hover)').matches;
   const experienceList = document.querySelector<HTMLElement>('.experience-list');
   let pointerInList = false;
@@ -167,7 +168,10 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
 
   if (canHover && experienceList) {
     experienceList.addEventListener('mouseenter', () => { pointerInList = true; });
-    experienceList.addEventListener('mouseleave', () => { pointerInList = false; });
+    experienceList.addEventListener('mouseleave', () => {
+      pointerInList = false;
+      experienceItems.forEach((other) => setItemOpen(other, false));
+    });
   }
 
   const scheduleScrollExpand = (item: HTMLElement | undefined) => {
