@@ -1278,6 +1278,10 @@ html[data-theme="dark"] .icon-moon {
   display: inline-flex;
 }
 
+.experience-logo-link {
+  display: inline-flex;
+}
+
 .experience-logo {
   height: 68px;
   width: auto;

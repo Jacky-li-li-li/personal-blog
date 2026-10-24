@@ -41,34 +41,42 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
                 <span class="experience-heading-row">
                   {item.logo ? (
                     <span class="experience-company-logo" id={companyId}>
-                      <img
-                        class="experience-logo experience-logo-rest"
-                        src={item.logo}
-                        alt={item.org}
-                        width="386"
-                        height="210"
-                        loading="eager"
-                      />
-                      {item.logoDark && (
+                      <a
+                        class="experience-logo-link"
+                        href={item.website}
+                        target={item.website ? '_blank' : undefined}
+                        rel={item.website ? 'noopener noreferrer' : undefined}
+                        aria-label={item.website ? `${item.org} 官网` : undefined}
+                      >
                         <img
-                          class="experience-logo experience-logo-reverse"
-                          src={item.logoDark}
-                          alt=""
+                          class="experience-logo experience-logo-rest"
+                          src={item.logo}
+                          alt={item.org}
                           width="386"
                           height="210"
                           loading="eager"
                         />
-                      )}
-                      {item.logoHover && (
-                        <img
-                          class="experience-logo experience-logo-hover"
-                          src={item.logoHover}
-                          alt=""
-                          width="386"
-                          height="210"
-                          loading="eager"
-                        />
-                      )}
+                        {item.logoDark && (
+                          <img
+                            class="experience-logo experience-logo-reverse"
+                            src={item.logoDark}
+                            alt=""
+                            width="386"
+                            height="210"
+                            loading="eager"
+                          />
+                        )}
+                        {item.logoHover && (
+                          <img
+                            class="experience-logo experience-logo-hover"
+                            src={item.logoHover}
+                            alt=""
+                            width="386"
+                            height="210"
+                            loading="eager"
+                          />
+                        )}
+                      </a>
                     </span>
                   ) : (
                     <span class="experience-company" id={companyId}>{item.org}</span>
