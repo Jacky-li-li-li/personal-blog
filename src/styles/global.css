@@ -1131,7 +1131,8 @@ html[data-theme="dark"] .icon-moon {
 /* 编辑式履历：没有卡片外框，仅靠分隔线、时间线与留白建立层级。 */
 @media (prefers-reduced-motion: reduce) {
   .experience-projects,
-  .experience-action svg {
+  .experience-action svg,
+  .experience-flow {
     transition: none;
   }
 }
@@ -1157,7 +1158,7 @@ html[data-theme="dark"] .icon-moon {
   margin-top: 30px;
 }
 
-/* 融水在时间线上的延续：青碧水流随滚动推进，前端为圆形水头，河床（灰轨道）先行。 */
+/* 融水在时间线上的延续：水位前端锚定阅读线判定的当前段落节点，随段落切换流动；河床（灰轨道）先行。 */
 .experience-flow {
   position: absolute;
   z-index: 1;
@@ -1167,6 +1168,7 @@ html[data-theme="dark"] .icon-moon {
   background: linear-gradient(to bottom, var(--work-water), var(--accent-ink));
   border-radius: 999px;
   pointer-events: none;
+  transition: height var(--duration-focus) var(--ease-out);
 }
 
 .experience-flow::after {
