@@ -1166,7 +1166,7 @@ html[data-theme="dark"] .icon-moon {
 .experience-item:not(:last-child)::before {
   content: "";
   position: absolute;
-  top: 10px;
+  top: 11px;
   bottom: 0;
   left: 128px;
   width: 1px;
@@ -1176,7 +1176,7 @@ html[data-theme="dark"] .icon-moon {
 .experience-item::after {
   content: "";
   position: absolute;
-  top: 7px;
+  top: 11px;
   left: 124px;
   z-index: 2;
   width: 9px;
@@ -1259,7 +1259,7 @@ html[data-theme="dark"] .icon-moon {
 .experience-heading-row {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 4px 16px;
 }
@@ -1281,11 +1281,10 @@ html[data-theme="dark"] .icon-moon {
 /* Logo 严格使用官方三种版本：常规态 Black，悬停/聚焦态 Mist Bice，深色背景常规态 Reverse。 */
 .experience-company-logo {
   display: inline-flex;
-  align-self: center;
 }
 
 .experience-logo {
-  height: 17px;
+  height: 34px;
   width: auto;
 }
 
@@ -2087,12 +2086,12 @@ footer nav {
   }
 
   .experience-item:not(:last-child)::before {
-    top: 8px;
+    top: 11px;
     left: 0;
   }
 
   .experience-item::after {
-    top: 6px;
+    top: 11px;
     left: -4px;
   }
 
