@@ -46,7 +46,30 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
                 data-experience-toggle={hasProjects ? '' : undefined}
               >
                 <span class="experience-heading-row">
-                  <span class="experience-company" id={companyId}>{item.org}</span>
+                  {item.logo ? (
+                    <span class="experience-company-logo" id={companyId}>
+                      <img
+                        class="experience-logo"
+                        src={item.logo}
+                        alt={item.org}
+                        width="150"
+                        height="60"
+                        loading="eager"
+                      />
+                      {item.logoDark && (
+                        <img
+                          class="experience-logo experience-logo-dark"
+                          src={item.logoDark}
+                          alt=""
+                          width="150"
+                          height="60"
+                          loading="eager"
+                        />
+                      )}
+                    </span>
+                  ) : (
+                    <span class="experience-company" id={companyId}>{item.org}</span>
+                  )}
                   <span class="experience-role">
                     {item.department ? `${item.department} · ` : ''}{item.role}
                   </span>

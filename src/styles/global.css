@@ -1255,7 +1255,7 @@ html[data-theme="dark"] .icon-moon {
   outline-offset: 8px;
 }
 
-/* 主次层级：首行左侧为公司名（一级），右侧为「部门 · 岗位」次级（字号略小），简介弱化为辅助信息。 */
+/* 主次层级：首行左侧为公司 logo（缺官方 logo 时回退公司名文本），右侧为「部门 · 岗位」次级（字号略小）。 */
 .experience-heading-row {
   display: flex;
   flex-wrap: wrap;
@@ -1276,6 +1276,28 @@ html[data-theme="dark"] .icon-moon {
 
 .experience-toggle:hover .experience-company {
   color: var(--accent-ink);
+}
+
+.experience-company-logo {
+  display: inline-flex;
+  align-self: center;
+}
+
+.experience-logo {
+  height: 17px;
+  width: auto;
+}
+
+.experience-logo-dark {
+  display: none;
+}
+
+html[data-theme="dark"] .experience-logo:not(.experience-logo-dark) {
+  display: none;
+}
+
+html[data-theme="dark"] .experience-logo-dark {
+  display: block;
 }
 
 .experience-role {
