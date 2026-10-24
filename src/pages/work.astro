@@ -245,7 +245,8 @@ const description =
       const nodeTop = Number.parseFloat(nodeStyle.top) || 0;
       const nodeSize = Number.parseFloat(nodeStyle.width) || 9;
       const firstY = first.getBoundingClientRect().top + nodeTop + nodeSize / 2 - bounds.top;
-      const readingLine = window.scrollY + window.innerHeight * 0.38 - bounds.top;
+      // bounds.top 是视口坐标，阅读线同样用视口坐标换算，不能再叠加 scrollY。
+      const readingLine = window.innerHeight * 0.38 - bounds.top;
       const front = Math.min(firstY, Math.max(0, readingLine));
       waterFront.setAttribute('height', String(Math.max(0, front)));
     };
