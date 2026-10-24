@@ -49,7 +49,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
                   {item.logo ? (
                     <span class="experience-company-logo" id={companyId}>
                       <img
-                        class="experience-logo"
+                        class="experience-logo experience-logo-rest"
                         src={item.logo}
                         alt={item.org}
                         width="150"
@@ -58,8 +58,18 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
                       />
                       {item.logoDark && (
                         <img
-                          class="experience-logo experience-logo-dark"
+                          class="experience-logo experience-logo-reverse"
                           src={item.logoDark}
+                          alt=""
+                          width="150"
+                          height="60"
+                          loading="eager"
+                        />
+                      )}
+                      {item.logoHover && (
+                        <img
+                          class="experience-logo experience-logo-hover"
+                          src={item.logoHover}
                           alt=""
                           width="150"
                           height="60"

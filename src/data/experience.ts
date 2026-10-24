@@ -14,6 +14,7 @@ export type Experience = {
   department?: string;
   logo?: string;
   logoDark?: string;
+  logoHover?: string;
   summary: string;
   awards?: string[];
   projects?: string[];
@@ -29,6 +30,7 @@ export const experiences: Experience[] = [
     department: '最佳体验 ADT',
     logo: '/images/anker-logo.png',
     logoDark: '/images/anker-logo-reverse.png',
+    logoHover: '/images/anker-logo-mist-bice.png',
     summary:
       '负责体验域 AI 产品从 0 到 1：把用户调研、VOC 洞察与体验标准做成可验收、可复用的 Agent 产品。',
     projects: ['virtual-interview', 'voc-agent', 'bees', 'bec'],

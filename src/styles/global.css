@@ -1278,6 +1278,7 @@ html[data-theme="dark"] .icon-moon {
   color: var(--accent-ink);
 }
 
+/* Logo 严格使用官方三种版本：常规态 Black，悬停/聚焦态 Mist Bice，深色背景常规态 Reverse。 */
 .experience-company-logo {
   display: inline-flex;
   align-self: center;
@@ -1288,15 +1289,28 @@ html[data-theme="dark"] .icon-moon {
   width: auto;
 }
 
-.experience-logo-dark {
+.experience-logo-reverse,
+.experience-logo-hover {
   display: none;
 }
 
-html[data-theme="dark"] .experience-logo:not(.experience-logo-dark) {
+html[data-theme="dark"] .experience-logo-rest {
   display: none;
 }
 
-html[data-theme="dark"] .experience-logo-dark {
+html[data-theme="dark"] .experience-logo-reverse {
+  display: block;
+}
+
+.experience-toggle:hover .experience-logo-rest,
+.experience-toggle:hover .experience-logo-reverse,
+.experience-toggle:focus-visible .experience-logo-rest,
+.experience-toggle:focus-visible .experience-logo-reverse {
+  display: none;
+}
+
+.experience-toggle:hover .experience-logo-hover,
+.experience-toggle:focus-visible .experience-logo-hover {
   display: block;
 }
 
