@@ -1342,7 +1342,7 @@ html[data-theme="dark"] .experience-logo-reverse {
 .experience-summary {
   display: block;
   max-width: 620px;
-  margin-top: 14px;
+  margin-top: 7px;
   color: var(--muted);
   font-size: 15px;
   line-height: 1.75;
