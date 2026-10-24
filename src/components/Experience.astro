@@ -45,9 +45,11 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
                 aria-controls={hasProjects ? projectsId : undefined}
                 data-experience-toggle={hasProjects ? '' : undefined}
               >
-                <span class="experience-company" id={companyId}>{item.org}</span>
-                <span class="experience-role">
-                  {item.department ? `${item.department} · ` : ''}{item.role}
+                <span class="experience-heading-row">
+                  <span class="experience-company" id={companyId}>{item.org}</span>
+                  <span class="experience-role">
+                    {item.department ? `${item.department} · ` : ''}{item.role}
+                  </span>
                 </span>
 
                 {item.awards && item.awards.length > 0 && (

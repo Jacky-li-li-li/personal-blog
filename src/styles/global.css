@@ -1255,7 +1255,15 @@ html[data-theme="dark"] .icon-moon {
   outline-offset: 8px;
 }
 
-/* 主次层级：公司一级、职位次级（同为墨色），简介弱化为辅助信息。 */
+/* 主次层级：首行左侧为公司名（一级），右侧为「部门 · 岗位」次级（字号略小），简介弱化为辅助信息。 */
+.experience-heading-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+
 .experience-company {
   display: block;
   color: var(--ink);
@@ -1271,10 +1279,8 @@ html[data-theme="dark"] .icon-moon {
 }
 
 .experience-role {
-  display: block;
-  margin-top: 4px;
   color: var(--ink);
-  font-size: 15.5px;
+  font-size: 14px;
   font-weight: 500;
   line-height: 1.55;
 }
