@@ -1153,7 +1153,32 @@ html[data-theme="dark"] .icon-moon {
 }
 
 .experience-list {
+  position: relative;
   margin-top: 30px;
+}
+
+/* 融水在时间线上的延续：青碧水流随滚动推进，前端为圆形水头，河床（灰轨道）先行。 */
+.experience-flow {
+  position: absolute;
+  z-index: 1;
+  width: 1.5px;
+  margin-left: -0.75px;
+  height: 0;
+  background: linear-gradient(to bottom, var(--work-water), var(--accent-ink));
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.experience-flow::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: var(--accent-ink);
 }
 
 .experience-item {

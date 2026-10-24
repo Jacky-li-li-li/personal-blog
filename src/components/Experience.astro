@@ -10,6 +10,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
   <h2 class="label" id="experience-title">Experience</h2>
 
   <div class="experience-list">
+    <span class="experience-flow" data-experience-flow aria-hidden="true"></span>
     {experiences.map((item, index) => {
       const relatedProjects = (item.projects ?? [])
         .map((id) => projectMap.get(id))
@@ -136,6 +137,8 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
   const experienceItems = Array.from(
     document.querySelectorAll<HTMLElement>('[data-experience]'),
   );
+  const flow = document.querySelector<HTMLElement>('[data-experience-flow]');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   // 悬停或键盘聚焦某段经历时自动展开，其余段落自动收起；指针移出后保持最后一段展开，
   // 触屏设备上点按会先触发 mouseenter，因此同样能展开。
@@ -156,8 +159,31 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
   });
 
   // 时间线同时承担阅读定位：当前任职与视口内经历使用不同状态。
+  // 青碧水流沿轨道同步推进：水位前端始终指向阅读线（视口 38%）所在位置。
   let activeItem: HTMLElement | undefined;
   let frame = 0;
+
+  const updateExperienceFlow = (readingLine: number, atPageEnd: boolean) => {
+    if (!flow) return;
+    const first = experienceItems[0];
+    const last = experienceItems.at(-1);
+    if (!first || !last || !flow.parentElement) return;
+    const nodeStyle = getComputedStyle(first, '::after');
+    const nodeSize = Number.parseFloat(nodeStyle.width) || 9;
+    const nodeLeft = Number.parseFloat(nodeStyle.left) || 0;
+    const nodeTop = Number.parseFloat(nodeStyle.top) || 0;
+    const listBounds = flow.parentElement.getBoundingClientRect();
+    const firstBounds = first.getBoundingClientRect();
+    const lastBounds = last.getBoundingClientRect();
+    flow.style.left = `${(firstBounds.left + nodeLeft + nodeSize / 2 - listBounds.left).toFixed(1)}px`;
+    const startY = firstBounds.top + nodeTop + nodeSize / 2 - listBounds.top;
+    const endY = lastBounds.top + nodeTop + nodeSize / 2 - listBounds.top;
+    flow.style.top = `${startY.toFixed(1)}px`;
+    const front = atPageEnd || reducedMotion.matches
+      ? endY
+      : Math.min(endY, Math.max(startY, readingLine - listBounds.top));
+    flow.style.height = `${Math.max(0, front - startY).toFixed(1)}px`;
+  };
 
   const updateExperiencePosition = () => {
     frame = 0;
@@ -171,6 +197,8 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
     // 页面到底时，最后一段可能无法越过阅读线，此时仍应定位到最后一段。
     const atPageEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
     if (atPageEnd) next = experienceItems.at(-1);
+
+    updateExperienceFlow(readingLine + window.scrollY, atPageEnd);
     if (!next || next === activeItem) return;
 
     activeItem = next;

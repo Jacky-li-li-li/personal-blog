@@ -46,6 +46,9 @@ const description =
         <mask id="work-lower-river-mask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="-100%" y="-100%" width="300%" height="300%">
           <rect x="-4000" y="-1000" width="9000" height="9000" fill="url(#work-lower-river-fade)" />
         </mask>
+        <mask id="work-water-front-mask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="-100%" y="-100%" width="300%" height="300%">
+          <rect data-work-water-front x="-4000" y="0" width="9000" height="0" fill="white" />
+        </mask>
       </defs>
       <g class="work-river-channel" mask="url(#work-terrain-mask)">
         <g mask="url(#work-mountain-bank-mask)">
@@ -53,11 +56,15 @@ const description =
           <path class="work-river-snow" data-work-mountain-snow />
         </g>
         <path class="work-river-bed" data-work-mountain-bed filter="url(#work-river-rough)" />
-        <path class="work-river-water" data-work-mountain-water />
+        <g mask="url(#work-water-front-mask)">
+          <path class="work-river-water" data-work-mountain-water />
+        </g>
       </g>
       <g class="work-river-channel" mask="url(#work-lower-river-mask)">
         <path class="work-river-bed" data-work-river-bed filter="url(#work-river-rough)" />
-        <path class="work-river-water" data-work-river-water />
+        <g mask="url(#work-water-front-mask)">
+          <path class="work-river-water" data-work-river-water />
+        </g>
       </g>
     </svg>
 
@@ -90,7 +97,9 @@ const description =
     const gradient = workPage.querySelector<SVGLinearGradientElement>('#work-river-gradient');
     const mountainFade = workPage.querySelector<SVGLinearGradientElement>('#work-mountain-river-fade');
     const lowerFade = workPage.querySelector<SVGLinearGradientElement>('#work-lower-river-fade');
+    const waterFront = workPage.querySelector<SVGRectElement>('[data-work-water-front]');
     let frame = 0;
+    let flowFrame = 0;
 
     const drawRiver = () => {
       frame = 0;
@@ -219,10 +228,43 @@ const description =
       frame = window.requestAnimationFrame(drawRiver);
     };
 
+    // 水位与阅读线（视口 38%）同步推进：滚动时水面沿河道下行，越过首个经历节点后
+    // 由时间线上的青碧水流续接；河床全程完整，作为水位前方的干涸河床。
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const updateWaterFront = () => {
+      flowFrame = 0;
+      const first = workPage.querySelector<HTMLElement>('[data-experience]');
+      if (!waterFront || !river || !first) return;
+      if (reducedMotion.matches) {
+        waterFront.setAttribute('height', String(river.getBoundingClientRect().height));
+        return;
+      }
+      const bounds = river.getBoundingClientRect();
+      const nodeStyle = getComputedStyle(first, '::after');
+      const nodeTop = Number.parseFloat(nodeStyle.top) || 0;
+      const nodeSize = Number.parseFloat(nodeStyle.width) || 9;
+      const firstY = first.getBoundingClientRect().top + nodeTop + nodeSize / 2 - bounds.top;
+      const readingLine = window.scrollY + window.innerHeight * 0.38 - bounds.top;
+      const front = Math.min(firstY, Math.max(0, readingLine));
+      waterFront.setAttribute('height', String(Math.max(0, front)));
+    };
+
+    const requestWaterFront = () => {
+      if (flowFrame) return;
+      flowFrame = window.requestAnimationFrame(updateWaterFront);
+    };
+
     drawRiver();
+    updateWaterFront();
     new ResizeObserver(requestDraw).observe(workPage);
     workPage.addEventListener('transitionend', requestDraw);
-    window.addEventListener('resize', requestDraw);
+    window.addEventListener('resize', () => {
+      requestDraw();
+      requestWaterFront();
+    });
+    window.addEventListener('scroll', requestWaterFront, { passive: true });
+    reducedMotion.addEventListener('change', requestWaterFront);
     document.fonts.ready.then(requestDraw);
   }
 </script>
