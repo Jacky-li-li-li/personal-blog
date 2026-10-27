@@ -218,6 +218,12 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
   const setItemOpen = (item: HTMLElement, open: boolean, compensate = false) => {
     const panel = item.querySelector<HTMLElement>('[data-experience-projects]');
     const wasOpen = item.classList.contains('is-open');
+    if (!open && panel && panel.contains(document.activeElement)) {
+      // 面板里还有焦点时不能直接 inert：焦点会掉到 body，键盘与读屏用户当场丢失位置。
+      // 先把焦点移回这一段的时间入口（同一段内，位置不跳），再收起。
+      const years = item.querySelector<HTMLElement>('.experience-years');
+      years?.focus({ preventScroll: true });
+    }
     item.classList.toggle('is-open', open);
     if (!panel || wasOpen === open) {
       if (panel) {
@@ -231,16 +237,14 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
     if (!compensate) return;
     const inner = panel.querySelector<HTMLElement>('.experience-projects-inner');
     if (!inner) return;
-    // 折叠总是补偿：下方内容保持视觉静止。展开仅在面板完全位于视口上方时补偿，
-    // 视口内的展开保持自然铺开效果。
-    if (open) {
-      if (panel.getBoundingClientRect().top >= 0) return;
-      const delta = inner.scrollHeight;
-      if (delta > 0) tweenScrollBy(delta);
-    } else {
-      const delta = inner.getBoundingClientRect().height;
-      if (delta > 0) tweenScrollBy(-delta);
-    }
+    // 只有面板整块位于视口上方时才补偿：那时开合过程看不见，但下方内容会整体位移，
+    // 补偿能让阅读位置保持不动。面板只要还有一部分在视口内，就让它自然回流。
+    //
+    // 折叠曾经无条件补偿，导致面板明明在眼前时也会把整页往上拽——短页面上（只有一段
+    // 经历时页面刚过一屏）会直接弹回顶部，这是开合「乱跳」的根源。
+    if (panel.getBoundingClientRect().bottom > 0) return;
+    const delta = open ? inner.scrollHeight : inner.getBoundingClientRect().height;
+    if (delta > 0) tweenScrollBy(open ? delta : -delta);
   };
 
   experienceItems.forEach((item) => {
@@ -270,6 +274,22 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
       // 折叠让页面变矮，浏览器夹紧 scrollY 并派发程序性 scroll 事件（scrollY 减小）。
       // 守卫窗口内只放行向下的滚动接管，避免「刚折叠又被夹紧事件重新展开」。
       collapseGuardUntil = performance.now() + 600;
+    });
+  }
+
+  // 键盘与指针保持对称：焦点离开整个列表时同样折叠。
+  // 之前只处理了 focusin，键盘用户 Tab 出列表后展开段会一直挂着（与鼠标行为不一致）。
+  // 这条与悬停无关（外接键盘的平板上也成立），所以不受 canHover 限制。
+  if (experienceList) {
+    experienceList.addEventListener('focusout', (event) => {
+      const next = event.relatedTarget as Node | null;
+      if (next && experienceList.contains(next)) return;
+      // relatedTarget 在点击不可聚焦元素时为 null，等一帧再确认焦点是否真的离开了列表。
+      window.setTimeout(() => {
+        if (experienceList.contains(document.activeElement)) return;
+        if (pointerInList) return;
+        experienceItems.forEach((item) => setItemOpen(item, false, true));
+      }, 0);
     });
   }
 
