@@ -23,14 +23,23 @@ type Particle = {
   phase: number;
   colorIndex: number;
   streak: boolean;
+  /** Blade base width multiplier for filled taper. */
+  width: number;
 };
 
 const CANVAS_ATTR = 'data-scene-cursor-canvas';
-const MAX_PARTICLES = 120;
-const TRAIL_DISTANCE = 8;
-const TRAIL_SPAWN = 2;
-const CLICK_SPAWN_MIN = 10;
-const CLICK_SPAWN_MAX = 16;
+const MAX_PARTICLES = 180;
+const TRAIL_DISTANCE = 5;
+/** Per-theme trail counts (grass uses cluster blades instead). */
+const TRAIL_SPAWN_SNOW = 4;
+const TRAIL_SPAWN_SAND = 5;
+const GRASS_CLUSTER_MIN = 3;
+const GRASS_CLUSTER_MAX = 6;
+const CLICK_SPAWN_GRASS = 14;
+const CLICK_SPAWN_SNOW_MIN = 14;
+const CLICK_SPAWN_SNOW_MAX = 20;
+const CLICK_SPAWN_SAND_MIN = 16;
+const CLICK_SPAWN_SAND_MAX = 22;
 
 let activeTheme: SceneCursorTheme | null = null;
 let canvas: HTMLCanvasElement | null = null;
@@ -68,35 +77,34 @@ function effectsEnabled(): boolean {
 function readColors(theme: SceneCursorTheme): string[] {
   const root = getComputedStyle(document.documentElement);
   if (theme === 'grass') {
+    // Bias toward mid/near greens so blades read clearly on paper.
     return [
-      root.getPropertyValue('--about-grass-near').trim() || '#607f4d',
       root.getPropertyValue('--about-grass-mid').trim() || '#89a168',
+      root.getPropertyValue('--about-grass-near').trim() || '#607f4d',
       root.getPropertyValue('--about-grass-ink').trim() || '#2f5339',
-      root.getPropertyValue('--about-grass-deep').trim() || '#3f6243',
+      '#7a9a58',
     ];
   }
   if (theme === 'snow') {
-    return [
-      root.getPropertyValue('--work-snow').trim() || '#f4f5f1',
-      root.getPropertyValue('--work-mountain-far').trim() || '#dde5e2',
-      root.getPropertyValue('--work-mountain-mid').trim() || '#b9c9c8',
-      '#ffffff',
-    ];
+    // Prefer bright white / cool paper snow over muted mid-mountain grey.
+    const snow = root.getPropertyValue('--work-snow').trim() || '#f4f5f1';
+    const far = root.getPropertyValue('--work-mountain-far').trim() || '#dde5e2';
+    return ['#ffffff', snow, far, 'rgba(255,255,255,0.95)'];
   }
 
-  // --notes-wind-rgb lives on .nav--notes; fall back to sand tokens on :root.
   const nav = document.querySelector('.nav--notes');
   const windSource = nav ? getComputedStyle(nav) : root;
   const wind = windSource.getPropertyValue('--notes-wind-rgb').trim();
   const sandNear = root.getPropertyValue('--notes-sand-near').trim() || '#be915b';
   const sandMid = root.getPropertyValue('--notes-sand-mid').trim() || '#d5b985';
   const sandInk = root.getPropertyValue('--notes-sand-ink').trim() || '#82613f';
-  const sandShadow = root.getPropertyValue('--notes-sand-shadow').trim() || '#a97646';
+  // Warmer, more saturated ochres for readable sand drag.
+  const warm = ['#c9954a', '#d4a85c', sandNear, sandMid, sandInk];
   if (wind) {
     const rgb = wind.split(/\s+/).join(',');
-    return [`rgb(${rgb})`, sandNear, sandMid, sandInk];
+    return [`rgb(${rgb})`, ...warm];
   }
-  return [sandNear, sandMid, sandInk, sandShadow];
+  return warm;
 }
 
 function acquire(): Particle {
@@ -120,6 +128,7 @@ function acquire(): Particle {
       phase: 0,
       colorIndex: 0,
       streak: false,
+      width: 1,
     };
     pool.push(p);
     return p;
@@ -131,6 +140,47 @@ function acquire(): Particle {
   return oldest;
 }
 
+function fillBlade(
+  p: Particle,
+  cx: number,
+  cy: number,
+  burst: boolean,
+  index: number,
+  total: number,
+): void {
+  p.alive = true;
+  p.kind = 'blade';
+  p.colorIndex = Math.floor(Math.random() * colors.length);
+  p.phase = Math.random() * Math.PI * 2;
+  p.streak = false;
+  // Fan blades across a tuft: shared base, spread angles.
+  const fan = ((index + 0.5) / total - 0.5) * (burst ? 1.15 : 0.95);
+  const jitter = (Math.random() - 0.5) * 0.22;
+  p.angle = -Math.PI / 2 + fan + jitter;
+  p.spin = (Math.random() - 0.5) * 0.35;
+  p.sway = 0.8 + Math.random() * 1.4;
+  p.width = 0.85 + Math.random() * 0.55;
+  // Cluster around shared root with slight scatter.
+  const spread = burst ? 14 : 9;
+  p.x = cx + fan * spread + (Math.random() - 0.5) * 4;
+  p.y = cy + Math.abs(fan) * 3 + (Math.random() - 0.5) * 3;
+  p.maxLife = burst ? 1.0 + Math.random() * 0.55 : 0.7 + Math.random() * 0.5;
+  p.size = burst ? 14 + Math.random() * 12 : 10 + Math.random() * 9;
+  // Mostly rooted: little translation, slight sprout upward then settle.
+  p.vx = fan * (burst ? 10 : 6) + (Math.random() - 0.5) * 4;
+  p.vy = burst ? -(6 + Math.random() * 14) : -(3 + Math.random() * 8);
+  p.life = p.maxLife;
+}
+
+function spawnGrassCluster(x: number, y: number, burst: boolean): void {
+  const total = burst
+    ? CLICK_SPAWN_GRASS
+    : GRASS_CLUSTER_MIN + Math.floor(Math.random() * (GRASS_CLUSTER_MAX - GRASS_CLUSTER_MIN + 1));
+  for (let i = 0; i < total; i += 1) {
+    fillBlade(acquire(), x, y, burst, i, total);
+  }
+}
+
 function spawn(
   theme: SceneCursorTheme,
   x: number,
@@ -139,62 +189,73 @@ function spawn(
   dirX = 0,
   dirY = 0,
 ): void {
-  const count = burst
-    ? CLICK_SPAWN_MIN + Math.floor(Math.random() * (CLICK_SPAWN_MAX - CLICK_SPAWN_MIN + 1))
-    : TRAIL_SPAWN;
+  if (theme === 'grass') {
+    spawnGrassCluster(x, y, burst);
+    return;
+  }
+
   const dirLen = Math.hypot(dirX, dirY) || 1;
   const nx = dirX / dirLen;
   const ny = dirY / dirLen;
+
+  let count: number;
+  if (theme === 'snow') {
+    count = burst
+      ? CLICK_SPAWN_SNOW_MIN +
+        Math.floor(Math.random() * (CLICK_SPAWN_SNOW_MAX - CLICK_SPAWN_SNOW_MIN + 1))
+      : TRAIL_SPAWN_SNOW;
+  } else {
+    count = burst
+      ? CLICK_SPAWN_SAND_MIN +
+        Math.floor(Math.random() * (CLICK_SPAWN_SAND_MAX - CLICK_SPAWN_SAND_MIN + 1))
+      : TRAIL_SPAWN_SAND;
+  }
 
   for (let i = 0; i < count; i += 1) {
     const p = acquire();
     p.alive = true;
     p.colorIndex = Math.floor(Math.random() * colors.length);
     p.phase = Math.random() * Math.PI * 2;
-    p.streak = Math.random() > 0.55;
-    p.x = x + (Math.random() - 0.5) * (burst ? 10 : 4);
-    p.y = y + (Math.random() - 0.5) * (burst ? 10 : 4);
+    p.width = 1;
 
-    if (theme === 'grass') {
-      p.kind = 'blade';
-      p.maxLife = burst ? 0.7 + Math.random() * 0.55 : 0.45 + Math.random() * 0.45;
-      p.size = burst ? 5 + Math.random() * 7 : 4 + Math.random() * 5;
-      p.angle = -Math.PI / 2 + (Math.random() - 0.5) * 0.9;
-      p.spin = (Math.random() - 0.5) * 0.8;
-      p.sway = 0.4 + Math.random() * 0.8;
-      p.vx = (Math.random() - 0.5) * (burst ? 28 : 12);
-      p.vy = burst ? -(18 + Math.random() * 36) : -(8 + Math.random() * 18);
-    } else if (theme === 'snow') {
+    if (theme === 'snow') {
       p.kind = 'flake';
-      p.maxLife = burst ? 0.85 + Math.random() * 0.5 : 0.55 + Math.random() * 0.55;
-      p.size = burst ? 1.6 + Math.random() * 2.4 : 1.1 + Math.random() * 1.8;
+      p.streak = false;
+      p.maxLife = burst ? 1.1 + Math.random() * 0.6 : 0.85 + Math.random() * 0.55;
+      p.size = burst ? 3.2 + Math.random() * 3.6 : 2.4 + Math.random() * 2.8;
       p.angle = Math.random() * Math.PI;
-      p.spin = (Math.random() - 0.5) * 1.4;
-      p.sway = 8 + Math.random() * 14;
+      p.spin = (Math.random() - 0.5) * 0.9;
+      p.sway = 6 + Math.random() * 10;
+      p.x = x + (Math.random() - 0.5) * (burst ? 16 : 6);
+      p.y = y + (Math.random() - 0.5) * (burst ? 16 : 6);
       if (burst) {
         const a = Math.random() * Math.PI * 2;
-        const speed = 40 + Math.random() * 90;
+        const speed = 55 + Math.random() * 120;
         p.vx = Math.cos(a) * speed;
-        p.vy = Math.sin(a) * speed * 0.55 - 20;
+        p.vy = Math.sin(a) * speed * 0.45 - 30;
       } else {
-        p.vx = -nx * (12 + Math.random() * 28) + (Math.random() - 0.5) * 16;
-        p.vy = 12 + Math.random() * 28;
+        p.vx = -nx * (10 + Math.random() * 22) + (Math.random() - 0.5) * 14;
+        p.vy = 6 + Math.random() * 16; // slower fall
       }
     } else {
       p.kind = 'grain';
-      p.maxLife = burst ? 0.65 + Math.random() * 0.45 : 0.4 + Math.random() * 0.5;
-      p.size = burst ? 0.7 + Math.random() * 1.4 : 0.45 + Math.random() * 0.9;
-      p.angle = Math.atan2(ny, nx) + (Math.random() - 0.5) * 0.4;
-      p.spin = (Math.random() - 0.5) * 2;
-      p.sway = (Math.random() - 0.5) * 6;
+      p.streak = Math.random() > 0.35;
+      p.maxLife = burst ? 0.85 + Math.random() * 0.5 : 0.65 + Math.random() * 0.55;
+      p.size = burst ? 1.6 + Math.random() * 2.2 : 1.1 + Math.random() * 1.6;
+      p.angle = Math.atan2(ny, nx) + (Math.random() - 0.5) * 0.5;
+      p.spin = (Math.random() - 0.5) * 2.4;
+      p.sway = (Math.random() - 0.5) * 8;
+      p.x = x + (Math.random() - 0.5) * (burst ? 18 : 8);
+      p.y = y + (Math.random() - 0.5) * (burst ? 14 : 6);
       if (burst) {
         const a = Math.random() * Math.PI * 2;
-        const speed = 50 + Math.random() * 110;
+        const speed = 80 + Math.random() * 160;
         p.vx = Math.cos(a) * speed;
-        p.vy = Math.sin(a) * speed - 10;
+        p.vy = Math.sin(a) * speed - 20;
       } else {
-        p.vx = -nx * (20 + Math.random() * 40) + (Math.random() - 0.5) * 18;
-        p.vy = -ny * (10 + Math.random() * 24) + 8 + Math.random() * 18;
+        // Longer sand drag behind the pointer.
+        p.vx = -nx * (35 + Math.random() * 55) + (Math.random() - 0.5) * 22;
+        p.vy = -ny * (14 + Math.random() * 28) + 10 + Math.random() * 22;
       }
     }
 
@@ -205,59 +266,87 @@ function spawn(
 function drawBlade(p: Particle, alpha: number): void {
   if (!ctx) return;
   const color = colors[p.colorIndex] ?? colors[0]!;
-  const len = p.size * (0.55 + 0.45 * (p.life / p.maxLife));
+  // Grow in then hold: length eases up over first ~30% of life.
+  const grown = Math.min(1, (1 - p.life / p.maxLife) / 0.28 + 0.55);
+  const len = p.size * grown;
   const tipX = p.x + Math.cos(p.angle) * len;
   const tipY = p.y + Math.sin(p.angle) * len;
-  const bend = p.sway * Math.sin(p.phase) * 1.2;
-  const midX = p.x + Math.cos(p.angle) * len * 0.5 + Math.cos(p.angle + Math.PI / 2) * bend;
-  const midY = p.y + Math.sin(p.angle) * len * 0.5 + Math.sin(p.angle + Math.PI / 2) * bend;
+  const bend = p.sway * Math.sin(p.phase) * 1.6;
+  const midX = p.x + Math.cos(p.angle) * len * 0.48 + Math.cos(p.angle + Math.PI / 2) * bend;
+  const midY = p.y + Math.sin(p.angle) * len * 0.48 + Math.sin(p.angle + Math.PI / 2) * bend;
+  const baseW = Math.max(1.1, p.size * 0.11 * p.width);
+
+  const ox = Math.cos(p.angle + Math.PI / 2) * baseW;
+  const oy = Math.sin(p.angle + Math.PI / 2) * baseW;
+
+  ctx.beginPath();
+  ctx.moveTo(p.x + ox, p.y + oy);
+  ctx.quadraticCurveTo(midX + ox * 0.35, midY + oy * 0.35, tipX, tipY);
+  ctx.quadraticCurveTo(midX - ox * 0.35, midY - oy * 0.35, p.x - ox, p.y - oy);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.globalAlpha = alpha * 0.82;
+  ctx.fill();
 
   ctx.beginPath();
   ctx.moveTo(p.x, p.y);
   ctx.quadraticCurveTo(midX, midY, tipX, tipY);
   ctx.strokeStyle = color;
-  ctx.globalAlpha = alpha * 0.72;
-  ctx.lineWidth = Math.max(0.6, p.size * 0.14);
+  ctx.globalAlpha = alpha * 0.95;
+  ctx.lineWidth = Math.max(0.9, baseW * 0.55);
   ctx.lineCap = 'round';
   ctx.stroke();
-
-  const ox = Math.cos(p.angle + Math.PI / 2) * Math.max(0.45, p.size * 0.08);
-  const oy = Math.sin(p.angle + Math.PI / 2) * Math.max(0.45, p.size * 0.08);
-  ctx.beginPath();
-  ctx.moveTo(p.x + ox, p.y + oy);
-  ctx.quadraticCurveTo(midX, midY, tipX, tipY);
-  ctx.quadraticCurveTo(midX, midY, p.x - ox, p.y - oy);
-  ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.globalAlpha = alpha * 0.38;
-  ctx.fill();
 }
 
 function drawFlake(p: Particle, alpha: number): void {
   if (!ctx) return;
   const color = colors[p.colorIndex] ?? colors[0]!;
+  const r = p.size;
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.rotate(p.angle);
-  ctx.globalAlpha = alpha * 0.78;
-  ctx.strokeStyle = color;
-  ctx.fillStyle = color;
-  ctx.lineWidth = Math.max(0.35, p.size * 0.22);
-  ctx.lineCap = 'round';
 
-  const arms = p.size > 2.2 ? 6 : 4;
-  const r = p.size;
+  // Soft glow disc behind arms so flakes read on light paper.
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.85, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.globalAlpha = alpha * 0.28;
+  ctx.fill();
+
+  ctx.strokeStyle = color;
+  ctx.fillStyle = '#ffffff';
+  ctx.lineCap = 'round';
+  ctx.lineWidth = Math.max(0.9, r * 0.28);
+  ctx.globalAlpha = alpha * 0.92;
+
+  // Cross + diagonals = readable ❄️
+  const arms = 4;
   for (let i = 0; i < arms; i += 1) {
     const a = (Math.PI * i) / arms;
+    const c = Math.cos(a);
+    const s = Math.sin(a);
     ctx.beginPath();
-    ctx.moveTo(-Math.cos(a) * r, -Math.sin(a) * r);
-    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    ctx.moveTo(-c * r, -s * r);
+    ctx.lineTo(c * r, s * r);
+    ctx.stroke();
+    // Small barbs near tips.
+    const tip = r * 0.62;
+    const bx = c * tip;
+    const by = s * tip;
+    const px = -s * r * 0.28;
+    const py = c * r * 0.28;
+    ctx.beginPath();
+    ctx.moveTo(bx - px, by - py);
+    ctx.lineTo(bx, by);
+    ctx.lineTo(bx + px, by + py);
     ctx.stroke();
   }
+
   ctx.beginPath();
-  ctx.arc(0, 0, Math.max(0.35, r * 0.22), 0, Math.PI * 2);
-  ctx.globalAlpha = alpha * 0.55;
+  ctx.arc(0, 0, Math.max(0.7, r * 0.28), 0, Math.PI * 2);
+  ctx.globalAlpha = alpha * 0.85;
   ctx.fill();
+
   ctx.restore();
 }
 
@@ -265,19 +354,20 @@ function drawGrain(p: Particle, alpha: number): void {
   if (!ctx) return;
   const color = colors[p.colorIndex] ?? colors[0]!;
   if (p.streak) {
+    const streakLen = 0.035 + Math.min(0.05, Math.hypot(p.vx, p.vy) * 0.00025);
     ctx.beginPath();
-    ctx.moveTo(p.x - p.vx * 0.02, p.y - p.vy * 0.015);
+    ctx.moveTo(p.x - p.vx * streakLen, p.y - p.vy * streakLen * 0.7);
     ctx.lineTo(p.x, p.y);
     ctx.strokeStyle = color;
-    ctx.globalAlpha = alpha * 0.35;
-    ctx.lineWidth = Math.max(0.3, p.size * 0.45);
+    ctx.globalAlpha = alpha * 0.55;
+    ctx.lineWidth = Math.max(0.7, p.size * 0.7);
     ctx.lineCap = 'round';
     ctx.stroke();
   }
   ctx.beginPath();
-  ctx.ellipse(p.x, p.y, p.size * 1.25, p.size * 0.55, p.angle, 0, Math.PI * 2);
+  ctx.ellipse(p.x, p.y, p.size * 1.55, p.size * 0.7, p.angle, 0, Math.PI * 2);
   ctx.fillStyle = color;
-  ctx.globalAlpha = alpha * 0.7;
+  ctx.globalAlpha = alpha * 0.88;
   ctx.fill();
 }
 
@@ -305,19 +395,20 @@ function tick(time: number): void {
     }
 
     if (p.kind === 'blade') {
-      p.vy += 55 * dt;
-      p.vx *= 1 - 1.8 * dt;
-      p.angle += p.spin * dt + Math.sin(time * 0.004 + p.phase) * 0.35 * dt;
-      p.phase += dt * 4;
+      p.vy += 28 * dt;
+      p.vx *= 1 - 2.4 * dt;
+      p.vy *= 1 - 1.2 * dt;
+      p.angle += p.spin * dt + Math.sin(time * 0.004 + p.phase) * 0.45 * dt;
+      p.phase += dt * 3.2;
     } else if (p.kind === 'flake') {
-      p.vy += 18 * dt;
-      p.vx += Math.sin(time * 0.002 + p.phase) * p.sway * dt;
-      p.vx *= 1 - 0.6 * dt;
+      p.vy += 10 * dt; // gentler gravity → slower fall
+      p.vx += Math.sin(time * 0.0018 + p.phase) * p.sway * dt;
+      p.vx *= 1 - 0.45 * dt;
       p.angle += p.spin * dt;
     } else {
-      p.vy += 70 * dt;
-      p.vx *= 1 - 2.2 * dt;
-      p.vy *= 1 - 0.4 * dt;
+      p.vy += 85 * dt;
+      p.vx *= 1 - 1.6 * dt;
+      p.vy *= 1 - 0.35 * dt;
       p.angle += p.spin * dt;
     }
 
@@ -325,7 +416,8 @@ function tick(time: number): void {
     p.y += p.vy * dt;
 
     const t = p.life / p.maxLife;
-    const alpha = t < 0.25 ? t / 0.25 : t > 0.85 ? (1 - t) / 0.15 : 1;
+    // Hold opacity longer in the middle of life.
+    const alpha = t < 0.18 ? t / 0.18 : t > 0.78 ? (1 - t) / 0.22 : 1;
     if (alpha <= 0.01) continue;
 
     if (p.kind === 'blade') drawBlade(p, alpha);
@@ -441,7 +533,6 @@ export function initSceneCursor(theme: SceneCursorTheme): void {
   ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  // clear pool when switching theme on SPA-ish remounts
   for (const p of pool) p.alive = false;
 
   resize();
