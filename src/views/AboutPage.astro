@@ -1,0 +1,38 @@
+---
+/**
+ * 首页 / About 的版式：同一套视图服务两种语言。
+ *
+ * 放在 src/views/ 而不是 src/components/：页面只负责传入 locale，
+ * 两种语言共用这一份视图，避免两套模板各自改版后走样。
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AboutLandscape from '../components/AboutLandscape.astro';
+import SceneCursor from '../components/SceneCursor.astro';
+import Hero from '../components/Hero.astro';
+import HomeGates from '../components/HomeGates.astro';
+import { getPersonJsonLd } from '../data/site';
+import { getUI } from '../i18n';
+import type { Locale } from '../i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = getUI(locale);
+---
+
+<BaseLayout
+  locale={locale}
+  title={ui.about.title}
+  description={ui.about.description}
+  jsonLd={getPersonJsonLd(locale)}
+  showFooter={false}
+>
+  <div class="about-page">
+    <AboutLandscape />
+    <SceneCursor theme="grass" />
+    <Hero locale={locale} />
+    <HomeGates locale={locale} />
+  </div>
+</BaseLayout>

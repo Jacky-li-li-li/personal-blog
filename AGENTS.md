@@ -6,7 +6,9 @@
 
 域名 `clok.fun` 在腾讯云 DNSPod 注册，2026-10-23 已将 NS 切换为 Cloudflare（`ara.ns.cloudflare.com` / `julio.ns.cloudflare.com`），zone 状态 active；Cloudflare 中有一条已代理的 CNAME `clok.fun → personal-blog-ah8.pages.dev`；Pages 自定义域名已 active，证书由 Google 签发。`www.clok.fun` 已配置代理 CNAME，并通过两条 Redirect Rule（`https://www.*` 与 `http://www.*`）301 到 `https://clok.fun`，路径与查询参数保留，不经过 Pages 回源。腾讯云侧「禁止转移锁」与「禁止更新锁」均保持开启。
 
-- `src/`：Astro 站点代码（首页、Notes 列表、正文、404、RSS、robots、sitemap）。
+- `src/`：Astro 站点代码（首页、Notes 列表、正文、404、RSS、robots、sitemap），中英文各一套路由。
+- `src/i18n/`：双语基础设施。`ui.ts` 是界面文案字典（导航、按钮、空状态、无障碍标签，中英并列），`paths.ts` 负责 `/en` 前缀与路径互转，`types.ts` 定义 `Locale` / `Localized<T>` 与 `pick()`。
+- `src/views/`：中英文共用的页面版式（`AboutPage`、`WorkPage`、`NotesPage`）。`src/pages/*` 只做薄入口并传入 `locale`，改版时只需改一处。
 - `src/content/notes/`：Markdown 笔记，Content Collections + Zod 校验。
 - `src/styles/global.css`：设计 token、字体、组件样式与响应式。
 - `src/components/BlockField.astro`：首页 Hero 的方块阵背景，静止完全隐藏，指针进入后整片淡入并在光标附近抬升；纯装饰 Canvas，不进入可访问性树。
@@ -24,6 +26,7 @@
 ## 已确认决策
 
 - 五个公开路由：`/`（简介 + 经历项目入口 + 最近笔记）、`/about`（简介 + 联系）、`/work`（工作经历 + 代表项目）、`/notes`、`/notes/[slug]`。URL 不带尾斜杠，`/about/`、`/work/` 与 `/notes/` 由 `_redirects` 301 到无斜杠版本。
+- 中英文双语：中文为默认语言，保持现有 URL 不变；英文挂在 `/en` 前缀下（`/en`、`/en/about`、`/en/work`、`/en/notes`、`/en/notes/:slug`）。两版通过 `hreflang`（`zh-CN` / `en` / `x-default` → 中文）互链，导航右侧 `EN` / `CN` 按钮在同一页面的两种语言间跳转。结构化文案在 `src/data/*.ts` 里用 `{ zh, en }` 并列存放；笔记译文是独立文件 `slug.en.md`（不写 `date`，沿用中文原文日期），没有译文的笔记不出现在 `/en`，中文页的切换回退到英文列表页。构建 `build.format` 为 `directory`（`/en` → `en/index.html`），带尾斜杠地址由 `_redirects` 边缘 301。
 - 技术栈：Astro 5 + Tailwind 4 + Content Collections + Zod；Cloudflare Pages 静态托管；Notes 阅读计数用 Pages Functions + KV（`VIEWS`），页面只显示 PV。
 - 视觉：近白暖纸底 `#FEFDFA`、青碧强调 `#17A8B8`（文字用 `#0B7481`）、衬线标题（Instrument Serif + 系统中文字体）、姓名用 Array 点阵字体、话题标签用 Striper 描边字体、克制动效；暗色模式跟随系统并可手动切换。
 - 首页 Hero 背景为方块阵：24px 间距、3px 直角方块，静止完全隐藏；指针进入后整片底纹淡入，150px 半径内方块上抬 9px 并染青碧色，离开 380ms 回落。只在空白区域触发，名称、简介、标签、导航与下方文本区域不唤醒背景。范围止于 Hero 下缘 +120px（最大 880px），触屏与 `prefers-reduced-motion` 不启用。
@@ -40,7 +43,7 @@
 
 - `pnpm dev`：启动开发服务器（默认 4321）。
 - `pnpm check`：Astro + TypeScript 类型检查。
-- `pnpm build`：类型检查并生成 `dist/`；当前构建通过，5 篇示例笔记、8 个页面。
+- `pnpm build`：类型检查并生成 `dist/`；当前构建通过，1 篇笔记（含英文译文）、中英合计 13 个页面（含 404 与 RSS）。
 - `pnpm preview`：预览构建产物。
 - 自动化截图（可选）：`python3` + Playwright（本机已安装，`channel="chrome"`）按 1440 / 768 / 390 宽度截全页图。
 - 发布前需设置 `SITE_URL`（当前为 `https://clok.fun`），否则 canonical / RSS / sitemap 会回退到 `https://example.com`。
@@ -51,5 +54,5 @@
 
 ## 下一步
 
-1. 写第一篇真实笔记（当前笔记集合为空）。
+1. 继续写真实笔记，并同步补英文译文（`slug.en.md`）；暂无译文的篇目在英文站自动隐藏。
 2. 按 `docs/site-plan.md` 第 10 节做线上验收；Lighthouse 性能 ≥ 95、可访问性 100。

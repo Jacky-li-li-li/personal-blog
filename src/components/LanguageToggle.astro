@@ -1,0 +1,31 @@
+---
+/**
+ * 语言切换入口：与深色模式按钮并排放在导航右侧。
+ *
+ * 是一个真正的链接而不是按钮——切换等于跳转到另一种语言的同一页面，
+ * 无脚本、可右键新窗口、对搜索引擎与读屏器都更友好。
+ * 文本显示「另一门语言」的名字（中文页显示 EN，英文页显示 中文）。
+ */
+import { getUI } from '../i18n';
+import type { Locale } from '../i18n/types';
+
+interface Props {
+  locale: Locale;
+  /** 目标语言下同一页面的路径。 */
+  href: string;
+}
+
+const { locale, href } = Astro.props;
+const ui = getUI(locale);
+---
+
+<a
+  class="lang-btn"
+  href={href}
+  hreflang={locale === 'zh' ? 'en' : 'zh-CN'}
+  lang={locale === 'zh' ? 'en' : 'zh-CN'}
+  aria-label={ui.language.switchAria}
+  title={ui.language.switchAria}
+>
+  <span class="lang-btn-text">{ui.language.switchTo}</span>
+</a>

@@ -2,12 +2,20 @@
 import { experiences } from '../data/experience';
 import { projects } from '../data/projects';
 import ProjectCard from './ProjectCard.astro';
+import { getUI, pick } from '../i18n';
+import type { Locale } from '../i18n/types';
 
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = getUI(locale);
 const projectMap = new Map(projects.map((project) => [project.id, project]));
 ---
 
 <section class="experience-panel reveal" id="work" aria-labelledby="experience-title">
-  <h2 class="label" id="experience-title">Experience</h2>
+  <h2 class="label" id="experience-title">{ui.work.experienceLabel}</h2>
 
   <div class="experience-list">
     <span class="experience-flow" data-experience-flow aria-hidden="true"></span>
@@ -18,6 +26,11 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
       const hasProjects = relatedProjects.length > 0;
       const projectsId = `experience-projects-${item.id}`;
       const companyId = `experience-company-${item.id}`;
+      const org = pick(item.org, locale);
+      const role = pick(item.role, locale);
+      const department = item.department ? pick(item.department, locale) : undefined;
+      const summary = pick(item.summary, locale);
+      const awards = item.awards ? pick(item.awards, locale) : undefined;
 
       return (
         <article
@@ -31,9 +44,9 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
             class="experience-years"
             href={`#experience-${item.id}`}
             aria-current={index === 0 ? 'location' : undefined}
-            aria-label={`跳到 ${item.org} 的经历`}
+            aria-label={ui.work.jumpTo(org)}
           >
-            {item.start} — {item.end === 'present' ? '现在' : item.end}
+            {item.start} — {item.end === 'present' ? ui.work.present : item.end}
           </a>
 
           <div class="experience-body">
@@ -47,12 +60,12 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
                         href={item.website}
                         target={item.website ? '_blank' : undefined}
                         rel={item.website ? 'noopener noreferrer' : undefined}
-                        aria-label={item.website ? `${item.org} 官网` : undefined}
+                        aria-label={item.website ? ui.work.companySite(org) : undefined}
                       >
                         <img
                           class="experience-logo experience-logo-rest"
                           src={item.logo}
-                          alt={item.org}
+                          alt={org}
                           width="386"
                           height="210"
                           loading="eager"
@@ -80,27 +93,27 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
                       </a>
                     </span>
                   ) : (
-                    <span class="experience-company" id={companyId}>{item.org}</span>
+                    <span class="experience-company" id={companyId}>{org}</span>
                   )}
                   <span class="experience-role">
-                    {item.department ? `${item.department} · ` : ''}{item.role}
+                    {department ? `${department} · ` : ''}{role}
                   </span>
                 </span>
 
-                {item.awards && item.awards.length > 0 && (
+                {awards && awards.length > 0 && (
                   <span class="experience-awards">
-                    <span class="experience-awards-label">Honors</span>
-                    {item.awards.map((award) => (
+                    <span class="experience-awards-label">{ui.work.honors}</span>
+                    {awards.map((award) => (
                       <span class="experience-award">{award}</span>
                     ))}
                   </span>
                 )}
 
-                <span class="experience-summary">{item.summary}</span>
+                <span class="experience-summary">{summary}</span>
 
                 {hasProjects && (
                   <span class="experience-action">
-                    <span>{relatedProjects.length} 个代表项目</span>
+                    <span>{ui.work.representativeProjects(relatedProjects.length)}</span>
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
                       <path d="m4 6 4 4 4-4"></path>
                     </svg>
@@ -119,11 +132,13 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
               >
                 <div class="experience-projects-inner">
                   <div class="experience-projects-heading">
-                    <span>Selected Work</span>
-                    <span>{relatedProjects.length} 个项目</span>
+                    <span>{ui.work.selectedWork}</span>
+                    <span>{ui.work.projectCount(relatedProjects.length)}</span>
                   </div>
                   <ul class="experience-project-list">
-                    {relatedProjects.map((project) => <ProjectCard project={project} />)}
+                    {relatedProjects.map((project) => (
+                      <ProjectCard project={project} locale={locale} />
+                    ))}
                   </ul>
                 </div>
               </div>

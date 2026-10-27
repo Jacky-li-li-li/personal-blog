@@ -1,3 +1,5 @@
+import type { Locale } from '../i18n/types';
+
 /**
  * 粗略估算阅读时长：中文按 400 字/分钟，西文按 200 词/分钟。
  * 对笔记这种长度的内容足够用，不需要额外依赖。
@@ -24,11 +26,25 @@ export function toPlainText(markdown: string): string {
     .trim();
 }
 
-/** First sentence of the note body for list subtitle. */
-export function getFirstSentence(markdown: string, maxLen = 72): string {
+/**
+ * 列表副标题取正文第一句。
+ *
+ * 中文句号是「。！？」；英文句末是「. ! ?」，但缩写（e.g. / Mr.）与省略号
+ * 容易误切，所以英文只在句号后面跟着空格且下一个字符是大写或结尾时才断句。
+ */
+export function getFirstSentence(
+  markdown: string,
+  maxLen = 72,
+  locale: Locale = 'zh',
+): string {
   const plain = toPlainText(markdown);
   if (!plain) return '';
-  const match = plain.match(/^.*?[。！？!?]/);
+
+  const match =
+    locale === 'en'
+      ? plain.match(/^.*?(?:[!?]+|\.(?=\s+["“(]?[A-Z])|\.$)/)
+      : plain.match(/^.*?[。！？!?]/);
+
   let sentence = (match ? match[0] : plain).trim();
   if (sentence.length > maxLen) {
     sentence = `${sentence.slice(0, maxLen).replace(/\s+\S*$/, '').trim()}…`;

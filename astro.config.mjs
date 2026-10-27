@@ -10,8 +10,9 @@ export default defineConfig({
   site,
   trailingSlash: 'never',
   output: 'static',
-  // 生成 about.html / notes.html 而不是 about/index.html，配合无尾斜杠 URL。
-  build: { format: 'file' },
+  // directory 格式：/about 落到 about/index.html，/en 落到 en/index.html。
+  // 无尾斜杠 URL 由 _redirects 的 301 统一收口。
+  build: { format: 'directory' },
   integrations: [
     sitemap({
       filter: (page) => !page.endsWith('/404/'),

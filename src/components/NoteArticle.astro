@@ -1,26 +1,28 @@
 ---
 /**
- * Shared Notes article shell: top back link, title, meta, prose slot.
- * Tags stay in frontmatter for future use but are not rendered.
- * All notes render through pages/notes/[slug].astro → this component + .article/.prose CSS.
+ * Notes 正文外壳：顶部返回链接、标题、元信息、正文 slot。
+ *
+ * tags 仍保存在 frontmatter 里备用，正文不渲染。
+ * 中英文都经由 pages/notes/[slug].astro 与 pages/en/notes/[slug].astro 渲染到这里，
+ * 语言只影响文案与日期格式，正文 Markdown 由调用方按语言选好。
  */
 import type { Note } from '../utils/notes';
-import { getNoteSlug } from '../utils/notes';
 import { formatLongDate, toIsoDate } from '../utils/date';
 import { getReadingMinutes } from '../utils/readingTime';
+import { getUI, localizePath } from '../i18n';
 
 interface Props {
   note: Note;
 }
 
 const { note } = Astro.props;
-const slug = getNoteSlug(note);
-const minutes = getReadingMinutes(note.body ?? '');
-const publishedIso = toIsoDate(note.data.date);
+const ui = getUI(note.locale);
+const minutes = getReadingMinutes(note.entry.body ?? '');
+const publishedIso = toIsoDate(note.date);
 ---
 
 <article class="article note-article">
-  <a class="back" href="/notes">
+  <a class="back" href={localizePath('/notes', note.locale)}>
     <svg
       viewBox="0 0 12 12"
       fill="none"
@@ -32,19 +34,19 @@ const publishedIso = toIsoDate(note.data.date);
     >
       <path d="M10.2 6H1.8M5 2.8 1.8 6 5 9.2"></path>
     </svg>
-    Notes
+    {ui.notes.backLink}
   </a>
 
   <header class="article-header">
-    <h1>{note.data.title}</h1>
+    <h1>{note.title}</h1>
 
     <div class="meta">
-      <time datetime={publishedIso}>{formatLongDate(note.data.date)}</time>
+      <time datetime={publishedIso}>{formatLongDate(note.date, note.locale)}</time>
       <span class="sep" aria-hidden="true"></span>
-      <span>{minutes} 分钟</span>
+      <span>{ui.notes.readingTime(minutes)}</span>
       <span class="meta-views">
         <span class="sep" aria-hidden="true"></span>
-        <span class="note-views" data-note-views data-slug={slug} data-mode="hit"></span>
+        <span class="note-views" data-note-views data-slug={note.id} data-mode="hit"></span>
       </span>
     </div>
   </header>

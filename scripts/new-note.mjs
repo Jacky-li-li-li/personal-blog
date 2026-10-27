@@ -58,4 +58,25 @@ draft: true
 writeFileSync(filePath, template, { encoding: 'utf8', flag: 'wx' });
 
 console.log(`已创建 ${filePath}`);
+
+// 英文译文另存一份 <slug>.en.md（与中文原文同名 slug，靠 .en 后缀配对）。
+// 译文不需要 date：构建时沿用中文原文的日期。不想翻译时删掉这个文件即可，
+// 英文站会自动隐藏该篇，中文页的语言切换会回退到英文列表。
+const enFilePath = resolve(notesDir, `${slug}.en.md`);
+const enTemplate = `---
+title: "English title of the note"
+summary: One sentence explaining what this note is about, replace before publishing.
+tags: []
+draft: true
+---
+
+First paragraph in English.
+`;
+
+if (!existsSync(enFilePath)) {
+  writeFileSync(enFilePath, enTemplate, { encoding: 'utf8', flag: 'wx' });
+  console.log(`已创建英文译文 ${enFilePath}`);
+}
+
 console.log('下一步：补全 summary，把 draft 改成 false，然后运行 pnpm dev 预览。');
+console.log(`英文版：翻译 src/content/notes/${slug}.en.md，或删掉它表示暂不翻译。`);

@@ -3,9 +3,17 @@ import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
+import { HTML_LANG, OG_LOCALE, getUI, getLocaleFromPath, localizePath } from '../i18n';
+import type { Locale } from '../i18n/types';
 
 interface Props {
+  /**
+   * 页面语言。中文页可省略；英文页必须显式写 en，同时决定 hreflang、
+   * html lang、og:locale 与标题后缀的拼接方式。
+   */
+  locale?: Locale;
   title?: string;
+  /** 未填时用站点级双语简介。 */
   description?: string;
   image?: string;
   type?: 'website' | 'article';
@@ -14,11 +22,19 @@ interface Props {
   noindex?: boolean;
   showFooter?: boolean;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** 覆盖语言切换按钮的目标（例如没有英文译文的笔记）。 */
+  localeSwitchHref?: string;
+  /**
+   * 该页面在另一种语言下没有对应版本时设为 false：
+   * hreflang 只声明自身版本 + x-default，避免指向 404。
+   */
+  hasAlternate?: boolean;
 }
 
 const {
+  locale: localeProp,
   title,
-  description = site.description,
+  description,
   image = site.ogImage,
   type = 'website',
   publishedTime,
@@ -26,58 +42,83 @@ const {
   noindex = false,
   showFooter = true,
   jsonLd,
+  localeSwitchHref,
+  hasAlternate = true,
 } = Astro.props;
 
+// 页面没显式给 locale 时按 URL 前缀推断，避免英文页忘了传。
+const locale: Locale = localeProp ?? getLocaleFromPath(Astro.url.pathname);
+const ui = getUI(locale);
 const siteUrl = Astro.site ?? new URL(site.siteUrl);
+
 // build.format = 'file' 时 pathname 带 .html，canonical 需要还原成干净路径。
 const cleanPath =
   Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '') || '/';
 const canonical = new URL(cleanPath, siteUrl).href;
 const ogImage = new URL(image, siteUrl).href;
-const pageTitle = title ? `${title} · ${site.name}` : site.title;
-const active = Astro.url.pathname.startsWith('/notes')
+const siteName = site.name[locale];
+const fallbackTitle = site.title[locale];
+const fallbackDescription = description ?? site.description[locale];
+const pageTitle = title ? `${title} · ${siteName}` : fallbackTitle;
+
+/* 语言版本互链：中文页 ↔ 英文页，另加 x-default 指向中文（默认语言）。 */
+const rootPath = localizePath(cleanPath, 'zh');
+const hrefLang = {
+  zh: new URL(localizePath(rootPath, 'zh'), siteUrl).href,
+  en: new URL(localizePath(rootPath, 'en'), siteUrl).href,
+};
+const switchHref = localeSwitchHref ?? (locale === 'zh' ? localizePath(rootPath, 'en') : localizePath(rootPath, 'zh'));
+
+// 全部页面都从 URL 推断当前栏目，英文前缀由 i18n 的路径工具吸收。
+const activePath = cleanPath.replace(/^\/en(?=\/|$)/, '');
+const active = activePath.startsWith('/notes')
   ? 'notes'
-  : Astro.url.pathname.startsWith('/work')
+  : activePath.startsWith('/work')
     ? 'work'
-    : Astro.url.pathname.startsWith('/about') || Astro.url.pathname === '/'
+    : activePath.startsWith('/about') || activePath === '/'
       ? 'about'
       : undefined;
+
 const jsonLdString = jsonLd
   ? JSON.stringify(jsonLd).replace(/</g, '\\u003c')
   : null;
 ---
 
 <!doctype html>
-<html lang="zh-CN" data-theme="light">
+<html lang={HTML_LANG[locale]} data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
-    <meta name="description" content={description} />
-    <meta name="author" content={site.name} />
+    <meta name="description" content={fallbackDescription} />
+    <meta name="author" content={siteName} />
     <meta name="generator" content={Astro.generator} />
     <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="zh-CN" href={locale === 'zh' ? canonical : hrefLang.zh} />
+    {hasAlternate && <link rel="alternate" hreflang="en" href={locale === 'en' ? canonical : hrefLang.en} />}
+    <link rel="alternate" hreflang="x-default" href={hasAlternate ? hrefLang.zh : canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate" type="application/rss+xml" title={`${site.name} · Notes`} href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${siteName} · ${ui.rss.titleSuffix}`} href={localizePath('/rss.xml', locale)} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <meta name="theme-color" content="#fefdfa" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#14120f" media="(prefers-color-scheme: dark)" />
 
     <meta property="og:type" content={type} />
-    <meta property="og:site_name" content={site.name} />
-    <meta property="og:locale" content="zh_CN" />
-    <meta property="og:title" content={title ?? site.title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content={OG_LOCALE[locale]} />
+    <meta property="og:locale:alternate" content={OG_LOCALE[locale === 'zh' ? 'en' : 'zh']} />
+    <meta property="og:title" content={title ?? fallbackTitle} />
+    <meta property="og:description" content={fallbackDescription} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:image:alt" content={`${site.name} — ${site.tagline}`} />
+    <meta property="og:image:alt" content={`${siteName} — ${site.tagline[locale]}`} />
     {publishedTime && <meta property="article:published_time" content={publishedTime} />}
     {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title ?? site.title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:title" content={title ?? fallbackTitle} />
+    <meta name="twitter:description" content={fallbackDescription} />
     <meta name="twitter:image" content={ogImage} />
 
     <link
@@ -117,24 +158,29 @@ const jsonLdString = jsonLd
   </head>
 
   <body>
-    <a class="skip-link" href="#main">跳到主要内容</a>
-    <Nav active={active} />
+    <a class="skip-link" href="#main">{ui.skipLink}</a>
+    <Nav active={active} locale={locale} switchHref={switchHref} />
 
     <div class="wrap">
       <main id="main">
         <slot />
       </main>
-      {showFooter && <Footer />}
+      {showFooter && <Footer locale={locale} />}
     </div>
 
-    <script is:inline>
+    <script is:inline data-theme-label-light={ui.theme.toLight} data-theme-label-dark={ui.theme.toDark}>
       (() => {
         const root = document.documentElement;
         const toggleButtons = document.querySelectorAll('[data-theme-toggle]');
+        // 文案由布局写进脚本标签的 data-* 上：内联脚本不能读模板变量，
+        // 用 define:vars 又会把字面量塞进 code，先例是主题按钮的无障碍标签。
+        const script = document.currentScript;
+        const labelLight = script?.dataset.themeLabelLight || '切换到浅色模式';
+        const labelDark = script?.dataset.themeLabelDark || '切换到深色模式';
 
         const syncThemeLabels = () => {
           const isDark = root.dataset.theme === 'dark';
-          const label = isDark ? '切换到浅色模式' : '切换到深色模式';
+          const label = isDark ? labelLight : labelDark;
           toggleButtons.forEach((button) => {
             button.setAttribute('aria-label', label);
             button.setAttribute('title', label);

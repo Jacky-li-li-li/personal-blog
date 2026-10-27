@@ -1,20 +1,30 @@
 ---
 import SocialIcon from './SocialIcon.astro';
 import { site } from '../data/site';
+import { getUI } from '../i18n';
+import type { Locale } from '../i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = getUI(locale);
 ---
 
 <footer>
-  <span>© {new Date().getFullYear()} <span class="footer-name">{site.name}</span></span>
-  <nav aria-label="联系方式（页脚）">
+  <span class="footer-name">{site.name[locale]}</span>
+  <nav aria-label={ui.footer.socialsAria}>
     {site.socials.map((social) => {
       const external = social.href.startsWith('http');
+      const label = ui.hero.socialLabels[social.icon];
       return (
         <a
           class="social-link"
           data-icon={social.icon}
           href={social.href}
-          aria-label={`${social.label}${external ? '（新窗口打开）' : ''}`}
-          title={social.label}
+          aria-label={`${label}${external ? ui.footer.externalHint : ''}`}
+          title={label}
           target={external ? '_blank' : undefined}
           rel={external ? 'noopener' : undefined}
         >

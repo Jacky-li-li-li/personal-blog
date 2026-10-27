@@ -1,13 +1,20 @@
 ---
-import type { Project } from '../data/projects';
+import { localizeTag, type Project } from '../data/projects';
+import { getUI, pick } from '../i18n';
+import type { Locale } from '../i18n/types';
 
 interface Props {
   project: Project;
+  locale: Locale;
 }
 
-const { project } = Astro.props;
+const { project, locale } = Astro.props;
+const ui = getUI(locale);
 const external = project.url?.startsWith('http') ?? false;
 const hasPreviews = Boolean(project.previews?.length);
+const name = pick(project.name, locale);
+const summary = pick(project.summary, locale);
+const outcomes = project.outcomes ? pick(project.outcomes, locale) : undefined;
 ---
 
 <li
@@ -18,19 +25,21 @@ const hasPreviews = Boolean(project.previews?.length);
   tabindex={hasPreviews ? 0 : undefined}
 >
   <div class="experience-project-meta">
-    <h4>{project.name}</h4>
+    <h4>{name}</h4>
     {project.tags && project.tags.length > 0 && (
-      <ul class="tags" aria-label="项目类型">
-        {project.tags.map((tag) => <li class="tag">{tag}</li>)}
+      <ul class="tags" aria-label={ui.work.projectTagsAria}>
+        {project.tags.map((tag) => (
+          <li class="tag">{localizeTag(tag, locale)}</li>
+        ))}
       </ul>
     )}
   </div>
 
-  <p class="experience-project-summary">{project.summary}</p>
+  <p class="experience-project-summary">{summary}</p>
 
-  {project.outcomes && project.outcomes.length > 0 && (
-    <ul class="experience-outcomes" aria-label="项目成果">
-      {project.outcomes.map((outcome) => <li>{outcome}</li>)}
+  {outcomes && outcomes.length > 0 && (
+    <ul class="experience-outcomes" aria-label={ui.work.projectOutcomesAria}>
+      {outcomes.map((outcome) => <li>{outcome}</li>)}
     </ul>
   )}
 
@@ -41,11 +50,11 @@ const hasPreviews = Boolean(project.previews?.length);
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener' : undefined}
     >
-      查看案例
+      {ui.work.viewCase}
       <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
         <path d="M3.2 8.8 8.8 3.2M4.4 3.2h4.4v4.4"></path>
       </svg>
-      {external && <span class="sr-only">（新窗口打开）</span>}
+      {external && <span class="sr-only">{ui.work.externalHint}</span>}
     </a>
   )}
 </li>

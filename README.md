@@ -33,11 +33,12 @@ pnpm new "把工具做成习惯" tools-as-habits
 
 | 内容 | 文件 |
 | --- | --- |
-| 姓名、定位、个人简介、身份标签、邮箱、社交链接、站点 URL | `src/data/site.ts` |
-| 工作经历 | `src/data/experience.ts` |
-| 个人项目 | `src/data/projects.ts` |
-| 笔记 | `src/content/notes/*.md` |
+| 姓名、定位、个人简介、身份标签、邮箱、社交链接、站点 URL（中英各一份） | `src/data/site.ts` |
+| 工作经历（中英各一份） | `src/data/experience.ts` |
+| 个人项目（中英各一份） | `src/data/projects.ts` |
+| 笔记 | `src/content/notes/*.md`，译文为 `*.en.md` |
 | 笔记 schema 与校验规则 | `src/content.config.ts` |
+| 界面文案字典（导航、按钮、空状态、无障碍标签） | `src/i18n/ui.ts` |
 | 全站视觉 token 与组件样式 | `src/styles/global.css` |
 
 笔记 frontmatter：
@@ -53,6 +54,35 @@ draft: false
 ```
 
 `summary` 为必填，长度 20–120 字；`draft: true` 的笔记不会进入生产构建。草稿可以放在 `src/content/notes/_drafts/`，该目录不会被 collection 读取。
+
+## 中英文双语
+
+站点默认中文，英文版挂在 `/en` 下：`/`、`/about`、`/work`、`/notes`、`/notes/:slug` 与 `/en`、`/en/about`、`/en/work`、`/en/notes`、`/en/notes/:slug` 一一对应，两版通过 `<link rel="alternate" hreflang>` 互链，导航右侧的 `EN` / `CN` 按钮在同一页面的两种语言间跳转。
+
+内容分两类维护：
+
+| 类型 | 写法 |
+| --- | --- |
+| 结构化的短文案（个人简介、经历、项目） | `src/data/*.ts` 里用 `{ zh, en }` 两个字段并列，组件通过 `pick()` 取当前语言 |
+| 笔记正文 | 中文 `slug.md` + 英文 `slug.en.md` 两个文件，文件名相同即自动配对 |
+
+英文笔记的 frontmatter：
+
+```yaml
+---
+title: Looking Back
+summary: One sentence explaining what the note is about; 20–160 characters.
+tags: [Work]
+draft: false
+---
+```
+
+- 译文**不需要写 `date`**，构建时沿用中文原文的日期，避免两处维护。
+- 没有 `.en.md` 的笔记不会出现在 `/en` 列表里，中文页的切换按钮会回退到英文列表页，不会跳到 404。
+- `pnpm new "标题" slug` 会同时生成中文与英文两个模板文件；不想翻译时直接删掉 `.en.md`。
+- 界面文案（按钮、无障碍标签、空状态）集中在 `src/i18n/ui.ts`，两语言并列，改文案时两边一起改。
+
+带尾斜杠的地址（`/en/`、`/about/`、`/en/notes/` 等）由 `public/_redirects` 在 Cloudflare Pages 边缘 301 到无斜杠版本。
 
 ## 示例内容
 

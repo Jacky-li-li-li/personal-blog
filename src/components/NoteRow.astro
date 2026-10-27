@@ -1,24 +1,28 @@
 ---
 import type { Note } from '../utils/notes';
-import { getNoteSlug } from '../utils/notes';
-import { formatDotDate, toIsoDate } from '../utils/date';
+import { formatListDate, toIsoDate } from '../utils/date';
 import { getFirstSentence } from '../utils/readingTime';
+import { localizePath } from '../i18n';
 
 interface Props {
   note: Note;
 }
 
 const { note } = Astro.props;
-const slug = getNoteSlug(note);
-const subtitle = getFirstSentence(note.body ?? '');
+// 副标题取当前语言正文的第一句：英文有译文时自动用英文那句。
+const subtitle = getFirstSentence(
+  note.entry.body ?? '',
+  note.locale === 'en' ? 96 : 72,
+  note.locale,
+);
 ---
 
 <article class="note-row">
-  <time class="note-date" datetime={toIsoDate(note.data.date)}>{formatDotDate(note.data.date)}</time>
+  <time class="note-date" datetime={toIsoDate(note.date)}>{formatListDate(note.date, note.locale)}</time>
 
   <div class="note-main">
     <h3 class="note-title">
-      <a href={`/notes/${slug}`}>{note.data.title}</a>
+      <a href={localizePath(`/notes/${note.id}`, note.locale)}>{note.title}</a>
     </h3>
     {subtitle && <p class="note-subtitle">{subtitle}</p>}
   </div>
@@ -26,7 +30,7 @@ const subtitle = getFirstSentence(note.body ?? '');
   <span
     class="note-views note-views--hover"
     data-note-views
-    data-slug={slug}
+    data-slug={note.id}
     data-mode="read"
     aria-hidden="true"
   ></span>

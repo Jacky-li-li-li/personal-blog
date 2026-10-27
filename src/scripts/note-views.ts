@@ -3,6 +3,8 @@
  * - list items: data-mode="read" → batch GET
  * - article: data-mode="hit" → POST once per session, else GET
  * - localhost: show "0 次阅读" without calling the API
+ *
+ * 语言跟随 <html lang>：中文「x 次阅读」，英文「x views / 1 view」。
  */
 
 const VISITOR_KEY = 'clok.visitorId';
@@ -27,7 +29,13 @@ function getVisitorId(): string {
   }
 }
 
+function isEnglish(): boolean {
+  return !(document.documentElement.lang || '').toLowerCase().startsWith('zh');
+}
+
 function formatPv(pv: number): string {
+  // 与界面字典 i18n/ui.ts 的 notes.views 保持一致；纯客户端脚本读不到 Astro 变量。
+  if (isEnglish()) return `${pv} ${pv === 1 ? 'view' : 'views'}`;
   return `${pv} 次阅读`;
 }
 

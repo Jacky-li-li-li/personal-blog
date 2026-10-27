@@ -1,0 +1,50 @@
+---
+/**
+ * Notes 列表页版式：放在 src/views/，中英文共用，只有语言不同。
+ *
+ * 页面按语言拿到「视图」后的笔记（标题/摘要/正文都已是当前语言），
+ * 英文没有译文时回退中文原文，避免列表出现空条目。
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NotesLandscape from '../components/NotesLandscape.astro';
+import SceneCursor from '../components/SceneCursor.astro';
+import NoteRow from '../components/NoteRow.astro';
+import { getNotesForLocale } from '../utils/notes';
+import { getUI } from '../i18n';
+import type { Locale } from '../i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = getUI(locale);
+const notes = await getNotesForLocale(locale);
+---
+
+<BaseLayout locale={locale} title={ui.notes.title} description={ui.notes.description}>
+  <div class="notes-page" data-notes-page>
+    <NotesLandscape />
+    <SceneCursor theme="sand" />
+
+    <header class="notes-head page-head">
+      <p class="label">{ui.notes.label}</p>
+      <h1>{ui.notes.heading}{ui.notes.headingGap}<br class="m-br" />{ui.notes.headingSecondLine}</h1>
+      <p>{ui.notes.description}</p>
+    </header>
+
+    {
+      notes.length > 0 ? (
+        <div class="notes-list">
+          {notes.map((note) => (
+            <NoteRow note={note} />
+          ))}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <p>{ui.notes.empty}</p>
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

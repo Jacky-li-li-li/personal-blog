@@ -3,6 +3,16 @@ import { Image } from 'astro:assets';
 import avatar from '../assets/avatar.jpg';
 import SocialIcon from './SocialIcon.astro';
 import { site } from '../data/site';
+import { getUI } from '../i18n';
+import type { Locale } from '../i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = getUI(locale);
+const name = site.name[locale];
 ---
 
 <header class="hero" id="about">
@@ -10,7 +20,7 @@ import { site } from '../data/site';
     <div class="profile-id">
       <Image
         src={avatar}
-        alt={`${site.name} 的插画头像`}
+        alt={ui.hero.avatarAlt}
         widths={[144, 288]}
         sizes="(max-width: 760px) 116px, 144px"
         format="webp"
@@ -20,16 +30,17 @@ import { site } from '../data/site';
         fetchpriority="high"
       />
 
-      <nav class="socials" aria-label="联系方式">
+      <nav class="socials" aria-label={ui.hero.socialsAria}>
         {site.socials.map((social) => {
           const external = social.href.startsWith('http');
+          const label = ui.hero.socialLabels[social.icon];
           return (
             <a
               class="social-link"
               data-icon={social.icon}
               href={social.href}
-              aria-label={`${social.label}${external ? '（新窗口打开）' : ''}`}
-              title={social.label}
+              aria-label={`${label}${external ? ui.hero.externalHint : ''}`}
+              title={label}
               target={external ? '_blank' : undefined}
               rel={external ? 'noopener' : undefined}
             >
@@ -41,13 +52,13 @@ import { site } from '../data/site';
     </div>
 
     <h1 class="profile-name">
-      <span class="profile-name-text">{site.name}</span>
+      <span class="profile-name-text">{name}</span>
       <canvas class="profile-name-canvas" aria-hidden="true"></canvas>
     </h1>
 
     <div class="profile-bio">
-      <p class="lede">{site.tagline}</p>
-      <p class="intro blur-highlight" set:html={site.intro}></p>
+      <p class="lede">{site.tagline[locale]}</p>
+      <p class="intro blur-highlight" set:html={site.intro[locale]}></p>
       <script is:inline>
         // 把简介拆成「英文词 / 中文单字 / 标点」序列，按顺序给出递增延迟，
         // 形成从左到右依次清晰的扫过效果；无脚本时文字保持正常可见。
@@ -88,9 +99,9 @@ import { site } from '../data/site';
         })();
       </script>
 
-      {site.tags.length > 0 && (
-        <ul class="identity-tags" aria-label="身份标签">
-          {site.tags.map((tag) => (
+      {site.tags[locale].length > 0 && (
+        <ul class="identity-tags" aria-label={ui.hero.tagsAria}>
+          {site.tags[locale].map((tag) => (
             <li class="identity-tag">
               <span class="identity-tag-text">
                 <span class="identity-tag-hash" aria-hidden="true">#</span>{tag}

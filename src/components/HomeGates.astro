@@ -3,11 +3,20 @@
  * 首页叠卡入口：两张纸感风景卡叠放，掀开后进入 Work / Notes。
  * 复用站点已有雪山 / 沙丘色板与纸质审美，不引入外部图片。
  */
+import { getUI, localizePath } from '../i18n';
+import type { Locale } from '../i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = getUI(locale);
 ---
 
-<section class="home-gates" aria-label="前往经历与笔记">
+<section class="home-gates" aria-label={ui.gates.ariaLabel}>
   <div class="home-gates-stack">
-    <a class="home-gate home-gate--notes" href="/notes">
+    <a class="home-gate home-gate--notes" href={localizePath('/notes', locale)}>
       <span class="home-gate-scene" aria-hidden="true">
         <svg class="home-gate-art" viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" role="presentation">
           <defs>
@@ -67,11 +76,11 @@
         </svg>
       </span>
       <span class="home-gate-meta">
-        <span class="home-gate-label">Notes</span>
+        <span class="home-gate-label">{ui.gates.notes}</span>
       </span>
     </a>
 
-    <a class="home-gate home-gate--work" href="/work">
+    <a class="home-gate home-gate--work" href={localizePath('/work', locale)}>
       <span class="home-gate-scene" aria-hidden="true">
         <svg class="home-gate-art" viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" role="presentation">
           <defs>
@@ -131,7 +140,7 @@
         </svg>
       </span>
       <span class="home-gate-meta">
-        <span class="home-gate-label">Work</span>
+        <span class="home-gate-label">{ui.gates.work}</span>
       </span>
     </a>
   </div>

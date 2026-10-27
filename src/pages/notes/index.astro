@@ -1,37 +1,5 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import NotesLandscape from '../../components/NotesLandscape.astro';
-import SceneCursor from '../../components/SceneCursor.astro';
-import NoteRow from '../../components/NoteRow.astro';
-import { getPublishedNotes } from '../../utils/notes';
-
-const notes = await getPublishedNotes();
-const description = '不定期更新。关于 AI 产品、工具，以及一些还没有结论的想法。';
+import NotesPage from '../../views/NotesPage.astro';
 ---
 
-<BaseLayout title="Notes" description={description}>
-  <div class="notes-page" data-notes-page>
-    <NotesLandscape />
-    <SceneCursor theme="sand" />
-
-    <header class="notes-head page-head">
-      <p class="label">Notes</p>
-      <h1>想到什么，<br class="m-br" />写点什么。</h1>
-      <p>{description}</p>
-    </header>
-
-    {
-      notes.length > 0 ? (
-        <div class="notes-list">
-          {notes.map((note) => (
-            <NoteRow note={note} />
-          ))}
-        </div>
-      ) : (
-        <div class="empty-state">
-          <p>第一篇还在路上。</p>
-        </div>
-      )
-    }
-  </div>
-</BaseLayout>
+<NotesPage locale="zh" />

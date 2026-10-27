@@ -403,6 +403,7 @@ svg {
 }
 
 .nav--about .nav-links,
+.nav--about .nav-actions,
 .nav--about .theme-btn {
   position: relative;
   z-index: 2;
@@ -554,6 +555,7 @@ svg {
 }
 
 .nav--work .nav-links,
+.nav--work .nav-actions,
 .nav--work .theme-btn {
   position: relative;
   z-index: 2;
@@ -670,6 +672,7 @@ svg {
 }
 
 .nav--notes .nav-links,
+.nav--notes .nav-actions,
 .nav--notes .theme-btn {
   position: relative;
   z-index: 2;
@@ -741,6 +744,47 @@ svg {
   text-decoration-color: var(--accent-ink);
   text-decoration-thickness: 1px;
   text-underline-offset: 6px;
+}
+
+/* 语言切换与深浅色按钮并排：窄尺寸、低对比，属于「工具」而不是导航项。 */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.lang-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  transition: background var(--duration-hover) ease, color var(--duration-hover) ease;
+}
+
+/* 视觉尺寸保持紧凑，点击热区扩到 44px。 */
+.lang-btn::before {
+  content: "";
+  position: absolute;
+  inset: -7px -4px;
+}
+
+.lang-btn:hover {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.lang-btn-text {
+  /* 中文「中文」两个字比 EN 宽，缩小后靠字距保持同等灰度。 */
+  transform: translateY(0.5px);
 }
 
 .theme-btn {

@@ -1,14 +1,22 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
+import LanguageToggle from './LanguageToggle.astro';
 import AboutNavMist from './AboutNavMist.astro';
 import WorkNavFrost from './WorkNavFrost.astro';
 import NotesNavSand from './NotesNavSand.astro';
+import { getUI, localizePath } from '../i18n';
+import type { Locale } from '../i18n/types';
 
 interface Props {
   active?: 'about' | 'work' | 'notes';
+  locale: Locale;
+  /** 语言切换目标；由布局算好（笔记没有英文译文时会回退到英文列表）。 */
+  switchHref: string;
 }
 
-const { active } = Astro.props;
+const { active, locale, switchHref } = Astro.props;
+const ui = getUI(locale);
+const link = (path: string) => localizePath(path, locale);
 ---
 
 <nav
@@ -20,7 +28,7 @@ const { active } = Astro.props;
       'nav--notes': active === 'notes',
     },
   ]}
-  aria-label="主导航"
+  aria-label={ui.nav.ariaLabel}
   data-site-nav
 >
   {active === 'about' && <AboutNavMist />}
@@ -29,27 +37,30 @@ const { active } = Astro.props;
   <div class="nav-links">
     <a
       class:list={['nav-link', { active: active === 'about' }]}
-      href="/about"
+      href={link('/about')}
       aria-current={active === 'about' ? 'page' : undefined}
     >
-      About
+      {ui.nav.about}
     </a>
     <a
       class:list={['nav-link', { active: active === 'work' }]}
-      href="/work"
+      href={link('/work')}
       aria-current={active === 'work' ? 'page' : undefined}
     >
-      Work
+      {ui.nav.work}
     </a>
     <a
       class:list={['nav-link', { active: active === 'notes' }]}
-      href="/notes"
+      href={link('/notes')}
       aria-current={active === 'notes' ? 'page' : undefined}
     >
-      Notes
+      {ui.nav.notes}
     </a>
   </div>
-  <ThemeToggle />
+  <div class="nav-actions">
+    <LanguageToggle locale={locale} href={switchHref} />
+    <ThemeToggle locale={locale} />
+  </div>
 </nav>
 
 <script>

@@ -1,61 +1,67 @@
 ---
+/**
+ * 笔记正文（中文）：渲染中文原文条目本身。
+ */
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NoteArticle from '../../components/NoteArticle.astro';
 import SceneCursor from '../../components/SceneCursor.astro';
 import { site } from '../../data/site';
-import { getPublishedNotes, getNoteSlug } from '../../utils/notes';
+import { getNotePairs, toNoteView, type NotePair } from '../../utils/notes';
 import { toIsoDate } from '../../utils/date';
+import { HTML_LANG, localizePath } from '../../i18n';
 
 export async function getStaticPaths() {
-  const notes = await getPublishedNotes();
-
-  return notes.map((note) => ({
-    params: { slug: getNoteSlug(note) },
-    props: { note },
-  }));
+  const pairs = await getNotePairs();
+  return pairs.map((pair) => ({ params: { slug: pair.id }, props: { pair } }));
 }
 
-const { note } = Astro.props;
-const { Content } = await render(note);
-const slug = getNoteSlug(note);
-const publishedIso = toIsoDate(note.data.date);
-const updatedIso = note.data.updated ? toIsoDate(note.data.updated) : undefined;
-const articleUrl = new URL(`/notes/${slug}`, Astro.site ?? site.siteUrl).href;
+interface Props {
+  pair: NotePair;
+}
+
+const locale = 'zh' as const;
+const view = toNoteView(Astro.props.pair, locale);
+const { Content } = await render(view.entry);
+
+const publishedIso = toIsoDate(view.date);
+const updatedIso = view.updated ? toIsoDate(view.updated) : undefined;
+const articleUrl = new URL(localizePath(`/notes/${view.id}`, locale), Astro.site ?? site.siteUrl).href;
 
 const articleJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
-  headline: note.data.title,
-  description: note.data.summary,
+  headline: view.title,
+  description: view.summary,
   datePublished: publishedIso,
   ...(updatedIso ? { dateModified: updatedIso } : {}),
-  inLanguage: 'zh-CN',
+  inLanguage: HTML_LANG[locale],
   mainEntityOfPage: articleUrl,
   url: articleUrl,
   image: new URL(site.ogImage, Astro.site ?? site.siteUrl).href,
-  author: {
-    '@type': 'Person',
-    name: site.name,
-    url: site.siteUrl,
-  },
-  publisher: {
-    '@type': 'Person',
-    name: site.name,
-  },
+  author: { '@type': 'Person', name: site.name[locale], url: site.siteUrl },
+  publisher: { '@type': 'Person', name: site.name[locale] },
 };
 ---
 
 <BaseLayout
-  title={note.data.title}
-  description={note.data.summary}
+  locale={locale}
+  title={view.title}
+  description={view.summary}
   type="article"
   publishedTime={publishedIso}
   modifiedTime={updatedIso}
   jsonLd={articleJsonLd}
+  {/* 没有译文时不要把人送到不存在的 /en/notes/:slug，改为落到英文列表页。 */}
+  localeSwitchHref={
+    Astro.props.pair.en
+      ? localizePath(`/notes/${view.id}`, 'en')
+      : localizePath('/notes', 'en')
+  }
+  hasAlternate={Boolean(Astro.props.pair.en)}
 >
   <SceneCursor theme="sand" />
-  <NoteArticle note={note}>
+  <NoteArticle note={view}>
     <Content />
   </NoteArticle>
 </BaseLayout>

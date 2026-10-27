@@ -1,5 +1,13 @@
-# 兼容改版前带尾斜杠的地址
+# 站内 URL 统一不带尾斜杠；带斜杠的旧地址与手输地址一律 301 到无斜杠版本。
+# build.format = 'directory' 会生成 /about/index.html，边缘先做一次规范化再回源。
 /about/  /about  301
 /work/  /work  301
 /notes/  /notes  301
 /notes/:slug/  /notes/:slug  301
+
+# 英文站：/en、/en/about… 同样是 directory 产物，尾斜杠规范化后回源到 /en/xxx。
+/en/  /en  301
+/en/about/  /en/about  301
+/en/work/  /en/work  301
+/en/notes/  /en/notes  301
+/en/notes/:slug/  /en/notes/:slug  301

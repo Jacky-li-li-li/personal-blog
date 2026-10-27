@@ -1,8 +1,26 @@
+---
+/**
+ * 深浅色按钮。
+ *
+ * 初始 aria-label 用当前语言渲染（无脚本时也可读），布局里的内联脚本
+ * 会在挂载后按实际主题把它改成「切到浅色 / 切到深色」。
+ */
+import { getUI } from '../i18n';
+import type { Locale } from '../i18n/types';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = getUI(locale);
+---
+
 <button
   class="theme-btn"
   type="button"
   data-theme-toggle
-  aria-label="切换深浅色"
+  aria-label={ui.theme.toggleAria}
 >
   <svg
     class="icon-sun"

@@ -1,13 +1,26 @@
 ---
+/**
+ * 404：中英文各一份（/404 与 /en/404）。
+ * 关闭语言切换，避免把读者带到另一个同样不存在的地址。
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getUI } from '../i18n';
+import type { Locale } from '../i18n/types';
+
+interface Props {
+  locale?: Locale;
+}
+
+const { locale = 'zh' } = Astro.props;
+const ui = getUI(locale);
 ---
 
-<BaseLayout title="页面不存在" noindex>
+<BaseLayout locale={locale} title={ui.notFound.title} noindex hasAlternate={false}>
   <div class="notfound">
     <p class="code" aria-hidden="true">404</p>
-    <h1>这一页不存在</h1>
-    <p>可能是链接过期了，或者页面已经搬走。</p>
-    <a class="back" href="/">
+    <h1>{ui.notFound.heading}</h1>
+    <p>{ui.notFound.body}</p>
+    <a class="back" href={locale === 'zh' ? '/' : '/en'}>
       <svg
         viewBox="0 0 12 12"
         fill="none"
@@ -19,7 +32,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       >
         <path d="M10.2 6H1.8M5 2.8 1.8 6 5 9.2"></path>
       </svg>
-      返回首页
+      {ui.notFound.back}
     </a>
   </div>
 </BaseLayout>
