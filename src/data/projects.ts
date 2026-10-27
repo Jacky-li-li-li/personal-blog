@@ -11,6 +11,8 @@ export type Project = {
   outcomes?: string[];
   url?: string;
   tags?: string[];
+  /** Optional hover preview image paths (public URLs). */
+  previews?: string[];
 };
 
 export const projects: Project[] = [
@@ -24,6 +26,10 @@ export const projects: Project[] = [
       '把访谈从一次性项目变成可复用的研究能力',
     ],
     tags: ['Harness', 'pi SDK', 'Skill', 'MCP', 'Checkpoint', 'Human-in-the-loop'],
+    previews: [
+      '/images/virtual-interview-home.jpg',
+      '/images/virtual-interview-report.jpg',
+    ],
   },
   {
     id: 'voc-agent',

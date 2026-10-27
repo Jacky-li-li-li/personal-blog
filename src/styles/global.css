@@ -1554,6 +1554,132 @@ html[data-theme="dark"] .experience-logo-reverse {
   transform: translate(1px, -1px);
 }
 
+.experience-project.has-preview {
+  cursor: default;
+  outline: none;
+}
+
+.experience-project.has-preview:focus-visible {
+  border-radius: var(--radius-xs);
+  box-shadow: 0 0 0 2px var(--accent-soft), 0 0 0 3px var(--accent-ink);
+}
+
+.project-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-base) ease,
+    visibility 0s linear var(--duration-base);
+}
+
+.project-preview.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--duration-base) ease,
+    visibility 0s linear 0s;
+}
+
+.project-preview-curve {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.project-preview-curve path {
+  stroke: var(--accent-ink);
+  stroke-opacity: 0.34;
+  stroke-width: 1.15;
+  stroke-linecap: round;
+}
+
+.project-preview-panel {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  max-height: min(72vh, 520px);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.project-preview-images {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  overflow: auto;
+  padding: 4px 6px 12px; /* room for window soft shadows */
+}
+
+/* macOS-style window chrome around each screenshot */
+.project-preview-figure {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 11px;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-2);
+}
+
+.project-preview-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 18px;
+  padding: 0 9px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-soft);
+}
+
+.project-preview-traffic {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  opacity: 0.88;
+}
+
+.project-preview-traffic--close {
+  background: #ff5f57;
+}
+
+.project-preview-traffic--minimize {
+  background: #febc2e;
+}
+
+.project-preview-traffic--zoom {
+  background: #28c840;
+}
+
+.project-preview-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .project-preview {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-preview {
+    transition: none;
+  }
+}
+
+
 .tags {
   display: flex;
   flex-wrap: wrap;

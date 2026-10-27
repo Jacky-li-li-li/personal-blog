@@ -133,6 +133,15 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
       );
     })}
   </div>
+
+  <div class="project-preview" data-project-preview-layer aria-hidden="true">
+    <svg class="project-preview-curve" data-project-preview-curve aria-hidden="true">
+      <path data-project-preview-path fill="none"></path>
+    </svg>
+    <aside class="project-preview-panel" data-project-preview-panel>
+      <div class="project-preview-images" data-project-preview-images></div>
+    </aside>
+  </div>
 </section>
 
 <script>
@@ -332,4 +341,181 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
   updateExperiencePosition();
   window.addEventListener('scroll', requestPositionUpdate, { passive: true });
   window.addEventListener('resize', requestPositionUpdate);
+
+
+  // Hover preview: soft curve from a project card to a paper preview panel.
+  // Fine-pointer + hover only; coarse pointers skip to avoid broken mobile UI.
+  const previewLayer = document.querySelector<HTMLElement>('[data-project-preview-layer]');
+  const previewCurve = document.querySelector<SVGSVGElement>('[data-project-preview-curve]');
+  const previewPath = document.querySelector<SVGPathElement>('[data-project-preview-path]');
+  const previewPanel = document.querySelector<HTMLElement>('[data-project-preview-panel]');
+  const previewImages = document.querySelector<HTMLElement>('[data-project-preview-images]');
+  const previewCards = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-project-preview]'),
+  );
+  const fineHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+  let previewCard: HTMLElement | null = null;
+  let previewFrame = 0;
+  let previewHideTimer = 0;
+
+  const clearPreviewImages = () => {
+    if (!previewImages) return;
+    previewImages.replaceChildren();
+  };
+
+  const loadPreviewImages = (srcs: string[]) => {
+    if (!previewImages) return;
+    clearPreviewImages();
+    srcs.forEach((src, index) => {
+      const figure = document.createElement('figure');
+      figure.className = 'project-preview-figure';
+
+      const titlebar = document.createElement('div');
+      titlebar.className = 'project-preview-titlebar';
+      titlebar.setAttribute('aria-hidden', 'true');
+      for (const kind of ['close', 'minimize', 'zoom'] as const) {
+        const dot = document.createElement('span');
+        dot.className = `project-preview-traffic project-preview-traffic--${kind}`;
+        titlebar.append(dot);
+      }
+
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = '';
+      img.loading = index === 0 ? 'eager' : 'lazy';
+      img.decoding = 'async';
+
+      figure.append(titlebar, img);
+      previewImages.append(figure);
+    });
+  };
+
+  const placePreviewPanel = (card: HTMLElement) => {
+    if (!previewPanel) return;
+    const cardRect = card.getBoundingClientRect();
+    const panelWidth = Math.min(340, Math.max(260, window.innerWidth * 0.26));
+    const margin = 28;
+    const gap = 52;
+    // Prefer a clear gap to the right of the card; otherwise pin near viewport right.
+    const fromCard = cardRect.right + gap;
+    const pinnedRight = window.innerWidth - panelWidth - margin;
+    let left = fromCard + panelWidth <= window.innerWidth - margin
+      ? fromCard
+      : Math.max(margin, pinnedRight);
+    const estimatedHeight = Math.min(window.innerHeight * 0.72, 500);
+    let top = cardRect.top + Math.min(18, cardRect.height * 0.08);
+    top = Math.max(margin, Math.min(top, window.innerHeight - estimatedHeight - margin));
+    previewPanel.style.width = `${panelWidth}px`;
+    previewPanel.style.left = `${left.toFixed(1)}px`;
+    previewPanel.style.top = `${top.toFixed(1)}px`;
+  };
+
+  const drawPreviewCurve = () => {
+    if (!previewCard || !previewCurve || !previewPath || !previewPanel) return;
+    const cardRect = previewCard.getBoundingClientRect();
+    const panelRect = previewPanel.getBoundingClientRect();
+    const x1 = cardRect.right - 4;
+    const y1 = cardRect.top + Math.min(cardRect.height * 0.28, 36);
+    const x2 = panelRect.left + 2;
+    const y2 = panelRect.top + Math.min(panelRect.height * 0.18, 48);
+    const dx = Math.max(40, x2 - x1);
+    const c1x = x1 + dx * 0.42;
+    const c1y = y1 - Math.min(28, Math.abs(y2 - y1) * 0.15);
+    const c2x = x2 - dx * 0.38;
+    const c2y = y2 + (y1 < y2 ? -12 : 12);
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    previewCurve.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    previewCurve.setAttribute('width', String(w));
+    previewCurve.setAttribute('height', String(h));
+    previewPath.setAttribute(
+      'd',
+      `M ${x1.toFixed(1)} ${y1.toFixed(1)} C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${x2.toFixed(1)} ${y2.toFixed(1)}`,
+    );
+  };
+
+  const syncPreviewGeometry = () => {
+    previewFrame = 0;
+    if (!previewCard || !previewLayer?.classList.contains('is-visible')) return;
+    placePreviewPanel(previewCard);
+    drawPreviewCurve();
+  };
+
+  const requestPreviewSync = () => {
+    if (previewFrame) return;
+    previewFrame = window.requestAnimationFrame(syncPreviewGeometry);
+  };
+
+  const hidePreview = () => {
+    if (previewHideTimer) {
+      window.clearTimeout(previewHideTimer);
+      previewHideTimer = 0;
+    }
+    previewCard = null;
+    previewLayer?.classList.remove('is-visible');
+    previewLayer?.setAttribute('aria-hidden', 'true');
+  };
+
+  const showPreview = (card: HTMLElement) => {
+    if (!fineHover.matches || !previewLayer || !previewPanel || !previewImages) return;
+    // Only while the parent experience panel is open / not inert.
+    const host = card.closest<HTMLElement>('[data-experience-projects]');
+    if (!host || host.inert || host.getAttribute('aria-hidden') === 'true') return;
+
+    if (previewHideTimer) {
+      window.clearTimeout(previewHideTimer);
+      previewHideTimer = 0;
+    }
+
+    const raw = card.getAttribute('data-preview-src');
+    let srcs: string[] = [];
+    try {
+      srcs = raw ? (JSON.parse(raw) as string[]) : [];
+    } catch {
+      srcs = [];
+    }
+    if (!srcs.length) return;
+
+    const same = previewCard === card && previewLayer.classList.contains('is-visible');
+    previewCard = card;
+    if (!same) loadPreviewImages(srcs);
+    placePreviewPanel(card);
+    drawPreviewCurve();
+    previewLayer.classList.add('is-visible');
+    previewLayer.setAttribute('aria-hidden', 'false');
+  };
+
+  const scheduleHidePreview = () => {
+    if (previewHideTimer) window.clearTimeout(previewHideTimer);
+    previewHideTimer = window.setTimeout(hidePreview, 60);
+  };
+
+  previewCards.forEach((card) => {
+    card.addEventListener('mouseenter', () => showPreview(card));
+    card.addEventListener('mouseleave', scheduleHidePreview);
+    card.addEventListener('focusin', () => showPreview(card));
+    card.addEventListener('focusout', (event) => {
+      const next = event.relatedTarget as Node | null;
+      if (next && card.contains(next)) return;
+      scheduleHidePreview();
+    });
+  });
+
+  // Keep the connector attached while open; collapse when the experience panel closes.
+  window.addEventListener('scroll', requestPreviewSync, { passive: true });
+  window.addEventListener('resize', requestPreviewSync);
+  if (experienceList) {
+    experienceList.addEventListener('mouseleave', hidePreview);
+  }
+  const previewObserver = new MutationObserver(() => {
+    if (!previewCard) return;
+    const host = previewCard.closest<HTMLElement>('[data-experience-projects]');
+    if (!host || host.inert || !host.closest('.experience-item.is-open')) {
+      hidePreview();
+    }
+  });
+  experienceItems.forEach((item) => {
+    previewObserver.observe(item, { attributes: true, attributeFilter: ['class'] });
+  });
+
 </script>

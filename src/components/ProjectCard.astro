@@ -7,9 +7,16 @@ interface Props {
 
 const { project } = Astro.props;
 const external = project.url?.startsWith('http') ?? false;
+const hasPreviews = Boolean(project.previews?.length);
 ---
 
-<li class="experience-project">
+<li
+  class:list={['experience-project', { 'has-preview': hasPreviews }]}
+  data-project-id={project.id}
+  data-project-preview={hasPreviews ? true : undefined}
+  data-preview-src={hasPreviews ? JSON.stringify(project.previews) : undefined}
+  tabindex={hasPreviews ? 0 : undefined}
+>
   <div class="experience-project-meta">
     <h4>{project.name}</h4>
     {project.tags && project.tags.length > 0 && (
