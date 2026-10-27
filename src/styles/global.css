@@ -964,8 +964,8 @@ html[data-theme="dark"] .icon-moon {
 }
 
 .social-link[data-icon="feishu"] {
-  --brand: #3370ff;
-  --brand-dark: #6b9bff;
+  --brand: #181717;
+  --brand-dark: #e9e2d8;
 }
 
 [data-theme="dark"] .social-link {
@@ -1880,10 +1880,20 @@ footer {
 footer nav {
   display: flex;
   align-items: center;
-  /* 与联系入口同款图标：44px 点击区内视觉图标 19px，
+  /* 页脚图标比 About 联系入口更紧凑：更小点击区、更小间距，
      负边距让末位图标字形贴齐右缘，与左侧版权文字对齐。 */
-  gap: var(--space-3);
-  margin-right: -12px;
+  gap: 2px;
+  margin-right: -8px;
+}
+
+footer .social-link {
+  width: 32px;
+  height: 32px;
+}
+
+footer .social-link svg {
+  width: 17px;
+  height: 17px;
 }
 
 /* 页脚署名用 Comico：漫画感的展示字体，随版权文字同步放大保持层级。 */
