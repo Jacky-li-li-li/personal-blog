@@ -82,7 +82,7 @@
     "Microsoft YaHei", sans-serif;
   --font-serif: "Instrument Serif", "Songti SC", "Source Han Serif SC", "Noto Serif SC", Georgia,
     serif;
-  --font-display: "Array", "Instrument Serif", "Songti SC", Georgia, serif;
+  --font-display: "Array", "Instrument Serif", "Songti SC", "Source Han Serif SC", "Noto Serif SC", "Noto Serif CJK SC", Georgia, serif;
   --font-stripe: "Striper", "DM Sans", sans-serif;
   --font-comico: "Comico", "DM Sans", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -1749,7 +1749,6 @@ html[data-theme="dark"] .experience-logo-reverse {
 
 .notes-list {
   margin-top: 18px;
-  border-top: 1px solid var(--line);
 }
 
 .note-row {
@@ -1757,9 +1756,8 @@ html[data-theme="dark"] .experience-logo-reverse {
   display: grid;
   grid-template-columns: 106px 1fr auto;
   gap: var(--space-5);
-  align-items: baseline;
+  align-items: center;
   padding: var(--space-5) 0;
-  border-bottom: 1px solid var(--line);
 }
 
 .note-row time {
@@ -1782,13 +1780,6 @@ html[data-theme="dark"] .experience-logo-reverse {
   content: "";
   position: absolute;
   inset: 0;
-}
-
-.note-sum {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 14.5px;
-  line-height: 1.65;
 }
 
 .row-arrow {
@@ -1914,8 +1905,13 @@ footer nav {
   text-underline-offset: 3px;
 }
 
-/* ---------- article ---------- */
-.article {
+/* ---------- notes article (shared via NoteArticle.astro) ---------- */
+.article,
+.note-article {
+  /* Center the reading column so left/right blank space matches. */
+  width: 100%;
+  max-width: var(--layout-prose);
+  margin-inline: auto;
   padding-top: 138px;
 }
 
@@ -1923,6 +1919,7 @@ footer nav {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 44px;
   color: var(--muted);
   font-size: 13px;
   transition: color var(--duration-hover) ease;
@@ -1942,9 +1939,13 @@ footer nav {
   transform: translateX(-3px);
 }
 
-.article h1 {
-  max-width: 760px;
-  margin: 26px 0 0;
+.article-header {
+  max-width: none;
+}
+
+.article h1,
+.note-article h1 {
+  margin: 18px 0 0;
   font-family: var(--font-serif);
   font-weight: 400;
   font-size: clamp(34px, 4.8vw, 50px);
@@ -1955,12 +1956,14 @@ footer nav {
 
 .meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   margin-top: 18px;
   color: var(--muted);
   font-size: 13px;
   letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
 .meta .sep {
@@ -1970,25 +1973,28 @@ footer nav {
   background: var(--line-strong);
 }
 
-.post-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 14px 0 0;
-  padding: 0;
-  list-style: none;
-}
 
+/* Long-form Notes prose: calm paper reading measure, CJK-friendly rhythm. */
 .prose {
-  max-width: var(--layout-prose);
+  max-width: none;
   margin-top: 42px;
   color: var(--ink-2);
   font-size: 17px;
   line-height: 1.85;
+  overflow-wrap: break-word;
+  hanging-punctuation: first allow-end last;
+}
+
+.prose > *:first-child {
+  margin-top: 0;
+}
+
+.prose > *:last-child {
+  margin-bottom: 0;
 }
 
 .prose p {
-  margin: 0 0 1.15em;
+  margin: 0 0 1.25em;
   text-wrap: pretty;
 }
 
@@ -1996,14 +2002,24 @@ footer nav {
   color: var(--ink);
 }
 
+.prose strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.prose em {
+  font-style: italic;
+}
+
 .prose h2 {
-  margin: 2.1em 0 0.6em;
+  margin: 2.2em 0 0.65em;
   color: var(--ink);
   font-family: var(--font-serif);
   font-weight: 400;
   font-size: 30px;
   line-height: 1.3;
   letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
 .prose h3 {
@@ -2011,6 +2027,7 @@ footer nav {
   color: var(--ink);
   font-size: 19px;
   font-weight: 500;
+  text-wrap: balance;
 }
 
 .prose a {
@@ -2018,15 +2035,22 @@ footer nav {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
+  transition: text-decoration-thickness var(--duration-hover) ease;
 }
 
 .prose a:hover {
   text-decoration-thickness: 2px;
 }
 
+.prose a:focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+
 .prose ul,
 .prose ol {
-  margin: 0 0 1.2em;
+  margin: 0 0 1.25em;
   padding-left: 1.15em;
 }
 
@@ -2039,7 +2063,7 @@ footer nav {
 }
 
 .prose li {
-  margin-bottom: 0.45em;
+  margin-bottom: 0.5em;
   padding-left: 0.2em;
 }
 
@@ -2047,8 +2071,13 @@ footer nav {
   color: var(--accent-ink);
 }
 
+.prose li > ul,
+.prose li > ol {
+  margin: 0.45em 0 0.15em;
+}
+
 .prose blockquote {
-  margin: 1.8em 0;
+  margin: 1.9em 0;
   padding: 2px 0 2px 22px;
   border-left: 2px solid var(--accent-ink);
   color: var(--ink);
@@ -2062,6 +2091,10 @@ footer nav {
   margin: 0;
 }
 
+.prose blockquote p + p {
+  margin-top: 0.7em;
+}
+
 .prose pre {
   margin: 1.8em 0;
   padding: 20px 22px;
@@ -2073,6 +2106,7 @@ footer nav {
   font-family: var(--font-mono);
   font-size: 13.5px;
   line-height: 1.7;
+  -webkit-overflow-scrolling: touch;
 }
 
 .prose code {
@@ -2115,22 +2149,45 @@ footer nav {
   margin: 1.8em 0;
 }
 
+.prose figure img {
+  margin: 0;
+}
+
 .prose figcaption {
   margin-top: 8px;
   color: var(--muted);
   font-size: 13px;
+  line-height: 1.5;
   text-align: center;
 }
 
-.post-foot {
-  max-width: var(--layout-prose);
-  margin-top: var(--space-5);
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-4);
-  color: var(--muted);
-  font-size: 13px;
+.prose table {
+  width: 100%;
+  margin: 1.8em 0;
+  border-collapse: collapse;
+  font-size: 0.94em;
 }
+
+.prose th,
+.prose td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose th {
+  color: var(--ink);
+  font-weight: 500;
+  border-bottom-color: var(--line-strong);
+}
+
+.prose .end {
+  color: var(--muted);
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+
 
 /* ---------- 404 ---------- */
 .notfound {
@@ -2295,7 +2352,7 @@ footer nav {
 
   .note-row {
     grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto;
     gap: 5px 12px;
     padding: 18px 0;
   }
@@ -2306,21 +2363,11 @@ footer nav {
     font-size: 12px;
   }
 
-  .note-body {
-    display: contents;
-  }
-
   .note-title {
     grid-column: 1;
     grid-row: 2;
     font-size: 16.5px;
     align-self: center;
-  }
-
-  .note-sum {
-    grid-column: 1 / -1;
-    grid-row: 3;
-    font-size: 14px;
   }
 
   .row-arrow {
@@ -2376,10 +2423,6 @@ footer nav {
     font-size: 12.5px;
   }
 
-  .post-foot {
-    flex-direction: column;
-    gap: 10px;
-  }
 
   .notfound {
     padding-top: 140px;

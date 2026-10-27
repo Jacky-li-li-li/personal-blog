@@ -1,16 +1,15 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import NoteRow from '../../components/NoteRow.astro';
 import NotesLandscape from '../../components/NotesLandscape.astro';
-import { getPublishedNotes, groupNotesByYear } from '../../utils/notes';
+import NoteRow from '../../components/NoteRow.astro';
+import { getPublishedNotes } from '../../utils/notes';
 
 const notes = await getPublishedNotes();
-const groups = groupNotesByYear(notes);
 const description = '不定期更新。关于 AI 产品、工具，以及一些还没有结论的想法。';
 ---
 
 <BaseLayout title="Notes" description={description}>
-  <div class="notes-page">
+  <div class="notes-page" data-notes-page>
     <NotesLandscape />
 
     <header class="notes-head page-head">
@@ -19,21 +18,18 @@ const description = '不定期更新。关于 AI 产品、工具，以及一些�
       <p>{description}</p>
     </header>
 
-    {groups.length > 0 ? (
-      groups.map((group) => (
-        <section class="year-group" aria-labelledby={`year-${group.year}`}>
-          <div class="year-line">
-            <h2 class="label" id={`year-${group.year}`}>{group.year}</h2>
-          </div>
-          <div class="notes-list">
-            {group.notes.map((note) => <NoteRow note={note} />)}
-          </div>
-        </section>
-      ))
-    ) : (
-      <div class="empty-state">
-        <p>第一篇还在路上。</p>
-      </div>
-    )}
+    {
+      notes.length > 0 ? (
+        <div class="notes-list">
+          {notes.map((note) => (
+            <NoteRow note={note} />
+          ))}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <p>第一篇还在路上。</p>
+        </div>
+      )
+    }
   </div>
 </BaseLayout>

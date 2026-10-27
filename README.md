@@ -46,7 +46,7 @@ pnpm new "把工具做成习惯" tools-as-habits
 ---
 title: 为什么我又开始写博客
 date: 2026-10-18
-summary: 一句话说明这篇在讲什么，40–100 字，会出现在列表和首页。
+summary: 一句话说明这篇在讲什么，20–120 字；用于 SEO / RSS，列表不展示。
 tags: [写作, 工具]
 draft: false
 ---
@@ -56,7 +56,7 @@ draft: false
 
 ## 示例内容
 
-`src/data/experience.ts` 与 `src/data/projects.ts` 已替换为真实经历与项目（2026-10-23）。`src/content/notes/` 目前为空，示例笔记已移除；新增笔记用 `pnpm new` 生成，草稿放在 `_drafts/` 子目录（不会被 collection 读取）。
+`src/data/experience.ts` 与 `src/data/projects.ts` 已替换为真实经历与项目（2026-10-23）。第一篇笔记《回顾》已写入 `src/content/notes/looking-back.md`；后续用 `pnpm new "标题" slug` 生成，草稿放 `_drafts/`（不会被 collection 读取），正文样式统一由 `NoteArticle.astro` 提供。
 
 ## 部署
 

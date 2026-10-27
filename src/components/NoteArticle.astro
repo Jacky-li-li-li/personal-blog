@@ -1,0 +1,49 @@
+---
+/**
+ * Shared Notes article shell: top back link, title, meta, prose slot.
+ * Tags stay in frontmatter for future use but are not rendered.
+ * All notes render through pages/notes/[slug].astro → this component + .article/.prose CSS.
+ */
+import type { Note } from '../utils/notes';
+import { formatLongDate, toIsoDate } from '../utils/date';
+import { getReadingMinutes } from '../utils/readingTime';
+
+interface Props {
+  note: Note;
+}
+
+const { note } = Astro.props;
+const minutes = getReadingMinutes(note.body ?? '');
+const publishedIso = toIsoDate(note.data.date);
+---
+
+<article class="article note-article">
+  <a class="back" href="/notes">
+    <svg
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.4"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M10.2 6H1.8M5 2.8 1.8 6 5 9.2"></path>
+    </svg>
+    Notes
+  </a>
+
+  <header class="article-header">
+    <h1>{note.data.title}</h1>
+
+    <div class="meta">
+      <time datetime={publishedIso}>{formatLongDate(note.data.date)}</time>
+      <span class="sep" aria-hidden="true"></span>
+      <span>{minutes} 分钟</span>
+    </div>
+  </header>
+
+  <div class="prose">
+    <slot />
+  </div>
+</article>

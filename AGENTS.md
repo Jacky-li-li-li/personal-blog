@@ -47,7 +47,7 @@
 
 ## 内容状态
 
-首页经历与项目已替换为真实信息（2026-10-23）：安克创新 2024–至今的产品经理经历，含 4 条成果要点；4 个项目卡片为虚拟用户访谈、VOC 洞察 Agent、BEES 体验数据系统、BEC 最佳体验目录。`src/content/notes/` 目前为空（示例笔记已删除），首页 Recent Notes 与 `/notes` 显示空状态；新增笔记用 `pnpm new`，草稿放 `_drafts/`。分享图 `public/og-default.png` 已按 AI 产品经理定位重做。
+首页经历与项目已替换为真实信息（2026-10-23）：安克创新 2024–至今的产品经理经历，含 4 条成果要点；4 个项目卡片为虚拟用户访谈、VOC 洞察 Agent、BEES 体验数据系统、BEC 最佳体验目录。`src/content/notes/` 已有第一篇真实笔记《回顾》（`looking-back.md`）；新增笔记用 `pnpm new "标题" slug`，草稿放 `_drafts/`，正文统一走 `NoteArticle.astro` + `.prose`。分享图 `public/og-default.png` 已按 AI 产品经理定位重做。
 
 ## 下一步
 
