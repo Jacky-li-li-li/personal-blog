@@ -1,0 +1,23 @@
+---
+/**
+ * Mounts page-themed cursor particles (grass / snow / sand).
+ * Fine pointer + hover only; script no-ops under reduced-motion / touch.
+ */
+interface Props {
+  theme: 'grass' | 'snow' | 'sand';
+}
+
+const { theme } = Astro.props;
+---
+
+<div data-scene-cursor-theme={theme} hidden aria-hidden="true"></div>
+
+<script>
+  import { initSceneCursor } from '../scripts/scene-cursor';
+
+  const host = document.querySelector<HTMLElement>('[data-scene-cursor-theme]');
+  const theme = host?.dataset.sceneCursorTheme;
+  if (theme === 'grass' || theme === 'snow' || theme === 'sand') {
+    initSceneCursor(theme);
+  }
+</script>

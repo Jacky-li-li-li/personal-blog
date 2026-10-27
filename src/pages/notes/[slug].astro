@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NoteArticle from '../../components/NoteArticle.astro';
+import SceneCursor from '../../components/SceneCursor.astro';
 import { site } from '../../data/site';
 import { getPublishedNotes, getNoteSlug } from '../../utils/notes';
 import { toIsoDate } from '../../utils/date';
@@ -53,6 +54,7 @@ const articleJsonLd = {
   modifiedTime={updatedIso}
   jsonLd={articleJsonLd}
 >
+  <SceneCursor theme="sand" />
   <NoteArticle note={note}>
     <Content />
   </NoteArticle>

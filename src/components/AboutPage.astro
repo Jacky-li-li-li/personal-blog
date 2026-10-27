@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AboutLandscape from './AboutLandscape.astro';
+import SceneCursor from './SceneCursor.astro';
 import Hero from './Hero.astro';
 import HomeGates from './HomeGates.astro';
 import { personJsonLd } from '../data/site';
@@ -12,6 +13,7 @@ const description =
 <BaseLayout title="About" description={description} jsonLd={personJsonLd} showFooter={false}>
   <div class="about-page">
     <AboutLandscape />
+    <SceneCursor theme="grass" />
     <Hero />
     <HomeGates />
   </div>

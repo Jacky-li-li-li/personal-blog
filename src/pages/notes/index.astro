@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NotesLandscape from '../../components/NotesLandscape.astro';
+import SceneCursor from '../../components/SceneCursor.astro';
 import NoteRow from '../../components/NoteRow.astro';
 import { getPublishedNotes } from '../../utils/notes';
 
@@ -11,6 +12,7 @@ const description = '不定期更新。关于 AI 产品、工具，以及一些�
 <BaseLayout title="Notes" description={description}>
   <div class="notes-page" data-notes-page>
     <NotesLandscape />
+    <SceneCursor theme="sand" />
 
     <header class="notes-head page-head">
       <p class="label">Notes</p>

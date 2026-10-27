@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Experience from '../components/Experience.astro';
 import WorkLandscape from '../components/WorkLandscape.astro';
+import SceneCursor from '../components/SceneCursor.astro';
 
 const description =
   '李连硕（Jacky Li）的工作经历与代表项目：虚拟用户访谈 Agent 平台、VOC 洞察、BEES、BEC Skill 化与 VOC 打标。';
@@ -10,6 +11,7 @@ const description =
 <BaseLayout title="Work" description={description}>
   <div class="work-page" data-work-page>
     <WorkLandscape />
+    <SceneCursor theme="snow" />
 
     <svg class="work-river" data-work-river aria-hidden="true">
       <defs>

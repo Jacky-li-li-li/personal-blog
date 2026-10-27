@@ -3157,3 +3157,21 @@ footer nav {
     --gate-shift-y: 0px;
   }
 }
+
+
+/* Scene cursor particles: fixed overlay under nav/grain, never blocks clicks. */
+.scene-cursor {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 80;
+  pointer-events: none;
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-cursor {
+    display: none;
+  }
+}
