@@ -9,16 +9,16 @@ const site = process.env.SITE_URL || 'https://example.com';
 export default defineConfig({
   site,
   output: 'static',
-  // directory 格式：/about 落到 about/index.html，/en 落到 en/index.html。
-  // 无尾斜杠 URL 由 _redirects 的 301 统一收口。
+  // 必须用 file 格式（生成 about.html / en.html），不能用 directory。
   //
-  // trailingSlash 必须用 'ignore'：
-  // - 'never' 会让 Astro 在 index 页里把「自己的 /en」也输出成 /en/ 形式；
-  //   而 Cloudflare Pages 对目录结果又会做一次 /en → /en/ 的 308 规范化，
-  //   两者相加就是 /en ⇄ /en/ 无限重定向（线上实测过）。
-  // - 'ignore' 输出的是干净的 /en、/en/work，正是我们希望 canonical 与链接使用的形态。
-  build: { format: 'directory' },
-  trailingSlash: 'ignore',
+  // directory 会生成 about/index.html，而 Cloudflare Pages 对目录结果强制补尾斜杠
+  // （/about → 308 /about/）。这与站内「URL 不带尾斜杠」的约定正面冲突：
+  // _redirects 再把 /about/ 301 回 /about，就形成 /about ⇄ /about/ 无限重定向
+  // （线上与 wrangler pages dev 均实测复现）。
+  // file 格式没有目录可供规范化，/about、/en 直接命中 about.html、en.html，
+  // 带斜杠的旧地址交给 _redirects 一次性 301，不会有第二个跳转来源。
+  build: { format: 'file' },
+  trailingSlash: 'never',
   integrations: [
     sitemap({
       filter: (page) => !page.endsWith('/404/'),

@@ -1,14 +1,16 @@
-# 站内 URL 统一不带尾斜杠。
+# 站内 URL 统一不带尾斜杠（build.format = 'file'，产物是 about.html / en.html）。
 #
-# 带斜杠的旧地址（/about/、/notes/:slug/ 等）由 Cloudflare Pages 自身的
-# 目录规范化处理：/about/ → (308) /about，再由下面的规则 301 到最终地址。
-# 注意不要在这里写 `/en  /en/ 301` 这类规则——它会和边缘的目录规范化
-# 组成无限重定向（线上实测过，/en ⇄ /en/）。
-/about/  /about  301
-/work/  /work  301
-/notes/  /notes  301
-/notes/:slug/  /notes/:slug  301
+# 字面量规则放在通配规则之前，Pages 能更快匹配。
+# 不要把 /en 这类无斜杠地址再 301 回带斜杠版本：file 格式没有目录可供边缘
+# 做尾斜杠规范化，单向 301 即可，不会出现两个跳转来源互相指向的死循环。
+/about/   /about   301
+/work/    /work    301
+/notes/   /notes   301
+/en/      /en      301
 /en/about/  /en/about  301
-/en/work/  /en/work  301
+/en/work/   /en/work   301
 /en/notes/  /en/notes  301
-/en/notes/:slug/  /en/notes/:slug  301
+
+# 通配规则放最后
+/notes/:slug/    /notes/:slug    301
+/en/notes/:slug/ /en/notes/:slug 301
