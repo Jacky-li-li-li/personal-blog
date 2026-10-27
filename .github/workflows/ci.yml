@@ -43,37 +43,5 @@ jobs:
           SITE_URL: https://example.com
 
       - name: Check build output
-        run: |
-          # build.format = 'file'：页面落在 about.html / en.html，URL 天然没有尾斜杠。
-          test -f dist/index.html || { echo "dist/index.html 缺失"; exit 1; }
-          test -f dist/about.html || { echo "dist/about.html 缺失"; exit 1; }
-          test -f dist/notes.html || { echo "dist/notes.html 缺失"; exit 1; }
-          test -f dist/rss.xml || { echo "dist/rss.xml 缺失"; exit 1; }
-          # 英文站
-          test -f dist/en.html || { echo "dist/en.html 缺失"; exit 1; }
-          test -f dist/en/about.html || { echo "dist/en/about.html 缺失"; exit 1; }
-          test -f dist/en/work.html || { echo "dist/en/work.html 缺失"; exit 1; }
-          test -f dist/en/notes.html || { echo "dist/en/notes.html 缺失"; exit 1; }
-          test -f dist/en/rss.xml || { echo "dist/en/rss.xml 缺失"; exit 1; }
-
-          # 安全网：一旦退回 directory 格式（about/index.html），Cloudflare Pages 会强制
-          # 给目录 URL 补尾斜杠（/about → 308 /about/），与「URL 不带尾斜杠」的约定冲突，
-          # 再叠加 _redirects 就变成 /about ⇄ /about/ 无限重定向（线上实测过）。
-          if [ -f dist/about/index.html ] || [ -f dist/en/index.html ]; then
-            echo "检测到 directory 格式产物：会和 _redirects 组成尾斜杠死循环，请改回 build.format = 'file'"
-            exit 1
-          fi
-
-          # 语言互链：中英文页面都要有 reciprocal hreflang
-          grep -q 'hreflang="en"' dist/index.html || { echo "首页缺少 en hreflang"; exit 1; }
-          grep -q 'hreflang="zh-CN"' dist/en.html || { echo "英文首页缺少 zh-CN hreflang"; exit 1; }
-          grep -q '<html lang="en"' dist/en.html || { echo "英文首页 lang 不是 en"; exit 1; }
-
-          # canonical 不能带尾斜杠（根路径除外），否则会和站内链接、_redirects 目标不一致
-          if grep -o 'rel="canonical" href="[^"]*"' dist/about.html | grep -qE '/about/"'; then
-            echo "canonical 带了尾斜杠：/about/"; exit 1
-          fi
-
-          # _redirects 的目标必须是站内真实存在的无斜杠地址
-          test -f dist/_redirects || { echo "dist/_redirects 缺失"; exit 1; }
-          echo "构建产物检查通过"
+        # 断言与本地 `pnpm verify` 共用 scripts/verify-dist.sh，避免两边漂移。
+        run: bash scripts/verify-dist.sh

@@ -20,8 +20,12 @@ pnpm dev
 | `pnpm dev` | 启动开发服务器，支持热更新 |
 | `pnpm check` | Astro + TypeScript 类型检查 |
 | `pnpm build` | 先检查再生成静态站点到 `dist/` |
+| `pnpm verify` | 校验 `dist/` 产物（路由、hreflang、canonical、重定向规则） |
+| `pnpm preflight` | **推送前跑这个**：check + build + verify，与 CI 完全一致的步骤 |
 | `pnpm preview` | 本地预览构建产物 |
 | `pnpm new "标题" slug` | 新建一篇草稿，slug 使用小写英文/数字/连字符 |
+
+`pnpm preflight` 与 CI 调用同一份校验脚本 `scripts/verify-dist.sh`，本地通过即 CI 通过，不会出现「本地好、CI 红」或反过来的情况。
 
 `pnpm new` 的第二个参数是必需的，因为内容规范要求文件名只使用 ASCII slug，中文标题不会自动转拼音：
 

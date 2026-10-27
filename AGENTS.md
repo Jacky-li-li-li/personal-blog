@@ -44,6 +44,9 @@
 - `pnpm dev`：启动开发服务器（默认 4321）。
 - `pnpm check`：Astro + TypeScript 类型检查。
 - `pnpm build`：类型检查并生成 `dist/`；当前构建通过，1 篇笔记（含英文译文）、中英合计 12 个页面（含 404；RSS 另各一份）。
+- `pnpm verify`：只校验已有 `dist/` 产物（路由齐全、file 格式、hreflang、canonical 无尾斜杠、`_redirects` 无死循环规则）。
+- `pnpm preflight`：**推送前必须跑**，等价于 CI 的全部步骤（check + build + verify）。它与 CI 共用 `scripts/verify-dist.sh`，本地绿即 CI 绿。
+- 踩过的坑：曾因 `ci.yml` 的产物断言与构建配置不一致（file vs directory 格式）连续两次推红，触发失败通知邮件。改构建配置时必须同步 `scripts/verify-dist.sh`，并用 `pnpm preflight` 自测。
 - `pnpm preview`：预览构建产物。
 - 自动化截图（可选）：`python3` + Playwright（本机已安装，`channel="chrome"`）按 1440 / 768 / 390 宽度截全页图。
 - 发布前需设置 `SITE_URL`（当前为 `https://clok.fun`），否则 canonical / RSS / sitemap 会回退到 `https://example.com`。

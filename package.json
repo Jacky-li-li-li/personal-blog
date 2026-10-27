@@ -18,6 +18,8 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro check && astro build",
+    "verify": "bash scripts/verify-dist.sh",
+    "preflight": "astro check && astro build && bash scripts/verify-dist.sh",
     "preview": "astro preview",
     "check": "astro check",
     "new": "node scripts/new-note.mjs",
