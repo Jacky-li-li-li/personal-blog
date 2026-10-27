@@ -170,7 +170,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
      左侧时间列（年份与轨道）不参与判定：悬停它既不展开，也不会收起已经展开的段落。
      滚动不再参与开合：页面不会自行伸缩，位置完全由指针决定。
   */
-  const COLLAPSE_DELAY = 110; // 指针离开后稍等再收：从一段移到另一段时不会闪一下
+  const COLLAPSE_DELAY = 80; // 指针离开后稍等再收：从一段移到另一段时不会闪一下
 
   const setItemOpen = (item: HTMLElement, open: boolean) => {
     const panel = item.querySelector<HTMLElement>('[data-experience-projects]');
@@ -184,7 +184,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
         const docAfter = document.documentElement.scrollHeight - panelHeight;
         const maxScrollAfter = Math.max(0, docAfter - window.innerHeight);
         const overshoot = Math.max(0, window.scrollY - maxScrollAfter);
-        const duration = overshoot > 0 ? Math.min(1100, 460 + overshoot * 0.85) : 460;
+        const duration = overshoot > 0 ? Math.min(900, 380 + overshoot * 0.7) : 380;
         panel.style.setProperty('--panel-close-duration', `${Math.round(duration)}ms`);
       }
     }

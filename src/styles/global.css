@@ -123,6 +123,8 @@
   --duration-base: 200ms;
   --duration-focus: 300ms;
   --duration-panel: 460ms;
+  /* 经历面板开合专用：比通用面板稍快，悬停反馈更跟手。 */
+  --duration-card: 380ms;
   --duration-theme: 400ms;
   --duration-enter: 550ms;
   --duration-nav: 560ms;
@@ -1480,10 +1482,10 @@ html[data-theme="dark"] .experience-logo-reverse {
   transition:
     /* --panel-close-duration 由脚本按「收起会让页面缩多少」动态设置：
        缩得越多放得越慢，滚动位置的变化才跟得上，不会「刷」一下被拽走。 */
-    grid-template-rows var(--panel-close-duration, var(--duration-panel)) var(--ease-panel-close),
+    grid-template-rows var(--panel-close-duration, var(--duration-card)) var(--ease-panel-close),
     /* 收起放慢时文字淡出同比拉长，否则会先空出一大片再慢慢收。 */
-    opacity calc(var(--panel-close-duration, var(--duration-panel)) * 0.45) ease,
-    transform var(--panel-close-duration, var(--duration-panel)) var(--ease-panel-close);
+    opacity calc(var(--panel-close-duration, var(--duration-card)) * 0.45) ease,
+    transform var(--panel-close-duration, var(--duration-card)) var(--ease-panel-close);
 }
 
 .experience-projects-inner {
@@ -1497,9 +1499,9 @@ html[data-theme="dark"] .experience-logo-reverse {
   transform: none;
   /* 展开：高度先长出来，文字稍后浮现，避免内容在还只有几像素高的缝里被压扁。 */
   transition:
-    grid-template-rows var(--duration-panel) var(--ease-panel),
-    opacity 240ms ease 90ms,
-    transform var(--duration-panel) var(--ease-panel);
+    grid-template-rows var(--duration-card) var(--ease-panel),
+    opacity 200ms ease 70ms,
+    transform var(--duration-card) var(--ease-panel);
 }
 
 .experience-projects-heading {
