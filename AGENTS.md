@@ -24,7 +24,7 @@
 ## 已确认决策
 
 - 五个公开路由：`/`（简介 + 经历项目入口 + 最近笔记）、`/about`（简介 + 联系）、`/work`（工作经历 + 代表项目）、`/notes`、`/notes/[slug]`。URL 不带尾斜杠，`/about/`、`/work/` 与 `/notes/` 由 `_redirects` 301 到无斜杠版本。
-- 技术栈：Astro 5 + Tailwind 4 + Content Collections + Zod；Cloudflare Pages 静态托管；无服务端与数据库。
+- 技术栈：Astro 5 + Tailwind 4 + Content Collections + Zod；Cloudflare Pages 静态托管；Notes 阅读计数用 Pages Functions + KV（`VIEWS`），页面只显示 PV。
 - 视觉：近白暖纸底 `#FEFDFA`、青碧强调 `#17A8B8`（文字用 `#0B7481`）、衬线标题（Instrument Serif + 系统中文字体）、姓名用 Array 点阵字体、话题标签用 Striper 描边字体、克制动效；暗色模式跟随系统并可手动切换。
 - 首页 Hero 背景为方块阵：24px 间距、3px 直角方块，静止完全隐藏；指针进入后整片底纹淡入，150px 半径内方块上抬 9px 并染青碧色，离开 380ms 回落。只在空白区域触发，名称、简介、标签、导航与下方文本区域不唤醒背景。范围止于 Hero 下缘 +120px（最大 880px），触屏与 `prefers-reduced-motion` 不启用。
 - About 顶部为全幅纸版草原：远景丘陵、中景野马群与蒙古包、近景草叶构成纵深，绿色采用真实草木的橄榄绿与鼠尾草绿；移动端重排叙事物，避免裁切后丢失主体，场景为装饰并适配暗色与 reduced-motion。

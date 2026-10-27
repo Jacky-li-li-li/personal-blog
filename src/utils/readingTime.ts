@@ -3,17 +3,35 @@
  * 对笔记这种长度的内容足够用，不需要额外依赖。
  */
 export function getReadingMinutes(markdown: string): number {
-  const plain = markdown
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`[^`]*`/g, ' ')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
-    .replace(/\[[^\]]*\]\([^)]*\)/g, ' ')
-    .replace(/[#>*_~\-]/g, ' ');
-
+  const plain = toPlainText(markdown);
   const cjkCount = (plain.match(/[\u3400-\u9fff]/g) ?? []).length;
   const latinWords = plain
     .replace(/[\u3400-\u9fff]/g, ' ')
     .match(/[A-Za-z0-9]+/g)?.length ?? 0;
 
   return Math.max(1, Math.ceil(cjkCount / 400 + latinWords / 200));
+}
+
+/** Strip markdown noise to plain text for excerpts / timing. */
+export function toPlainText(markdown: string): string {
+  return markdown
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[#>*_~\-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** First sentence of the note body for list subtitle. */
+export function getFirstSentence(markdown: string, maxLen = 72): string {
+  const plain = toPlainText(markdown);
+  if (!plain) return '';
+  const match = plain.match(/^.*?[。！？!?]/);
+  let sentence = (match ? match[0] : plain).trim();
+  if (sentence.length > maxLen) {
+    sentence = `${sentence.slice(0, maxLen).replace(/\s+\S*$/, '').trim()}…`;
+  }
+  return sentence;
 }

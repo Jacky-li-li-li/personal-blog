@@ -64,7 +64,7 @@ draft: false
 
 备用地址：https://personal-blog-ah8.pages.dev（同一构建产物，canonical 指向 clok.fun）
 
-托管在 Cloudflare Pages，项目名 `personal-blog`，生产分支 `main`。域名 `clok.fun` 的 NS 已从腾讯云 DNSPod 切换到 Cloudflare（`ara.ns.cloudflare.com` / `julio.ns.cloudflare.com`）。`www.clok.fun` 由两条 Redirect Rule 在边缘 301 到 `https://clok.fun`，保留路径与查询参数。
+托管在 Cloudflare Pages，项目名 `personal-blog`，生产分支 `main`。 Notes 阅读次数由 Pages Functions（`functions/api/views*`）写入 KV binding `VIEWS`；页面只展示 PV「x 次阅读」。本地 `astro dev` / `preview` 不跑 Functions，hostname 为 localhost 时前端显示 `0 次阅读`。域名 `clok.fun` 的 NS 已从腾讯云 DNSPod 切换到 Cloudflare（`ara.ns.cloudflare.com` / `julio.ns.cloudflare.com`）。`www.clok.fun` 由两条 Redirect Rule 在边缘 301 到 `https://clok.fun`，保留路径与查询参数。
 
 ### 方式一：GitHub Actions（推荐）
 
@@ -94,7 +94,7 @@ pnpm deploy:preview   # 构建并部署为预览版本
 
 `SITE_URL` 用于 canonical、RSS、sitemap 和 OG。未设置时回退到 `https://example.com`。绑定自定义域名后需同步更新此值。
 
-站点是纯静态产物，也可以部署到 Vercel、Netlify 或任意静态托管。
+主体是静态产物；Notes 阅读计数依赖 Cloudflare Pages Functions + KV。纯静态托管（Vercel/Netlify 等）可照常部署页面，但阅读计数 API 仅在 Cloudflare Pages 生效。
 
 ## 持续集成
 

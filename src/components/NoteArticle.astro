@@ -5,6 +5,7 @@
  * All notes render through pages/notes/[slug].astro → this component + .article/.prose CSS.
  */
 import type { Note } from '../utils/notes';
+import { getNoteSlug } from '../utils/notes';
 import { formatLongDate, toIsoDate } from '../utils/date';
 import { getReadingMinutes } from '../utils/readingTime';
 
@@ -13,6 +14,7 @@ interface Props {
 }
 
 const { note } = Astro.props;
+const slug = getNoteSlug(note);
 const minutes = getReadingMinutes(note.body ?? '');
 const publishedIso = toIsoDate(note.data.date);
 ---
@@ -40,6 +42,10 @@ const publishedIso = toIsoDate(note.data.date);
       <time datetime={publishedIso}>{formatLongDate(note.data.date)}</time>
       <span class="sep" aria-hidden="true"></span>
       <span>{minutes} 分钟</span>
+      <span class="meta-views">
+        <span class="sep" aria-hidden="true"></span>
+        <span class="note-views" data-note-views data-slug={slug} data-mode="hit"></span>
+      </span>
     </div>
   </header>
 
@@ -47,3 +53,7 @@ const publishedIso = toIsoDate(note.data.date);
     <slot />
   </div>
 </article>
+
+<script>
+  import '../scripts/note-views';
+</script>
