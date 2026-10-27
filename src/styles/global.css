@@ -963,6 +963,11 @@ html[data-theme="dark"] .icon-moon {
   --brand-dark: #e9e2d8;
 }
 
+.social-link[data-icon="feishu"] {
+  --brand: #3370ff;
+  --brand-dark: #6b9bff;
+}
+
 [data-theme="dark"] .social-link {
   color: var(--brand-dark, var(--brand));
 }

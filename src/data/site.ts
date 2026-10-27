@@ -14,13 +14,14 @@ export const site = {
   tagline: '因为相信所以热爱！持续探索—让热爱有回响！',
   /* 支持行内 HTML（用于强调片段） */
   intro:
-    '嗨，中文名叫李连硕，24 届本科 211 毕业（哪不重要，重要的是实在不喜欢搞学术），总天真地认为实践出真知。巧合的是，24 年 AI 爆发——像是遇到了启蒙导师，让我有方向、有激情、有目标地致力于把<strong>用户最佳体验与 AI Agent</strong>相结合，把产品落地到真实用户场景和业务流程中，实现双倍+的价值产出。还在路上……',
+    '嗨，中文名叫李连硕，24 届本科 211 毕业（哪不重要，重要的是实在不喜欢搞学术），总天真地认为实践出真知。巧合的是，24 年 AI 爆发——像是遇到了启蒙导师，让我有方向、有激情、有目标地致力于把<strong>用户最佳体验与 AI Agent</strong>相结合，把产品落地到真实用户场景和业务流程中，实现双倍+的价值产出。还在路上……我也想做 Toc 啊，想了解更多的用户，我们交个朋友吧～',
   email,
   /* 头像下方的身份标签（Striper 无中文字形时回退系统字体），可继续追加 */
   tags: ['ISTJ', 'AI PM', 'AI Building', '好奇心'],
   socials: [
     { label: 'GitHub', href: 'https://github.com/Jacky-li-li-li', icon: 'github' },
     { label: 'Email', href: `mailto:${email}`, icon: 'mail' },
+    { label: '飞书', href: 'https://www.feishu.cn/invitation/page/add_contact/?token=b42nc543-2547-467b-8a3b-d73db71acce1&unique_id=QZ0ppaN5dLmMdgcZOM08SA==', icon: 'feishu' },
     { label: 'X', href: 'https://x.com/Jackyli05', icon: 'x' },
   ],
   siteUrl: (import.meta.env.SITE ?? 'https://example.com').replace(/\/$/, ''),
