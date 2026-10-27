@@ -34,7 +34,7 @@ export const experiences: Experience[] = [
     logoHover: '/images/anker-logo-mist-bice.png',
     website: 'https://www.anker.com.cn/',
     summary:
-      '以用户最佳体验为中心，用 Agent、Skill、Spec、Eval 与「七步工作法」，把能力做成可评测、可上线、可被业务团队和用户持续使用的产品。更快定位体验问题，并用 Agent 规模化验证与交付改进。',
+      '负责 AI 产品体验与交付闭环：从业务目标和用户场景出发，判断场景优先级与最佳产品方案，平衡用户体验、技术可行性和交付成本；将 Agent、Skill、Spec、Eval 融入产品定义、评测和上线流程，推动 AI 能力产品化、标准化和可规模化复用；建立用户体验问题快速定位与 Agent 规模化验证机制，持续交付改进，提升业务采用率和用户满意度',
     awards: ['安克新星', '2025–2026 连续晋升', '2025 极致先锋团队'],
     projects: ['virtual-interview', 'voc-agent', 'bees', 'bec', 'voc-labeling'],
   },

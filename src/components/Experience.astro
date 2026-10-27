@@ -90,7 +90,9 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
                 {item.awards && item.awards.length > 0 && (
                   <span class="experience-awards">
                     <span class="experience-awards-label">Honors</span>
-                    <span>{item.awards.join(' · ')}</span>
+                    {item.awards.map((award) => (
+                      <span class="experience-award">{award}</span>
+                    ))}
                   </span>
                 )}
 
