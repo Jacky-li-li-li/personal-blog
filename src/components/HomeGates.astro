@@ -1,0 +1,140 @@
+---
+/**
+ * 首页叠卡入口：两张纸感风景卡叠放，掀开后进入 Work / Notes。
+ * 复用站点已有雪山 / 沙丘色板与纸质审美，不引入外部图片。
+ */
+---
+
+<section class="home-gates" aria-label="前往经历与笔记">
+  <div class="home-gates-stack">
+    <a class="home-gate home-gate--notes" href="/notes">
+      <span class="home-gate-scene" aria-hidden="true">
+        <svg class="home-gate-art" viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" role="presentation">
+          <defs>
+            <linearGradient id="gate-notes-sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="var(--bg-soft)" />
+              <stop offset="0.55" stop-color="var(--notes-sand-far)" stop-opacity="0.55" />
+              <stop offset="1" stop-color="var(--notes-sand-far)" />
+            </linearGradient>
+            <filter id="gate-notes-grain" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+              <feTurbulence type="fractalNoise" baseFrequency="0.78" numOctaves="2" seed="31" result="noise" />
+              <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
+              <feComponentTransfer in="mono" result="ink">
+                <feFuncA type="table" tableValues="0 0.14" />
+              </feComponentTransfer>
+              <feComposite in="ink" in2="SourceGraphic" operator="in" result="grain" />
+              <feBlend in="SourceGraphic" in2="grain" mode="multiply" />
+            </filter>
+          </defs>
+          <rect width="480" height="300" fill="url(#gate-notes-sky)" />
+          <circle cx="368" cy="88" r="34" fill="var(--notes-sun-halo)" />
+          <circle cx="368" cy="88" r="22" fill="var(--notes-sun)" opacity="0.9" />
+          <g filter="url(#gate-notes-grain)">
+            <path
+              fill="var(--notes-sand-far)"
+              d="M-20 300V168Q70 142 150 158Q230 174 300 128Q360 92 430 148Q490 190 520 160V300Z"
+            />
+            <path
+              fill="var(--notes-sand-mid)"
+              d="M-20 300V198Q90 168 180 188Q260 206 340 156Q410 118 520 176V300Z"
+            />
+            <path
+              fill="var(--notes-sand-near)"
+              d="M-20 300V232Q110 208 210 228Q300 246 390 210Q460 186 520 220V300Z"
+            />
+            <path
+              fill="var(--notes-sand-shadow)"
+              opacity="0.55"
+              d="M210 228Q300 246 390 210Q330 236 270 232Q235 230 210 228Z"
+            />
+            <path
+              fill="none"
+              stroke="var(--notes-sand-ink)"
+              stroke-width="1"
+              opacity="0.28"
+              d="M40 214q48-10 96-2M168 246q36-8 72-1M300 198q40-9 78-2"
+            />
+          </g>
+          <g fill="var(--notes-cactus)" transform="translate(72 236) scale(0.55)">
+            <path d="M-6 0V-56Q-6-66 0-66Q6-66 6-56V-41H14V-51Q14-57 19-57Q24-57 24-51V-37Q24-31 17-31H6V0ZM-6-29H-15Q-23-29-23-37V-48Q-23-54-18-54Q-13-54-13-48V-40H-6Z" />
+          </g>
+          <g fill="var(--notes-caravan)" transform="translate(250 218) scale(0.42)">
+            <ellipse cx="1" cy="2" rx="31" ry="3.2" opacity="0.15" />
+            <path d="M-28-23C-25-31-17-34-10-28C-6-39 5-40 12-28C18-30 23-25 25-20L29-35Q30-43 36-44L39-49 46-47 51-42 48-38 40-38 36-20Q32-11 20-12H-17Q-27-13-28-23Z" />
+            <path d="M-19-13-23-1-29 2M-7-12-3-2-7 3M17-12 22-2 19 3M25-14 31-5 35 0" fill="none" stroke="var(--notes-caravan)" stroke-width="3" stroke-linecap="round" />
+            <path d="M-13-31Q0-36 14-29L11-16H-15Z" fill="var(--notes-silk)" />
+          </g>
+        </svg>
+      </span>
+      <span class="home-gate-meta">
+        <span class="home-gate-label">Notes</span>
+        <span class="home-gate-sub">沙丘 · 笔记</span>
+      </span>
+    </a>
+
+    <a class="home-gate home-gate--work" href="/work">
+      <span class="home-gate-scene" aria-hidden="true">
+        <svg class="home-gate-art" viewBox="0 0 480 300" preserveAspectRatio="xMidYMid slice" role="presentation">
+          <defs>
+            <linearGradient id="gate-work-sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="var(--bg-soft)" />
+              <stop offset="0.5" stop-color="var(--work-mountain-far)" stop-opacity="0.45" />
+              <stop offset="1" stop-color="var(--work-mountain-far)" />
+            </linearGradient>
+            <filter id="gate-work-grain" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+              <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="17" result="noise" />
+              <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
+              <feComponentTransfer in="mono" result="ink">
+                <feFuncA type="table" tableValues="0 0.13" />
+              </feComponentTransfer>
+              <feComposite in="ink" in2="SourceGraphic" operator="in" result="grain" />
+              <feBlend in="SourceGraphic" in2="grain" mode="multiply" />
+            </filter>
+          </defs>
+          <rect width="480" height="300" fill="url(#gate-work-sky)" />
+          <circle cx="392" cy="72" r="28" fill="var(--work-sun-halo)" />
+          <circle cx="392" cy="72" r="18" fill="var(--work-sun)" />
+          <g filter="url(#gate-work-grain)">
+            <path
+              fill="var(--work-mountain-far)"
+              d="M-30 300V168L80 132l70 28 90-72 55 48 75-36 85 58 70-48 80 52 95-64 90 48V300Z"
+            />
+            <path
+              fill="var(--work-snow)"
+              opacity="0.78"
+              d="m210 116 52-48 34 32-24-10-12 16-14-10-22 28Zm188 42 28-20 26 22-20-8-10 11-10-8Z"
+            />
+            <path
+              fill="var(--work-mountain-mid)"
+              d="M-30 300v-78l120-52 95 28 110-78 70 62 80-34 95 58 100-72 90 48V300Z"
+            />
+            <path
+              fill="var(--work-snow)"
+              opacity="0.86"
+              d="m185 148 70-50 42 40-28-14-18 18-16-12-26 28Zm248 56 78-88 46 32-30-10-20 22-18-12-28 34Z"
+            />
+            <path
+              fill="var(--work-mountain-near)"
+              d="M-30 300v-42l140-38 100 34 130-62 120 54 130-44 110 42V300Z"
+            />
+            <path
+              fill="var(--work-water)"
+              opacity="0.42"
+              d="M108 248c28 8 52 6 78-4 34-14 62-8 92 4 26 10 48 8 72-2v54H108Z"
+            />
+          </g>
+          <g transform="translate(318 196) scale(0.85)" fill="var(--work-climber-ink)">
+            <circle cx="0" cy="-10" r="2.2" />
+            <path d="M-5-8H-1V0H-5Q-7-4-5-8Z" opacity="0.86" />
+            <path d="M-2-8H3L4 0H-3Z" fill="var(--work-climber-rust)" />
+            <path d="M2-6 6-2M-1 0-4 7M2 0 5 6M6-2 8 7" fill="none" stroke="var(--work-climber-ink)" stroke-width="1.25" stroke-linecap="round" />
+          </g>
+        </svg>
+      </span>
+      <span class="home-gate-meta">
+        <span class="home-gate-label">Work</span>
+        <span class="home-gate-sub">雪山 · 经历</span>
+      </span>
+    </a>
+  </div>
+</section>

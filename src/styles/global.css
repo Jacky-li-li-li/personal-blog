@@ -2873,3 +2873,216 @@ footer nav {
     left: 0;
   }
 }
+
+/* ---------- homepage flip / stack gates ---------- */
+/* 叠卡掀开：两张纸感风景卡叠放在 Hero 下方，悬停掀起，点击进入 Work / Notes。 */
+.home-gates {
+  position: relative;
+  z-index: 1;
+  margin: calc(var(--space-13) + var(--space-6)) auto var(--space-13);
+  max-width: 720px;
+  padding: 0 var(--layout-gutter);
+}
+
+.home-gates-stack {
+  position: relative;
+  height: 240px;
+  perspective: 1400px;
+  perspective-origin: 50% 40%;
+}
+
+.home-gate {
+  --gate-lift: 0px;
+  --gate-tilt: 0deg;
+  --gate-yaw: 0deg;
+  --gate-shift-x: 0px;
+  --gate-shift-y: 0px;
+  --gate-scale: 1;
+
+  position: absolute;
+  inset: 0 auto auto 50%;
+  width: min(100%, 340px);
+  aspect-ratio: 16 / 10;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--bg-soft);
+  box-shadow: var(--shadow-2);
+  text-decoration: none;
+  color: inherit;
+  transform-origin: 50% 85%;
+  transform:
+    translateX(calc(-50% + var(--gate-shift-x)))
+    translateY(var(--gate-shift-y))
+    rotate(var(--gate-yaw))
+    rotateX(var(--gate-tilt))
+    translateY(var(--gate-lift))
+    scale(var(--gate-scale));
+  transition:
+    transform var(--duration-panel) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    border-color var(--duration-hover) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.home-gate--notes {
+  --gate-yaw: -6deg;
+  --gate-shift-x: -108px;
+  --gate-shift-y: 18px;
+  z-index: 1;
+}
+
+.home-gate--work {
+  --gate-yaw: 5deg;
+  --gate-shift-x: 108px;
+  --gate-shift-y: 0px;
+  z-index: 2;
+}
+
+.home-gate-scene {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg-soft);
+}
+
+.home-gate-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+.home-gate-meta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 12px 14px 13px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  border-top: 1px solid var(--line);
+  backdrop-filter: blur(8px);
+}
+
+.home-gate-label {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.home-gate-sub {
+  color: var(--muted);
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-gate:hover {
+    --gate-lift: -18px;
+    --gate-tilt: 8deg;
+    --gate-yaw: 0deg;
+    --gate-shift-y: -4px;
+    --gate-scale: 1.035;
+    z-index: 4;
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-3);
+  }
+
+  .home-gates-stack:has(.home-gate--notes:hover) .home-gate--work:not(:hover) {
+    --gate-shift-x: 128px;
+    --gate-yaw: 8deg;
+  }
+
+  .home-gates-stack:has(.home-gate--work:hover) .home-gate--notes:not(:hover) {
+    --gate-shift-x: -128px;
+    --gate-yaw: -9deg;
+  }
+}
+
+.home-gate:focus-visible {
+  --gate-lift: -14px;
+  --gate-tilt: 6deg;
+  --gate-yaw: 0deg;
+  --gate-scale: 1.02;
+  z-index: 5;
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 4px;
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-3);
+}
+
+.home-gate:active {
+  --gate-lift: -6px;
+  --gate-tilt: 3deg;
+  --gate-scale: 1.01;
+}
+
+@media (max-width: 760px) {
+  .home-gates {
+    margin-top: var(--space-11);
+    margin-bottom: var(--space-12);
+    max-width: 420px;
+  }
+
+  .home-gates-stack {
+    height: 280px;
+  }
+
+  /* 窄屏改为轻微错位的上下叠放，避免旋转裁切，仍保持可点按面积。 */
+  .home-gate {
+    width: min(100%, 300px);
+  }
+
+  .home-gate--notes {
+    --gate-yaw: -3deg;
+    --gate-shift-x: -36px;
+    --gate-shift-y: 54px;
+  }
+
+  .home-gate--work {
+    --gate-yaw: 2.5deg;
+    --gate-shift-x: 36px;
+    --gate-shift-y: 0px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-gate {
+    transition: border-color var(--duration-hover) ease, box-shadow var(--duration-hover) ease;
+  }
+
+  .home-gate:hover,
+  .home-gate:focus-visible,
+  .home-gate:active,
+  .home-gates-stack:has(.home-gate--notes:hover) .home-gate--work:not(:hover),
+  .home-gates-stack:has(.home-gate--work:hover) .home-gate--notes:not(:hover) {
+    --gate-lift: 0px;
+    --gate-tilt: 0deg;
+    --gate-scale: 1;
+  }
+
+  .home-gate--notes:hover,
+  .home-gate--notes:focus-visible,
+  .home-gate--notes:active,
+  .home-gates-stack:has(.home-gate--work:hover) .home-gate--notes:not(:hover) {
+    --gate-yaw: -6deg;
+    --gate-shift-x: -108px;
+    --gate-shift-y: 18px;
+  }
+
+  .home-gate--work:hover,
+  .home-gate--work:focus-visible,
+  .home-gate--work:active,
+  .home-gates-stack:has(.home-gate--notes:hover) .home-gate--work:not(:hover) {
+    --gate-yaw: 5deg;
+    --gate-shift-x: 108px;
+    --gate-shift-y: 0px;
+  }
+}
