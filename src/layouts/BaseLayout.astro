@@ -54,7 +54,12 @@ const siteUrl = Astro.site ?? new URL(site.siteUrl);
 // build.format = 'file' 时 pathname 带 .html，canonical 需要还原成干净路径。
 const cleanPath =
   Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '') || '/';
-const canonical = new URL(cleanPath, siteUrl).href;
+// canonical 统一去掉尾斜杠（根路径除外），与站内链接、_redirects 的目标一致。
+// 去掉后交给 new URL 解析，由它负责把中文路径编码成合法的 URL。
+const canonical = new URL(
+  cleanPath === '/' ? '/' : cleanPath.replace(/\/+$/, ''),
+  siteUrl,
+).href;
 const ogImage = new URL(image, siteUrl).href;
 const siteName = site.name[locale];
 const fallbackTitle = site.title[locale];
