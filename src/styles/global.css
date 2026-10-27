@@ -128,8 +128,11 @@
   --duration-nav: 560ms;
   --duration-char: 600ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  /* 面板开合专用：强减速曲线，起手快、收尾软，比对称缓动更「跟手」。 */
+  /* 面板展开：强减速，起手快、收尾软，比对称缓动更「跟手」。 */
   --ease-panel: cubic-bezier(0.22, 1, 0.36, 1);
+  /* 面板收起用匀速：收起会让整页变矮，浏览器随之夹紧滚动位置，
+     匀速收缩才能让这段位移在时间上均匀铺开（时长由 JS 按位移大小动态给）。 */
+  --ease-panel-close: linear;
 
   /* 语义色：组件只消费这一层，不直接引用品牌色或页面底色。 */
   --bg: #fefdfa;
@@ -1475,9 +1478,12 @@ html[data-theme="dark"] .experience-logo-reverse {
   opacity: 0;
   transform: translateY(-8px);
   transition:
-    grid-template-rows var(--duration-panel) var(--ease-panel),
-    opacity 150ms ease,
-    transform var(--duration-panel) var(--ease-panel);
+    /* --panel-close-duration 由脚本按「收起会让页面缩多少」动态设置：
+       缩得越多放得越慢，滚动位置的变化才跟得上，不会「刷」一下被拽走。 */
+    grid-template-rows var(--panel-close-duration, var(--duration-panel)) var(--ease-panel-close),
+    /* 收起放慢时文字淡出同比拉长，否则会先空出一大片再慢慢收。 */
+    opacity calc(var(--panel-close-duration, var(--duration-panel)) * 0.45) ease,
+    transform var(--panel-close-duration, var(--duration-panel)) var(--ease-panel-close);
 }
 
 .experience-projects-inner {
