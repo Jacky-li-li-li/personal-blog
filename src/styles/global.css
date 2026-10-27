@@ -128,7 +128,8 @@
   --duration-nav: 560ms;
   --duration-char: 600ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-panel: cubic-bezier(0.45, 0.05, 0.25, 1);
+  /* 面板开合专用：强减速曲线，起手快、收尾软，比对称缓动更「跟手」。 */
+  --ease-panel: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* 语义色：组件只消费这一层，不直接引用品牌色或页面底色。 */
   --bg: #fefdfa;
@@ -1475,7 +1476,7 @@ html[data-theme="dark"] .experience-logo-reverse {
   transform: translateY(-8px);
   transition:
     grid-template-rows var(--duration-panel) var(--ease-panel),
-    opacity var(--duration-base) ease,
+    opacity 150ms ease,
     transform var(--duration-panel) var(--ease-panel);
 }
 
@@ -1488,6 +1489,11 @@ html[data-theme="dark"] .experience-logo-reverse {
   grid-template-rows: 1fr;
   opacity: 1;
   transform: none;
+  /* 展开：高度先长出来，文字稍后浮现，避免内容在还只有几像素高的缝里被压扁。 */
+  transition:
+    grid-template-rows var(--duration-panel) var(--ease-panel),
+    opacity 240ms ease 90ms,
+    transform var(--duration-panel) var(--ease-panel);
 }
 
 .experience-projects-heading {

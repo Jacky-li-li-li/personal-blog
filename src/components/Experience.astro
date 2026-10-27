@@ -165,59 +165,16 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
   );
   const flow = document.querySelector<HTMLElement>('[data-experience-flow]');
 
-  // 悬停或键盘聚焦某段经历时自动展开，其余段落自动收起；
-  // 触屏设备上点按会先触发 mouseenter，因此同样能展开。
-  // 面板开合的滚动补偿：面板完全位于视口上方时，开合位移全部发生在视口外，
-  // 用与 CSS 过渡（--duration-panel / --ease-panel）同步的滚动动画抵消，
-  // 下方内容保持视觉静止；面板在视口内时保持自然展开效果。缓动参数须与 CSS 一致。
-  const PANEL_DURATION = 460;
-  const PANEL_EASE: [number, number, number, number] = [0.45, 0.05, 0.25, 1];
-  let scrollTweenFrame = 0;
+  /* ---------- 开合交互 ----------
+     只有指针落在某段经历的「内容区」（.experience-body）时才展开该段、收起其余；
+     左侧时间列（年份与轨道）不参与判定：悬停它既不展开，也不会收起已经展开的段落。
+     滚动不再参与开合：页面不会自行伸缩，位置完全由指针决定。
+  */
+  const COLLAPSE_DELAY = 110; // 指针离开后稍等再收：从一段移到另一段时不会闪一下
 
-  const cancelScrollTween = () => {
-    if (scrollTweenFrame) {
-      window.cancelAnimationFrame(scrollTweenFrame);
-      scrollTweenFrame = 0;
-    }
-  };
-
-  window.addEventListener('wheel', cancelScrollTween, { passive: true });
-  window.addEventListener('touchstart', cancelScrollTween, { passive: true });
-
-  const tweenScrollBy = (delta: number) => {
-    cancelScrollTween();
-    if (reducedMotion.matches) {
-      window.scrollBy(0, delta);
-      return;
-    }
-    const startY = window.scrollY;
-    const startedAt = performance.now();
-    const step = (now: number) => {
-      const t = Math.min(1, (now - startedAt) / PANEL_DURATION);
-      let s = t;
-      if (t > 0 && t < 1) {
-        const [x1, , x2] = PANEL_EASE;
-        let lo = 0;
-        let hi = 1;
-        for (let i = 0; i < 24; i += 1) {
-          s = (lo + hi) / 2;
-          const x = 3 * s * (1 - s) * (1 - s) * x1 + 3 * s * s * (1 - s) * x2 + s * s * s;
-          if (Math.abs(x - t) < 1e-4) break;
-          if (x < t) lo = s;
-          else hi = s;
-        }
-      }
-      const [, y1, , y2] = PANEL_EASE;
-      const eased = 3 * s * (1 - s) * (1 - s) * y1 + 3 * s * s * (1 - s) * y2 + s * s * s;
-      window.scrollTo(0, startY + delta * eased);
-      scrollTweenFrame = t < 1 ? window.requestAnimationFrame(step) : 0;
-    };
-    scrollTweenFrame = window.requestAnimationFrame(step);
-  };
-
-  const setItemOpen = (item: HTMLElement, open: boolean, compensate = false) => {
+  const setItemOpen = (item: HTMLElement, open: boolean) => {
     const panel = item.querySelector<HTMLElement>('[data-experience-projects]');
-    const wasOpen = item.classList.contains('is-open');
+    if (item.classList.contains('is-open') === open) return;
     if (!open && panel && panel.contains(document.activeElement)) {
       // 面板里还有焦点时不能直接 inert：焦点会掉到 body，键盘与读屏用户当场丢失位置。
       // 先把焦点移回这一段的时间入口（同一段内，位置不跳），再收起。
@@ -225,61 +182,103 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
       years?.focus({ preventScroll: true });
     }
     item.classList.toggle('is-open', open);
-    if (!panel || wasOpen === open) {
-      if (panel) {
-        panel.setAttribute('aria-hidden', String(!open));
-        panel.inert = !open;
+    if (!panel) return;
+    panel.setAttribute('aria-hidden', String(!open));
+    panel.inert = !open;
+  };
+
+  const canHover = window.matchMedia('(hover: hover)').matches;
+  const experienceList = document.querySelector<HTMLElement>('.experience-list');
+  let collapseTimer = 0;
+  /** 当前展开的那一段，避免同一段重复触发展开。 */
+  let currentOpen: HTMLElement | null = null;
+
+  const cancelCollapse = () => {
+    if (!collapseTimer) return;
+    window.clearTimeout(collapseTimer);
+    collapseTimer = 0;
+  };
+
+  /** 只展开这一段，其余收起。 */
+  const openOnly = (item: HTMLElement) => {
+    experienceItems.forEach((other) => setItemOpen(other, other === item));
+  };
+
+  /** 延迟收起：为「从这一段移到另一段」留出时间，避免中途闪一下。 */
+  const scheduleCollapse = () => {
+    cancelCollapse();
+    collapseTimer = window.setTimeout(() => {
+      collapseTimer = 0;
+      experienceItems.forEach((item) => {
+        // 焦点还在这一段里就别收：键盘用户正在读，鼠标只是顺带划过。
+        const zone = item.querySelector<HTMLElement>('.experience-body');
+        if (zone?.contains(document.activeElement)) return;
+        setItemOpen(item, false);
+      });
+      currentOpen = null;
+    }, COLLAPSE_DELAY);
+  };
+
+  /* 用「指针坐标 + 命中检测」判断悬停哪一段，而不是给元素绑 mouseenter/leave。
+     原因：卡片开合会把相邻经历整体推走，元素边界在指针底下移动，enter/leave 会被
+     误触发——实测切到下一段时，目标框 33ms 内就移出指针、列表底边也短暂缩到指针
+     上方，于是刚展开又被判定「离开」而收起。按坐标命中只看指针压在谁身上，
+     布局怎么动都不影响判断；而且只有指针真的移动才重算，静止时状态不会被动画带跑。 */
+  let hoverPoint: { x: number; y: number } | null = null;
+  let hoverFrame = 0;
+
+  const updateHoverState = () => {
+    hoverFrame = 0;
+    if (!hoverPoint) return;
+    const target = document.elementFromPoint(hoverPoint.x, hoverPoint.y);
+
+    // 1) 压在内容区上：展开这一段。
+    const body = target instanceof Element ? target.closest<HTMLElement>('.experience-body') : null;
+    if (body && experienceList?.contains(body)) {
+      cancelCollapse();
+      const item = body.closest<HTMLElement>('[data-experience]');
+      if (item && item !== currentOpen) {
+        currentOpen = item;
+        openOnly(item);
       }
       return;
     }
-    panel.setAttribute('aria-hidden', String(!open));
-    panel.inert = !open;
-    if (!compensate) return;
-    const inner = panel.querySelector<HTMLElement>('.experience-projects-inner');
-    if (!inner) return;
-    // 只有面板整块位于视口上方时才补偿：那时开合过程看不见，但下方内容会整体位移，
-    // 补偿能让阅读位置保持不动。面板只要还有一部分在视口内，就让它自然回流。
-    //
-    // 折叠曾经无条件补偿，导致面板明明在眼前时也会把整页往上拽——短页面上（只有一段
-    // 经历时页面刚过一屏）会直接弹回顶部，这是开合「乱跳」的根源。
-    if (panel.getBoundingClientRect().bottom > 0) return;
-    const delta = open ? inner.scrollHeight : inner.getBoundingClientRect().height;
-    if (delta > 0) tweenScrollBy(open ? delta : -delta);
+
+    // 2) 还在经历模块内，但不在内容区（时间列、条目间隙）：保持现状，不作任何反应。
+    if (target instanceof Element && experienceList?.contains(target)) {
+      cancelCollapse();
+      return;
+    }
+
+    // 3) 已经离开整个模块：收起。
+    scheduleCollapse();
   };
 
-  experienceItems.forEach((item) => {
-    const expand = () => {
-      experienceItems.forEach((other) => setItemOpen(other, other === item, true));
-    };
-    item.addEventListener('mouseenter', expand);
-    item.addEventListener('focusin', expand);
-  });
+  if (canHover) {
+    // 监听在 window 上：指针移到模块外也能收到，才能判断「离开」。
+    window.addEventListener('pointermove', (event) => {
+      hoverPoint = { x: event.clientX, y: event.clientY };
+      if (!hoverFrame) hoverFrame = window.requestAnimationFrame(updateHoverState);
+    }, { passive: true });
 
-  // 展开的优先级：指针在经历列表内时悬停优先，滚动不改变展开；指针离开（或设备无
-  // 悬停能力，如触屏）后由滚动接管——滚动停止约 250ms 后自动展开阅读线所在段落。
-  // 指针离开列表时立即折叠：展开只由当前意图（悬停或滚动接管）持有，不粘滞。
-  const canHover = window.matchMedia('(hover: hover)').matches;
-  const experienceList = document.querySelector<HTMLElement>('.experience-list');
-  let pointerInList = false;
-  let hasScrolled = false;
-  let expandTimer = 0;
-  let collapseGuardUntil = 0;
-  let lastScrollY = 0;
-
-  if (canHover && experienceList) {
-    experienceList.addEventListener('mouseenter', () => { pointerInList = true; });
-    experienceList.addEventListener('mouseleave', () => {
-      pointerInList = false;
-      experienceItems.forEach((other) => setItemOpen(other, false, true));
-      // 折叠让页面变矮，浏览器夹紧 scrollY 并派发程序性 scroll 事件（scrollY 减小）。
-      // 守卫窗口内只放行向下的滚动接管，避免「刚折叠又被夹紧事件重新展开」。
-      collapseGuardUntil = performance.now() + 600;
+    // 指针移出页面（比如去点浏览器地址栏）时没有 pointermove，单独收一下。
+    document.documentElement.addEventListener('pointerleave', () => {
+      hoverPoint = null;
+      scheduleCollapse();
     });
   }
 
-  // 键盘与指针保持对称：焦点离开整个列表时同样折叠。
-  // 之前只处理了 focusin，键盘用户 Tab 出列表后展开段会一直挂着（与鼠标行为不一致）。
-  // 这条与悬停无关（外接键盘的平板上也成立），所以不受 canHover 限制。
+  // 键盘等价于悬停：焦点进入内容区就展开这一段。
+  experienceItems.forEach((item) => {
+    const zone = item.querySelector<HTMLElement>('.experience-body');
+    zone?.addEventListener('focusin', () => {
+      cancelCollapse();
+      currentOpen = item;
+      openOnly(item);
+    });
+  });
+
+  // 焦点离开整个列表时收起，与指针离开保持一致。
   if (experienceList) {
     experienceList.addEventListener('focusout', (event) => {
       const next = event.relatedTarget as Node | null;
@@ -287,28 +286,11 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
       // relatedTarget 在点击不可聚焦元素时为 null，等一帧再确认焦点是否真的离开了列表。
       window.setTimeout(() => {
         if (experienceList.contains(document.activeElement)) return;
-        if (pointerInList) return;
-        experienceItems.forEach((item) => setItemOpen(item, false, true));
+        experienceItems.forEach((item) => setItemOpen(item, false));
+        currentOpen = null;
       }, 0);
     });
   }
-
-  const scheduleScrollExpand = (item: HTMLElement | undefined) => {
-    if (expandTimer) {
-      window.clearTimeout(expandTimer);
-      expandTimer = 0;
-    }
-    const scrollingDown = window.scrollY > lastScrollY;
-    lastScrollY = window.scrollY;
-    if (lastScrollY > 0) hasScrolled = true;
-    if (!item || !hasScrolled || pointerInList || item.classList.contains('is-open')) return;
-    if (performance.now() < collapseGuardUntil && !scrollingDown) return;
-    expandTimer = window.setTimeout(() => {
-      expandTimer = 0;
-      if (pointerInList) return;
-      experienceItems.forEach((other) => setItemOpen(other, other === item));
-    }, 250);
-  };
 
   // 时间线同时承担阅读定位：当前任职与视口内经历使用不同状态。
   // 青碧水流沿轨道随滚动以阅读线连续跟随：水位前端始终指向阅读线所在位置，
@@ -354,7 +336,6 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
     const atPageEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
     if (atPageEnd) next = experienceItems.at(-1);
 
-    scheduleScrollExpand(next);
     updateExperienceFlow(atPageEnd);
     if (!next || next === activeItem) return;
 
