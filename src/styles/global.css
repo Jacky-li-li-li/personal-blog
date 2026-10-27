@@ -2961,8 +2961,6 @@ footer nav {
   z-index: 1;
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
   padding: 12px 14px 13px;
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   border-top: 1px solid var(--line);
@@ -2975,12 +2973,6 @@ footer nav {
   line-height: 1.2;
   letter-spacing: -0.01em;
   color: var(--ink);
-}
-
-.home-gate-sub {
-  color: var(--muted);
-  font-size: 12.5px;
-  letter-spacing: 0.02em;
 }
 
 @media (hover: hover) and (pointer: fine) {
