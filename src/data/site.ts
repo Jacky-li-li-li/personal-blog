@@ -16,8 +16,8 @@ export const site = {
   intro:
     '嗨，中文名叫李连硕，24 届本科 211 毕业（哪不重要，重要的是实在不喜欢搞学术），总天真地认为实践出真知。巧合的是，24 年 AI 爆发——像是遇到了启蒙导师，让我有方向、有激情、有目标地致力于把<strong>用户最佳体验与 AI Agent</strong>相结合，把产品落地到真实用户场景和业务流程中，实现双倍+的价值产出。还在路上……',
   email,
-  /* 头像下方的身份标签（仅英文，Striper 无中文字形），可继续追加 */
-  tags: ['ISTJ', 'AI PM', 'AI Building'],
+  /* 头像下方的身份标签（Striper 无中文字形时回退系统字体），可继续追加 */
+  tags: ['ISTJ', 'AI PM', 'AI Building', '好奇心'],
   socials: [
     { label: 'GitHub', href: 'https://github.com/Jacky-li-li-li', icon: 'github' },
     { label: 'Email', href: `mailto:${email}`, icon: 'mail' },
