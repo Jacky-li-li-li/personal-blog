@@ -26,7 +26,7 @@ export const experiences: Experience[] = [
     id: 'anker-adt',
     start: '2024',
     end: 'present',
-    role: '产品经理',
+    role: 'AI Agent 产品经理',
     org: '安克创新',
     department: '最佳体验 ADT',
     logo: '/images/anker-logo.png',
@@ -34,7 +34,8 @@ export const experiences: Experience[] = [
     logoHover: '/images/anker-logo-mist-bice.png',
     website: 'https://www.anker.com.cn/',
     summary:
-      '负责体验域 AI 产品从 0 到 1：把用户调研、VOC 洞察与体验标准做成可验收、可复用的 Agent 产品。',
-    projects: ['virtual-interview', 'voc-agent', 'bees', 'bec'],
+      '以用户最佳体验为中心，用 Agent、Skill、Spec、Eval 与「七步工作法」，把能力做成可评测、可上线、可被业务团队和用户持续使用的产品。更快定位体验问题，并用 Agent 规模化验证与交付改进。',
+    awards: ['安克新星', '2025–2026 连续晋升', '2025 极致先锋团队'],
+    projects: ['virtual-interview', 'voc-agent', 'bees', 'bec', 'voc-labeling'],
   },
 ];

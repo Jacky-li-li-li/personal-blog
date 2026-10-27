@@ -16,34 +16,42 @@ export type Project = {
 export const projects: Project[] = [
   {
     id: 'virtual-interview',
-    name: '虚拟用户访谈',
+    name: '虚拟用户访谈 Agent 平台',
     summary:
-      '用虚拟用户 Agent 替代高成本真人调研，跑通场景识别、访谈执行到结论验收的完整流程。',
-    outcomes: ['单次调研 5 万 → 3 千', '周期 2–4 周 → 约 2 天', '上线首月 39 份有效报告'],
-    tags: ['AI Agent', '用户研究', '0→1'],
+      '搭可编排的虚拟用户访谈 Harness，用 pi + Skill/MCP 跑访谈与洞察，关键节点保留人在环。',
+    outcomes: ['访谈周期从周级压到小时级', '同一套流程可复用到多品类研究'],
+    tags: ['Harness', 'pi', 'Skill', 'MCP', '人在环'],
   },
   {
     id: 'voc-agent',
-    name: 'VOC 洞察 Agent',
+    name: 'VOC 洞察',
     summary:
-      '按 PA / AA / CA 分层定义公司级多 Agent 规格与编排，把依赖个人经验的 VOC 洞察变成可验收、可复用的流程 Agent。',
-    outcomes: ['统筹 4 PA + 35 AA', '年运行约 2,000 次', '单次 4–5 天 → 约 1 小时'],
-    tags: ['Multi Agent', 'Spec', '流程编排'],
+      'Multi-Agent + Spec/RPAC 把海量 VOC 拆成可执行洞察，输出 PA / AA / CA 级结论。',
+    outcomes: ['洞察从「看过」变成「能排期」', '跨团队对齐成本明显下降'],
+    tags: ['Multi-Agent', 'Spec', 'RPAC', 'PA·AA·CA'],
   },
   {
     id: 'bees',
-    name: 'BEES 体验数据系统',
+    name: 'BEES',
     summary:
-      '全链路 VOC 与品质闭环平台，围绕问题识别、归因、处置、验证、沉淀，把体验问题真正推进到 Owner 解决。',
-    outcomes: ['117 万+ 已打标 VOC', '覆盖 15 个数据源 / 232 个品牌'],
-    tags: ['数据产品', 'VOC', '0→1'],
+      'VOC 链路全场景智能化——收集 → 详细归因 → 问题分发 → 闭环；闭环结果回流打标与模型，形成「反馈—归因—分发—解决—再训练」的数据飞轮。',
+    outcomes: ['每条反馈可追因、可分发、可闭环', '飞轮越转越准，少靠人工二次对齐'],
+    tags: ['Vibe Coding', 'Skill', 'VOC', '归因分析', '问题分发', '闭环', '数据飞轮'],
   },
   {
     id: 'bec',
-    name: 'BEC 最佳体验目录',
+    name: 'BEC Skill 化',
     summary:
-      '把「用户最理想体验」做成跨软硬件的品类标准目录，统一体验语言、指导设计与测评，并生成 Agent 让人人都能查。',
-    outcomes: ['覆盖 17 个品类', '沉淀 448 条体验增量认知'],
-    tags: ['方法论', '体验标准', 'Agent'],
+      '把 BEC（能力目录 / 旅程 / Agent 能力）拆成可组合 Skill，而不是一次性文档。',
+    outcomes: ['能力可检索、可拼装、可交给 Agent 执行', '新人上手成本下降'],
+    tags: ['Skill', 'BEC', '能力目录', '旅程', 'Agent'],
+  },
+  {
+    id: 'voc-labeling',
+    name: 'VOC 打标',
+    summary:
+      'Dify Workflow 建打标流水线，配金标与 Bad Case Eval，持续校准标签质量。',
+    outcomes: ['打标一致性可量化', 'Bad Case 能回流改规则，而不是一次性上线'],
+    tags: ['Dify', 'Workflow', '金标', 'Bad Case', 'Eval'],
   },
 ];

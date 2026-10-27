@@ -1368,12 +1368,13 @@ html[data-theme="dark"] .experience-logo-reverse {
 
 .experience-summary {
   display: block;
-  max-width: 620px;
+  max-width: 720px;
   margin-top: 7px;
   color: var(--muted);
   font-size: 15px;
   line-height: 1.75;
-  text-wrap: pretty;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 /* 项目入口：简介下方单一的青碧文字与箭头，不与简介之间画分割线。 */
