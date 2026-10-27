@@ -1498,19 +1498,20 @@ html[data-theme="dark"] .experience-logo-reverse {
 }
 
 .experience-project-summary {
-  max-width: 620px;
+  max-width: none;
   margin: 8px 0 0;
   color: var(--muted);
   font-size: 14.5px;
   line-height: 1.7;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .experience-outcomes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 24px;
+  display: grid;
+  gap: 8px;
   margin: 12px 0 0;
-  padding: 0;
+  padding: 0 0 0 16px;
   color: var(--accent-ink);
   font-size: 13px;
   font-weight: 500;
@@ -1522,15 +1523,15 @@ html[data-theme="dark"] .experience-logo-reverse {
   position: relative;
 }
 
-.experience-outcomes li + li::before {
+.experience-outcomes li::before {
   content: "";
   position: absolute;
-  top: 0.7em;
-  left: -13px;
-  width: 3px;
-  height: 3px;
+  top: 0.55em;
+  left: -16px;
+  width: 5.5px;
+  height: 5.5px;
   border-radius: 50%;
-  background: var(--line-strong);
+  background: color-mix(in srgb, var(--accent) 55%, transparent);
 }
 
 .experience-project-link {
@@ -2286,27 +2287,6 @@ footer nav {
 
   .experience-project-meta .tags {
     justify-content: flex-start;
-  }
-
-  .experience-outcomes {
-    display: grid;
-    gap: 6px;
-    padding-left: 13px;
-  }
-
-  .experience-outcomes li + li::before {
-    left: -12px;
-  }
-
-  .experience-outcomes li::before {
-    content: "";
-    position: absolute;
-    top: 0.7em;
-    left: -12px;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: var(--line-strong);
   }
 
   .recent {
