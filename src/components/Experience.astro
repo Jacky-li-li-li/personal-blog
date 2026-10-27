@@ -192,8 +192,12 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
   let collapseTimer = 0;
   /** 当前展开的那一段，避免同一段重复触发展开。 */
   let currentOpen: HTMLElement | null = null;
+  /** 收起被暂缓：等滚回安全位置再收，避免把视野整体拽走。 */
+  let collapsePending = false;
 
   const cancelCollapse = () => {
+    // 指针回到模块内（或又展开了一段）就作废之前暂缓的收起。
+    collapsePending = false;
     if (!collapseTimer) return;
     window.clearTimeout(collapseTimer);
     collapseTimer = 0;
@@ -201,7 +205,47 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
 
   /** 只展开这一段，其余收起。 */
   const openOnly = (item: HTMLElement) => {
+    collapsePending = false;
     experienceItems.forEach((other) => setItemOpen(other, other === item));
+  };
+
+  /**
+   * 收起这一段会不会把视野整体拽走。
+   *
+   * 面板有 1000px 高，而收起后的页面往往比视口长不了多少：如果用户已经滚到只有
+   * 展开状态下才到得了的位置，收起后浏览器只能把 scrollY 夹紧，整屏内容会突然
+   * 下移几百像素（实测 406px），这就是「自动折叠时页面跳动」的来源。
+   */
+  const collapseWouldJump = (item: HTMLElement): boolean => {
+    const panel = item.querySelector<HTMLElement>('[data-experience-projects]');
+    if (!panel) return false;
+    const panelHeight = panel.getBoundingClientRect().height;
+    if (panelHeight <= 0) return false;
+    const docAfter = document.documentElement.scrollHeight - panelHeight;
+    const maxScrollAfter = Math.max(0, docAfter - window.innerHeight);
+    return window.scrollY > maxScrollAfter + 4;
+  };
+
+  /**
+   * 收起所有展开段，但会跳过两种不该收的情况：
+   * 1. 焦点还在这一段里——键盘用户正在读，鼠标只是顺带划过；
+   * 2. 收起会把视野整体拽走——此时先不收，等滚回安全位置（见 scroll 监听）。
+   * 鼠标离开与焦点移出都走这里，保证两条路径表现一致。
+   */
+  const collapseItems = () => {
+    let deferred = false;
+    experienceItems.forEach((item) => {
+      if (!item.classList.contains('is-open')) return;
+      const zone = item.querySelector<HTMLElement>('.experience-body');
+      if (zone?.contains(document.activeElement)) return;
+      if (collapseWouldJump(item)) {
+        deferred = true;
+        return;
+      }
+      setItemOpen(item, false);
+    });
+    if (!deferred) currentOpen = null;
+    collapsePending = deferred;
   };
 
   /** 延迟收起：为「从这一段移到另一段」留出时间，避免中途闪一下。 */
@@ -209,13 +253,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
     cancelCollapse();
     collapseTimer = window.setTimeout(() => {
       collapseTimer = 0;
-      experienceItems.forEach((item) => {
-        // 焦点还在这一段里就别收：键盘用户正在读，鼠标只是顺带划过。
-        const zone = item.querySelector<HTMLElement>('.experience-body');
-        if (zone?.contains(document.activeElement)) return;
-        setItemOpen(item, false);
-      });
-      currentOpen = null;
+      collapseItems();
     }, COLLAPSE_DELAY);
   };
 
@@ -268,6 +306,13 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
     });
   }
 
+  // 深度滚动时被暂缓的收起：滚回不会拽动视野的位置后补上。
+  // 只负责「收」，不会因为滚动而展开，页面依然不会自行伸缩。
+  window.addEventListener('scroll', () => {
+    if (!collapsePending) return;
+    scheduleCollapse();
+  }, { passive: true });
+
   // 键盘等价于悬停：焦点进入内容区就展开这一段。
   experienceItems.forEach((item) => {
     const zone = item.querySelector<HTMLElement>('.experience-body');
@@ -286,8 +331,7 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
       // relatedTarget 在点击不可聚焦元素时为 null，等一帧再确认焦点是否真的离开了列表。
       window.setTimeout(() => {
         if (experienceList.contains(document.activeElement)) return;
-        experienceItems.forEach((item) => setItemOpen(item, false));
-        currentOpen = null;
+        collapseItems();
       }, 0);
     });
   }
