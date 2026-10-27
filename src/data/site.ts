@@ -21,8 +21,8 @@ export const site = {
   socials: [
     { label: 'GitHub', href: 'https://github.com/Jacky-li-li-li', icon: 'github' },
     { label: 'Email', href: `mailto:${email}`, icon: 'mail' },
-    { label: '飞书', href: 'https://www.feishu.cn/invitation/page/add_contact/?token=b42nc543-2547-467b-8a3b-d73db71acce1&unique_id=QZ0ppaN5dLmMdgcZOM08SA==', icon: 'feishu' },
     { label: 'X', href: 'https://x.com/Jackyli05', icon: 'x' },
+    { label: '飞书', href: 'https://www.feishu.cn/invitation/page/add_contact/?token=b42nc543-2547-467b-8a3b-d73db71acce1&unique_id=QZ0ppaN5dLmMdgcZOM08SA==', icon: 'feishu' },
   ],
   siteUrl: (import.meta.env.SITE ?? 'https://example.com').replace(/\/$/, ''),
   ogImage: '/og-default.png',

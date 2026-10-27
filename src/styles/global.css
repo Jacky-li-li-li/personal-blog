@@ -808,12 +808,12 @@ html[data-theme="dark"] .icon-moon {
   row-gap: 0;
 }
 
-/* 左栏：头像 + 联系方式，整体靠左，并相对右栏姓名 + 简介整体垂直居中 */
+/* 左栏：头像 + 联系方式，水平居中对齐，并相对右栏姓名 + 简介整体垂直居中 */
 .profile-id {
   grid-area: id;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   align-self: center;
   gap: var(--space-6);
 }
@@ -924,9 +924,9 @@ html[data-theme="dark"] .icon-moon {
 .socials {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: var(--space-3);
-  margin-left: -12px;
+  margin-left: 0;
 }
 
 .social-link {
