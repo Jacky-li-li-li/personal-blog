@@ -166,9 +166,11 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
   const flow = document.querySelector<HTMLElement>('[data-experience-flow]');
 
   /* ---------- 开合交互 ----------
-     只有指针落在某段经历的「内容区」（.experience-body）时才展开该段、收起其余；
-     左侧时间列（年份与轨道）不参与判定：悬停它既不展开，也不会收起已经展开的段落。
-     滚动不再参与开合：页面不会自行伸缩，位置完全由指针决定。
+     桌面（精细指针 + hover）：只有指针落在某段经历的「内容区」（.experience-body）
+     时才展开该段、收起其余；左侧时间列不参与判定。指针离开内容区即折叠。
+     触屏 / 无精细悬停：展开态由用户点按持有——点内容区切换开合，滚动绝不改开合，
+     避免手指滑动时 elementFromPoint 命中随布局跳动而展开↔折叠死循环。
+     判定仍用指针坐标 + 命中检测（仅鼠标/笔），不用元素的 mouseenter/leave。
   */
   const COLLAPSE_DELAY = 80; // 指针离开后稍等再收：从一段移到另一段时不会闪一下
 
@@ -198,9 +200,14 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
     if (!panel) return;
     panel.setAttribute('aria-hidden', String(!open));
     panel.inert = !open;
+    const toggle = item.querySelector<HTMLElement>('.experience-toggle');
+    toggle?.setAttribute('aria-expanded', String(open));
   };
 
-  const canHover = window.matchMedia('(hover: hover)').matches;
+  // 与项目预览一致：必须同时具备 hover 与精细指针，才走悬停开合。
+  // 只看 (hover: hover) 会在部分触屏/混合设备上为 true，手指滑动时 pointermove
+  // 仍在派发，elementFromPoint 随面板高度变化命中不同段落 → 展开↔折叠振荡。
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const experienceList = document.querySelector<HTMLElement>('.experience-list');
   let collapseTimer = 0;
   /** 当前展开的那一段，避免同一段重复触发展开。 */
@@ -273,7 +280,9 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
 
   if (canHover) {
     // 监听在 window 上：指针移到模块外也能收到，才能判断「离开」。
+    // 显式忽略 touch：混合设备上触控滑动绝不能驱动悬停开合。
     window.addEventListener('pointermove', (event) => {
+      if (event.pointerType === 'touch') return;
       hoverPoint = { x: event.clientX, y: event.clientY };
       if (!hoverFrame) hoverFrame = window.requestAnimationFrame(updateHoverState);
     }, { passive: true });
@@ -283,20 +292,52 @@ const projectMap = new Map(projects.map((project) => [project.id, project]));
       hoverPoint = null;
       scheduleCollapse();
     });
+  } else {
+    // 触屏：点按内容区切换；点外链（公司 logo）不抢切换。滚动不改开合。
+    // 不给整块 toggle 加 role=button：里面还有官网链接，避免嵌套可交互控件。
+    experienceItems.forEach((item) => {
+      const panel = item.querySelector<HTMLElement>('[data-experience-projects]');
+      if (!panel) return;
+      const toggle = item.querySelector<HTMLElement>('.experience-toggle');
+      if (!toggle) return;
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.dataset.tapToggle = 'true';
+
+      const toggleOpen = () => {
+        cancelCollapse();
+        if (item === currentOpen && item.classList.contains('is-open')) {
+          setItemOpen(item, false);
+          currentOpen = null;
+          return;
+        }
+        currentOpen = item;
+        openOnly(item);
+      };
+
+      toggle.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target instanceof Element && target.closest('a[href]')) return;
+        event.preventDefault();
+        toggleOpen();
+      });
+    });
   }
 
-  // 键盘等价于悬停：焦点进入内容区就展开这一段。
+  // 键盘等价于悬停：焦点进入内容区就展开这一段（桌面）；触屏点按已自管开合，
+  // 仍允许外接键盘 focusin 展开，但不在 focusout 时自动收——避免滚动/点按丢焦点后抖动。
   experienceItems.forEach((item) => {
     const zone = item.querySelector<HTMLElement>('.experience-body');
     zone?.addEventListener('focusin', () => {
+      if (!item.querySelector('[data-experience-projects]')) return;
       cancelCollapse();
       currentOpen = item;
       openOnly(item);
     });
   });
 
-  // 焦点离开整个列表时收起，与指针离开保持一致。
-  if (experienceList) {
+  // 仅桌面悬停模式：焦点离开整个列表时收起，与指针离开保持一致。
+  // 触屏模式开合由点按持有，focusout 不得折叠，否则滚一会儿就反复开合。
+  if (canHover && experienceList) {
     experienceList.addEventListener('focusout', (event) => {
       const next = event.relatedTarget as Node | null;
       if (next && experienceList.contains(next)) return;
