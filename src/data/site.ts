@@ -16,24 +16,24 @@ const name: Localized = {
 };
 
 const title: Localized = {
-  zh: 'Jacky Li — AI 产品经理',
-  en: 'Jacky Li — AI Product Manager',
+  zh: 'Jacky Li — 用户向 AI 产品经理',
+  en: 'Jacky Li — User-facing AI Product Manager',
 };
 
 const description: Localized = {
-  zh: 'Jacky Li 的个人站点。AI 产品经理，专注把体验洞察做成可验收的 Agent 产品，记录做过的事和一些没地方放的思考。',
-  en: 'The personal site of Jacky Li, an AI product manager who turns experience insights into Agent products you can actually ship and measure. Notes on what I have built, and on thoughts with nowhere else to go.',
+  zh: 'Jacky Li 的个人站点。用户向 AI 产品经理：用观察、访谈与行为数据听清真实用户，把体验洞察做成可落地、可验收的 Agent 产品。',
+  en: 'The personal site of Jacky Li, a user-facing AI product manager. I listen to real users through observation, interviews and behavior data, then turn experience insights into Agent products you can ship and measure.',
 };
 
 const tagline: Localized = {
-  zh: '因为相信所以热爱！持续探索—让热爱有回响！',
-  en: 'I believe it, so I love it. Keep exploring, until the passion echoes back.',
+  zh: '听清用户，把 AI Agent 做成真正帮到人的产品。',
+  en: 'Hear users clearly, then make AI Agents into products that actually help.',
 };
 
 /* 支持行内 HTML（用于强调片段）。英文版保留同样的 <strong> 标记，两版结构需一致。 */
 const intro: Localized = {
-  zh: '嗨，中文名叫李连硕，24 届本科 211 毕业（哪不重要，重要的是实在不喜欢搞学术），总天真地认为实践出真知。巧合的是，24 年 AI 爆发——像是遇到了启蒙导师，让我有方向、有激情、有目标地致力于把<strong>用户最佳体验与 AI Agent</strong>相结合，把产品落地到真实用户场景和业务流程中，实现双倍+的价值产出。还在路上……我也想做 Toc（To C，面向 C 端用户）啊，想了解更多的用户，我们交个朋友吧～',
-  en: "Hi, I'm Lianshuo Li — Jacky for short. I graduated in 2024 from a 211 university with a bachelor's degree (the school barely matters; what really matters is that I never enjoyed academia), and I have always naively believed that practice is where real knowledge comes from. Then AI exploded in 2024, and it felt like meeting a mentor: suddenly I had direction, energy and a goal — combining <strong>the best possible user experience with AI Agents</strong>, landing products in real user scenarios and business workflows, and creating value that doubles up. I am still on the road. I would love to do Toc too — To C, building for consumers — and get to know more users. Let's be friends.",
+  zh: '嗨，中文名叫李连硕，24 届本科 211 毕业。实践让我更踏实：2024 年 AI 爆发后，我开始把<strong>用户最佳体验与 AI Agent</strong>绑在一起做产品——想接触更多真实用户，听清痛点与期望，用观察、访谈和行为数据判断价值与优先级，再推到落地与迭代。自己也是高强度 Agent 用户，特别留意异常分支、失败边界，以及「模型有没有在更多场景更深入地帮到人」。还在路上……想做 ToC，想离用户更近，我们交个朋友吧～',
+  en: "Hi, I'm Lianshuo Li — Jacky for short. I graduated in 2024 from a 211 university with a bachelor's degree. Practice is where I learn best: after AI took off in 2024, I started tying <strong>the best possible user experience to AI Agents</strong> — I want to meet more real users, hear their pain points and hopes clearly, use observation, interviews and behavior data to judge value and priority, then drive landing and iteration. I am a heavy Agent user myself, and I pay close attention to edge cases, failure boundaries, and whether a model actually helps more people, more deeply, across more scenarios. Still on the road. I want to do To C and get closer to users. Let's be friends.",
 };
 
 /**
@@ -76,7 +76,7 @@ export function getPersonJsonLd(locale: 'zh' | 'en') {
     '@type': 'Person',
     name: name[locale],
     url: site.siteUrl,
-    jobTitle: locale === 'zh' ? 'AI 产品经理' : 'AI Product Manager',
+    jobTitle: locale === 'zh' ? '用户向 AI 产品经理' : 'User-facing AI Product Manager',
     description: tagline[locale],
     email,
     sameAs: socials.filter((social) => social.href.startsWith('http')).map((social) => social.href),
