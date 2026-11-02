@@ -52,13 +52,13 @@ export const experiences: Experience[] = [
     logoHover: '/images/anker-logo-mist-bice.png',
     website: 'https://www.anker.com.cn/',
     summary: {
-      zh: '负责 AI 产品体验与交付闭环：从业务目标和用户场景出发，判断场景优先级与最佳产品方案，平衡用户体验、技术可行性和交付成本；将 Agent、Skill、Spec、Eval 融入产品定义、评测和上线流程，推动 AI 能力产品化、标准化和可规模化复用；建立用户体验问题快速定位与 Agent 规模化验证机制，持续交付改进，提升业务采用率和用户满意度',
-      en: "Own the full loop from AI product experience to delivery: starting from business goals and user scenarios, I set scenario priority and the best product approach, balancing user experience, technical feasibility and delivery cost. I embed Agent, Skill, Spec and Eval into product definition, evaluation and release, turning AI capabilities into productized, standardized and reusable assets. I also built mechanisms for fast root-causing of experience issues and large-scale Agent validation, shipping improvements continuously to raise business adoption and user satisfaction.",
+      zh: '做用户向的 AI 产品：靠真实任务观察、用户访谈与行为数据洞察需求，判断场景价值与优先级并推路线图；与工程、业务一起把 Agent / Skill / Spec / Eval 写进产品定义与验收，盯异常分支与失败边界，用金标、Bad Case 和反馈闭环降门槛、提体验；持续跟踪真实场景采用，让 AI 在更多场景更深入地帮到更多人',
+      en: "I build user-facing AI products: discover needs through real-task observation, user interviews and behavior data; judge scenario value and priority, then push the roadmap. With engineering and business partners I bake Agent, Skill, Spec and Eval into product definition and acceptance — watching edge cases and failure boundaries, using golden sets, Bad Case loops and feedback to lower the barrier and raise experience. I keep tracking real-scenario adoption so AI helps more people, more deeply, across more scenarios.",
     },
     awards: {
       zh: ['安克新星', '2025–2026 连续晋升', '2025 极致先锋团队'],
       en: ['Anker Rising Star', 'Promoted twice in 2025–2026', '2025 Ultimate Pioneer Team'],
     },
-    projects: ['virtual-interview', 'voc-agent', 'bees', 'bec', 'voc-labeling'],
+    projects: ['virtual-interview', 'bec', 'bees', 'voc-agent', 'voc-labeling'],
   },
 ];

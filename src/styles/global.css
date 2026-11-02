@@ -1326,11 +1326,16 @@ html[data-theme="dark"] .icon-moon {
   line-height: inherit;
 }
 
-/* 展开由悬停与键盘聚焦驱动，整块经历区域是悬停敏感区，无点击交互。 */
+/* 桌面：悬停 / 键盘聚焦开合。触屏：脚本给 [data-tap-toggle] 绑点按切换。 */
 .experience-toggle {
   display: block;
   width: 100%;
   text-align: left;
+}
+
+.experience-toggle[data-tap-toggle] {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* 主次层级：首行左侧为公司 logo（素材已裁切左右安全留白，首字母与正文左缘对齐；缺官方 logo 时回退公司名文本），

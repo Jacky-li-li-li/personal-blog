@@ -149,15 +149,15 @@ const ZH: UiStrings = {
   about: {
     title: 'About',
     description:
-      '李连硕（Jacky Li），AI 产品经理。2024 年加入安克创新，负责体验域 AI 产品从 0 到 1：虚拟用户访谈、VOC 洞察 Agent、BEES 体验数据系统与 BEC 最佳体验目录。',
+      '李连硕（Jacky Li），用户向 AI 产品经理。用观察、访谈与行为数据听清真实用户，在安克创新把体验洞察做成可落地、可验收的 Agent 产品：虚拟用户访谈、用研 Skill 化、VOC 数据平台、洞察助手与打标评测。',
   },
   work: {
     title: 'Work',
     label: 'Work',
     heading: '经历',
-    lede: '从用户最佳体验出发，把 AI 做成真正可用的产品。',
+    lede: '从真实用户场景出发：洞察需求、排优先级、定义验收，再把 AI Agent 落到可感知的体验上。',
     description:
-      '李连硕（Jacky Li）的工作经历与代表项目：虚拟用户访谈 Agent 平台、VOC 洞察、BEES、BEC Skill 化与 VOC 打标。',
+      '李连硕（Jacky Li）的工作经历与代表项目：虚拟用户访谈、用研方法论 Skill 化、VOC 数据平台、VOC 洞察 Agent 与打标评测闭环。',
     experienceLabel: 'Experience',
     present: '现在',
     jumpTo: (org) => `跳到 ${org} 的经历`,
@@ -238,15 +238,15 @@ const EN: UiStrings = {
   about: {
     title: 'About',
     description:
-      'Lianshuo Li (Jacky Li) is an AI product manager. He joined Anker Innovations in 2024 and has led experience-domain AI products from zero to one: virtual user interviews, a VOC insight agent, the BEES experience data system and the BEC best-experience catalogue.',
+      'Lianshuo Li (Jacky Li) is a user-facing AI product manager. He listens to real users through observation, interviews and behavior data, and at Anker Innovations turns experience insights into Agent products you can ship and measure: virtual interviews, research Skills, a VOC data platform, an insight assistant and a labeling Eval loop.',
   },
   work: {
     title: 'Work',
     label: 'Work',
     heading: 'Experience',
-    lede: 'Turning AI into products people can actually use, starting from the best possible user experience.',
+    lede: 'Start from real user scenarios: discover needs, set priority, define acceptance — then land AI Agents as experiences people can feel.',
     description:
-      'Work history and selected projects of Lianshuo Li (Jacky Li): a virtual user interview agent platform, VOC insights, BEES, BEC skill-ification and VOC labelling.',
+      'Work history and selected projects of Lianshuo Li (Jacky Li): virtual user interviews, research methodology as Skills, a VOC data platform, a VOC insight Agent and a labeling Eval loop.',
     experienceLabel: 'Experience',
     present: 'Present',
     jumpTo: (org) => `Jump to experience at ${org}`,
